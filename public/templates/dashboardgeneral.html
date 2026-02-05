@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dashboard de Cobranza Administrador</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Manrope -->
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#135bec",
+              "background-light": "#f6f6f8",
+              "background-dark": "#101622",
+            },
+            fontFamily: {
+              "display": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#0d121b] dark:text-white transition-colors duration-300">
+<div class="flex h-screen overflow-hidden">
+
+
+<!-- Side Navigation -->
+<aside class="w-64 flex-shrink-0 flex flex-col border-r border-[#e7ebf3] dark:border-gray-800 bg-white dark:bg-[#161b2a]">
+<div class="p-6 flex items-center gap-3">
+<div class="bg-primary p-2 rounded-lg">
+<span class="material-symbols-outlined text-white text-2xl">account_balance</span>
+</div>
+<div>
+<h1 class="text-lg font-bold leading-tight tracking-tight">FinanzaPro</h1>
+<p class="text-xs text-[#4c669a] font-medium uppercase tracking-wider">Sistema Cobranza</p>
+</div>
+</div>
+<nav class="flex-1 px-4 py-4 space-y-1">
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary text-white shadow-sm">
+<span class="material-symbols-outlined">dashboard</span>
+<p class="text-sm font-semibold">Dashboard</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#4c669a] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
+<span class="material-symbols-outlined">group</span>
+<p class="text-sm font-medium">Clientes</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#4c669a] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
+<span class="material-symbols-outlined">receipt_long</span>
+<p class="text-sm font-medium">Facturas</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#4c669a] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
+<span class="material-symbols-outlined">bar_chart</span>
+<p class="text-sm font-medium">Reportes</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#4c669a] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
+<span class="material-symbols-outlined">credit_score</span>
+<p class="text-sm font-medium">Pagos</p>
+</div>
+</nav>
+<div class="p-4 border-t border-[#e7ebf3] dark:border-gray-800">
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#4c669a] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer mb-2">
+<span class="material-symbols-outlined">settings</span>
+<p class="text-sm font-medium">Configuración</p>
+</div>
+<div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+<div class="h-10 w-10 rounded-full bg-cover bg-center" data-alt="Avatar of the collection administrator user" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAu7fnWsI12j3WfSuURwXMSLf9bk7aQjoWQUsClgvTY2NGcmdUh__KkaLtrS7gAmWCkXNwuLZBhhSh58LBzcViF5HS99JxMDKW0Dnq3ayd-marc5ojFz8cLB0B7UYA1R2qMjlSCNtAknX48CDfDeV5EqinyU0DxhkrL-T68gjB_bV_sTfYi-Sv43I9ZL035jUMu6Ho7U7J0azYQ_WQ6EyMpO6FHJIuszDJRR-LxzrpfK4zcgcFRaichd0k7SRfxfujVbkraxmGj_txd")'></div>
+<div class="flex-1 overflow-hidden">
+<p class="text-sm font-bold truncate">Roberto García</p>
+<p class="text-xs text-[#4c669a] truncate">Admin Senior</p>
+</div>
+<span class="material-symbols-outlined text-gray-400 text-sm cursor-pointer">logout</span>
+</div>
+</div>
+</aside>
+
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-10 flex items-center justify-between bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-[#e7ebf3] dark:border-gray-800 px-8 py-4">
+<div class="flex items-center gap-4 flex-1">
+<h2 class="text-xl font-bold tracking-tight">Dashboard General</h2>
+<div class="h-6 w-[1px] bg-gray-300 dark:bg-gray-700 mx-2"></div>
+<label class="relative w-full max-w-md">
+<span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</span>
+<input class="w-full bg-[#f0f2f5] dark:bg-gray-800 border-none rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-gray-500" placeholder="Buscar clientes, facturas o ID de pago..." type="text"/>
+</label>
+</div>
+<div class="flex items-center gap-4">
+<button class="relative p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2.5 h-2 w-2 bg-red-500 rounded-full border-2 border-white dark:border-background-dark"></span>
+</button>
+<button class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg shadow-primary/20 hover:opacity-90 transition-all">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                        Nueva Factura
+                    </button>
+</div>
+</header>
+
+<div class="p-8">
+<!-- KPI Section -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<div class="bg-white dark:bg-[#161b2a] p-6 rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
+<div class="flex items-center justify-between mb-4">
+<span class="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-lg material-symbols-outlined">account_balance_wallet</span>
+<span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full dark:bg-green-900/20">+12%</span>
+</div>
+<p class="text-sm font-medium text-[#4c669a] mb-1">Total por cobrar</p>
+<p class="text-2xl font-extrabold">$1,250,000</p>
+</div>
+<div class="bg-white dark:bg-[#161b2a] p-6 rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
+<div class="flex items-center justify-between mb-4">
+<span class="p-2 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-lg material-symbols-outlined">event_busy</span>
+<span class="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded-full dark:bg-red-900/20">-5%</span>
+</div>
+<p class="text-sm font-medium text-[#4c669a] mb-1">Cartera Vencida</p>
+<p class="text-2xl font-extrabold text-red-600">$320,000</p>
+</div>
+<div class="bg-white dark:bg-[#161b2a] p-6 rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
+<div class="flex items-center justify-between mb-4">
+<span class="p-2 bg-green-50 dark:bg-green-900/20 text-green-600 rounded-lg material-symbols-outlined">check_circle</span>
+<span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full dark:bg-green-900/20">+18%</span>
+</div>
+<p class="text-sm font-medium text-[#4c669a] mb-1">Recuperado (Mes)</p>
+<p class="text-2xl font-extrabold">$845,000</p>
+</div>
+<div class="bg-white dark:bg-[#161b2a] p-6 rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
+<div class="flex items-center justify-between mb-4">
+<span class="p-2 bg-orange-50 dark:bg-orange-900/20 text-orange-600 rounded-lg material-symbols-outlined">schedule</span>
+<span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full dark:bg-green-900/20">-2 d</span>
+</div>
+<p class="text-sm font-medium text-[#4c669a] mb-1">Promedio de pago</p>
+<p class="text-2xl font-extrabold">24 días</p>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Monthly Collection Chart Card -->
+<div class="lg:col-span-2 bg-white dark:bg-[#161b2a] rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm p-6">
+<div class="flex items-center justify-between mb-8">
+<div>
+<h3 class="text-lg font-bold">Cobranza Mensual</h3>
+<p class="text-sm text-[#4c669a]">Desempeño de recuperación fiscal 2024</p>
+</div>
+<div class="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+<button class="px-3 py-1.5 text-xs font-bold bg-white dark:bg-gray-700 rounded-md shadow-sm">6 Meses</button>
+<button class="px-3 py-1.5 text-xs font-bold text-[#4c669a]">12 Meses</button>
+</div>
+</div>
+<div class="relative h-[300px] flex items-end justify-around gap-2 pb-6 border-b border-dashed border-gray-200 dark:border-gray-700">
+<!-- Chart Bar 1 -->
+<div class="flex flex-col items-center gap-2 w-full max-w-[50px]">
+<div class="w-full bg-primary/20 rounded-t-lg transition-all hover:bg-primary/40 cursor-pointer" style="height: 120px;"></div>
+<div class="w-full bg-primary rounded-t-lg transition-all hover:opacity-90" style="height: 180px;"></div>
+<span class="text-xs font-bold text-[#4c669a]">Ene</span>
+</div>
+<!-- Chart Bar 2 -->
+<div class="flex flex-col items-center gap-2 w-full max-w-[50px]">
+<div class="w-full bg-primary/20 rounded-t-lg transition-all hover:bg-primary/40 cursor-pointer" style="height: 100px;"></div>
+<div class="w-full bg-primary rounded-t-lg transition-all hover:opacity-90" style="height: 140px;"></div>
+<span class="text-xs font-bold text-[#4c669a]">Feb</span>
+</div>
+<!-- Chart Bar 3 -->
+<div class="flex flex-col items-center gap-2 w-full max-w-[50px]">
+<div class="w-full bg-primary/20 rounded-t-lg transition-all hover:bg-primary/40 cursor-pointer" style="height: 160px;"></div>
+<div class="w-full bg-primary rounded-t-lg transition-all hover:opacity-90" style="height: 220px;"></div>
+<span class="text-xs font-bold text-[#4c669a]">Mar</span>
+</div>
+<!-- Chart Bar 4 -->
+<div class="flex flex-col items-center gap-2 w-full max-w-[50px]">
+<div class="w-full bg-primary/20 rounded-t-lg transition-all hover:bg-primary/40 cursor-pointer" style="height: 140px;"></div>
+<div class="w-full bg-primary rounded-t-lg transition-all hover:opacity-90" style="height: 200px;"></div>
+<span class="text-xs font-bold text-[#4c669a]">Abr</span>
+</div>
+<!-- Chart Bar 5 -->
+<div class="flex flex-col items-center gap-2 w-full max-w-[50px]">
+<div class="w-full bg-primary/20 rounded-t-lg transition-all hover:bg-primary/40 cursor-pointer" style="height: 180px;"></div>
+<div class="w-full bg-primary rounded-t-lg transition-all hover:opacity-90" style="height: 260px;"></div>
+<span class="text-xs font-bold text-[#4c669a]">May</span>
+</div>
+<!-- Chart Bar 6 -->
+<div class="flex flex-col items-center gap-2 w-full max-w-[50px]">
+<div class="w-full bg-primary/20 rounded-t-lg transition-all hover:bg-primary/40 cursor-pointer" style="height: 90px;"></div>
+<div class="w-full bg-primary rounded-t-lg transition-all hover:opacity-90" style="height: 110px;"></div>
+<span class="text-xs font-bold text-[#4c669a]">Jun</span>
+</div>
+</div>
+<div class="mt-6 flex items-center justify-center gap-8">
+<div class="flex items-center gap-2">
+<span class="h-3 w-3 rounded-full bg-primary"></span>
+<span class="text-xs font-medium text-[#4c669a]">Meta Cobrada</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="h-3 w-3 rounded-full bg-primary/30"></span>
+<span class="text-xs font-medium text-[#4c669a]">Proyección</span>
+</div>
+</div>
+</div>
+<!-- Critical Alerts Sidebar -->
+<div class="lg:col-span-1 bg-white dark:bg-[#161b2a] rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm p-6 flex flex-col">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-lg font-bold">Alertas Críticas</h3>
+<span class="bg-red-100 text-red-600 dark:bg-red-900/30 text-xs font-bold px-2 py-1 rounded-lg">4 Pendientes</span>
+</div>
+<div class="flex-1 space-y-4">
+<!-- Alert Item 1 -->
+<div class="p-4 rounded-xl border border-[#e7ebf3] dark:border-gray-800 hover:border-red-200 dark:hover:border-red-900/50 transition-colors">
+<div class="flex items-start justify-between mb-2">
+<div>
+<p class="text-sm font-bold">Corporativo Global S.A.</p>
+<p class="text-xs text-[#4c669a]">Factura #F-98234</p>
+</div>
+<span class="text-red-600 font-bold text-sm">$45,200</span>
+</div>
+<div class="flex items-center justify-between mt-3">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-red-500 text-[16px]">priority_high</span>
+<span class="text-xs font-bold text-red-500">60 días vencido</span>
+</div>
+<button class="text-xs font-bold text-primary hover:underline">Gestionar</button>
+</div>
+</div>
+<!-- Alert Item 2 -->
+<div class="p-4 rounded-xl border border-[#e7ebf3] dark:border-gray-800 hover:border-red-200 dark:hover:border-red-900/50 transition-colors">
+<div class="flex items-start justify-between mb-2">
+<div>
+<p class="text-sm font-bold">Llogística Express MX</p>
+<p class="text-xs text-[#4c669a]">Factura #F-98211</p>
+</div>
+<span class="text-red-600 font-bold text-sm">$12,800</span>
+</div>
+<div class="flex items-center justify-between mt-3">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-red-500 text-[16px]">priority_high</span>
+<span class="text-xs font-bold text-red-500">45 días vencido</span>
+</div>
+<button class="text-xs font-bold text-primary hover:underline">Gestionar</button>
+</div>
+</div>
+<!-- Alert Item 3 -->
+<div class="p-4 rounded-xl border border-[#e7ebf3] dark:border-gray-800 hover:border-orange-200 transition-colors">
+<div class="flex items-start justify-between mb-2">
+<div>
+<p class="text-sm font-bold">Distribuidora Norte</p>
+<p class="text-xs text-[#4c669a]">Factura #F-98305</p>
+</div>
+<span class="text-[#0d121b] dark:text-white font-bold text-sm">$8,900</span>
+</div>
+<div class="flex items-center justify-between mt-3">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-orange-500 text-[16px]">warning</span>
+<span class="text-xs font-bold text-orange-500">Pago rechazado</span>
+</div>
+<button class="text-xs font-bold text-primary hover:underline">Gestionar</button>
+</div>
+</div>
+</div>
+<button class="w-full mt-6 border-t border-[#e7ebf3] dark:border-gray-800 pt-4 text-sm font-bold text-[#4c669a] hover:text-primary transition-colors flex items-center justify-center gap-2">
+                            Ver todas las alertas
+                            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Recent Transactions / Clients Preview -->
+<div class="mt-8 bg-white dark:bg-[#161b2a] rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm overflow-hidden">
+<div class="px-6 py-5 border-b border-[#e7ebf3] dark:border-gray-800 flex items-center justify-between">
+<h3 class="text-lg font-bold">Pagos Recientes</h3>
+<button class="text-sm font-bold text-primary hover:bg-primary/5 px-3 py-1.5 rounded-lg transition-all">Exportar a PDF</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-gray-50 dark:bg-gray-800/50">
+<tr>
+<th class="px-6 py-4 text-xs font-bold text-[#4c669a] uppercase tracking-wider">Cliente</th>
+<th class="px-6 py-4 text-xs font-bold text-[#4c669a] uppercase tracking-wider">Factura</th>
+<th class="px-6 py-4 text-xs font-bold text-[#4c669a] uppercase tracking-wider">Fecha</th>
+<th class="px-6 py-4 text-xs font-bold text-[#4c669a] uppercase tracking-wider">Monto</th>
+<th class="px-6 py-4 text-xs font-bold text-[#4c669a] uppercase tracking-wider">Estado</th>
+<th class="px-6 py-4 text-xs font-bold text-[#4c669a] uppercase tracking-wider text-right">Acción</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#e7ebf3] dark:divide-gray-800">
+<tr>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center text-primary font-bold text-xs">TC</div>
+<p class="text-sm font-bold">Tech Cloud Solutions</p>
+</div>
+</td>
+<td class="px-6 py-4 text-sm font-medium">#F-98552</td>
+<td class="px-6 py-4 text-sm text-[#4c669a]">12 Oct, 2023</td>
+<td class="px-6 py-4 text-sm font-bold">$15,400.00</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">Completado</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-xs">BM</div>
+<p class="text-sm font-bold">BioMedics Lab</p>
+</div>
+</td>
+<td class="px-6 py-4 text-sm font-medium">#F-98549</td>
+<td class="px-6 py-4 text-sm text-[#4c669a]">11 Oct, 2023</td>
+<td class="px-6 py-4 text-sm font-bold">$4,250.00</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">Procesando</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-xs">AA</div>
+<p class="text-sm font-bold">Alpha Agency</p>
+</div>
+</td>
+<td class="px-6 py-4 text-sm font-medium">#F-98533</td>
+<td class="px-6 py-4 text-sm text-[#4c669a]">10 Oct, 2023</td>
+<td class="px-6 py-4 text-sm font-bold">$22,100.00</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">Completado</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+</main>
+</div>
+</body></html>
