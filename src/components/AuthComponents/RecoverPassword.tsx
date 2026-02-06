@@ -1,4 +1,4 @@
-import { useState } from "react";
+//import { useState } from "react";
 
 interface RecoverPasswordProps {
   onBackToLogin: () => void;
@@ -7,10 +7,12 @@ interface RecoverPasswordProps {
 export default function RecoverPassword({
   onBackToLogin,
 }: RecoverPasswordProps) {
-  const [email, setEmail] = useState("");
+  /*const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+
+
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -35,7 +37,7 @@ export default function RecoverPassword({
     } finally {
       setLoading(false);
     }
-  };
+  };*/
 
   return (
     <div className="bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-display transition-colors duration-300">

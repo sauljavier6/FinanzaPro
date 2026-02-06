@@ -1,6 +1,3 @@
-interface CarteraProps {
-  onSuccess: (facturaId: string) => void;
-}
 
 export default function Facturas() {
   return (

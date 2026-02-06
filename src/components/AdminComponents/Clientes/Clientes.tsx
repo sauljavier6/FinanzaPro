@@ -1,12 +1,4 @@
 export default function Clientes() {
-  const monthlyData = [
-    { label: "Ene", a: 110, b: 180 },
-    { label: "Feb", a: 100, b: 140 },
-    { label: "Mar", a: 160, b: 220 },
-    { label: "Abr", a: 140, b: 200 },
-    { label: "May", a: 180, b: 260 },
-    { label: "Jun", a: 90, b: 110 },
-  ];
 
   return (
     <div className="flex overflow-hidden">
