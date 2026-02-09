@@ -14,6 +14,16 @@ export default function Dashboar() {
     <div className="flex overflow-hidden">
       <main className="flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark">
         <div className="p-8">
+
+                    {/* ================= BIENVENIDA ================= */}
+          <div className="mb-8">
+            <h1 className="text-2xl font-extrabold mb-1">
+              Bienvenido 👋
+            </h1>
+            <p className="text-[#4c669a] text-sm">
+              Aquí puedes consultar los estado de cuenta, facturas y pagos.
+            </p>
+          </div>
           
           {/* Header */}
           <div className="flex gap-6 mb-8 overflow-x-auto flex-nowrap pb-3">

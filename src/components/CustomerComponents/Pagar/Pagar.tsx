@@ -6,27 +6,31 @@ export default function Pagar() {
   );
 
   return (
-    <div className="flex overflow-hiddenq">
+    <div className="flex overflow-hidden">
       <main className="flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark">
-        <div className="p-8">
-          <div className="flex flex-wrap gap-2 mb-6 w-full">
+        <div className="p-3 sm:p-8">
+          <nav
+            className="flex flex-wrap gap-2 mb-6 w-full text-sm font-medium"
+            aria-label="Breadcrumb"
+          >
             <a
-              className="text-primary dark:text-primary/80 text-sm font-medium"
+              className="text-primary dark:text-primary/80 hover:underline"
               href="/clientes/cuentas"
             >
               Portal de Clientes
             </a>
-            <span className="text-gray-400 text-sm font-medium">/</span>
-            <span className="text-[#0d121b] dark:text-gray-300 text-sm font-medium">
+            <span className="text-gray-400">/</span>
+            <span className="text-gray-900 dark:text-gray-300 font-semibold">
               Pasarela de Pago
             </span>
-          </div>
+          </nav>
 
-          <div className="flex flex-col gap-2">
-            <h1 className="text-[#0d121b] dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">
+          {/* Header */}
+          <div className="flex flex-col gap-1 sm:gap-2">
+            <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-[#0d121b] dark:text-white">
               Finalizar Pago
-            </h1>
-            <p className="text-gray-500 dark:text-gray-400 text-base">
+            </h2>
+            <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
               Complete los detalles para procesar su transacción de forma
               segura.
             </p>
@@ -36,61 +40,39 @@ export default function Pagar() {
             <div className="lg:col-span-2 space-y-6">
               <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
                 {/* TABS */}
-                <div className="flex border-b border-[#cfd7e7] dark:border-gray-800 px-6 gap-8 overflow-x-auto">
-                  <button
-                    onClick={() => setMetodo("tarjeta")}
-                    className={`flex flex-col items-center justify-center border-b-[3px] gap-1 pb-3 pt-4 min-w-[100px] transition-all
-                        ${
-                          metodo === "tarjeta"
-                            ? "border-primary text-primary"
-                            : "border-transparent text-gray-500 hover:text-primary"
-                        }
+                <div className="flex flex-nowrap border-b border-gray-200 dark:border-gray-800 sm:px-6 gap-4 sm:gap-6 overflow-x-auto">
+                  {[
+                    { key: "tarjeta", label: "Tarjeta", icon: "credit_card" },
+                    {
+                      key: "transferencia",
+                      label: "Transferencia SPEI",
+                      icon: "account_balance",
+                    },
+                    { key: "pse", label: "OXXO / Efectivo", icon: "language" },
+                  ].map((tab) => (
+                    <button
+                      key={tab.key}
+                      onClick={() => setMetodo(tab.key as typeof metodo)}
+                      className={`
+                      flex flex-col items-center justify-center border-b-4 gap-1 pb-3 pt-4 min-w-[80px] sm:min-w-[100px] transition-all
+                      ${
+                        metodo === tab.key
+                          ? "border-primary text-primary"
+                          : "border-transparent text-gray-500 hover:text-primary dark:hover:text-primary"
+                      }
                     `}
-                  >
-                    <span className="material-symbols-outlined">
-                      credit_card
-                    </span>
-                    <p className="text-sm font-bold tracking-[0.015em]">
-                      Tarjeta
-                    </p>
-                  </button>
-
-                  <button
-                    onClick={() => setMetodo("transferencia")}
-                    className={`flex flex-col items-center justify-center border-b-[3px] gap-1 pb-3 pt-4 min-w-[100px] transition-all
-                        ${
-                          metodo === "transferencia"
-                            ? "border-primary text-primary"
-                            : "border-transparent text-gray-500 hover:text-primary"
-                        }
-                    `}
-                  >
-                    <span className="material-symbols-outlined">
-                      account_balance
-                    </span>
-                    <p className="text-sm font-bold tracking-[0.015em]">
-                      Transferencia SPEI
-                    </p>
-                  </button>
-
-                  <button
-                    onClick={() => setMetodo("pse")}
-                    className={`flex flex-col items-center justify-center border-b-[3px] gap-1 pb-3 pt-4 min-w-[100px] transition-all
-                        ${
-                          metodo === "pse"
-                            ? "border-primary text-primary"
-                            : "border-transparent text-gray-500 hover:text-primary"
-                        }
-                    `}
-                  >
-                    <span className="material-symbols-outlined">language</span>
-                    <p className="text-sm font-bold tracking-[0.015em]">
-                      OXXO / Efectivo
-                    </p>
-                  </button>
+                    >
+                      <span className="material-symbols-outlined text-lg sm:text-xl">
+                        {tab.icon}
+                      </span>
+                      <p className="text-xs sm:text-sm font-bold tracking-tight text-center">
+                        {tab.label}
+                      </p>
+                    </button>
+                  ))}
                 </div>
 
-                {/* TARJETA */}
+                {/* TARJETA*/}
                 {metodo === "tarjeta" && (
                   <div className="p-6 space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -237,11 +219,9 @@ export default function Pagar() {
                         <label className="flex flex-col gap-2">
                           <p className="text-[#0d121b] dark:text-gray-200 text-sm font-semibold">
                             Referencia de la operación / Número de folio{" "}
-                            {/* 
                             <span className="text-gray-400 font-normal">
                               (Opcional)
                             </span>
-                            */}
                           </p>
                           <input
                             className="w-full rounded-lg text-[#0d121b] dark:text-white dark:bg-gray-800 border-[#cfd7e7] dark:border-gray-700 h-11 px-4 placeholder:text-gray-400 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
@@ -325,11 +305,9 @@ export default function Pagar() {
                         <label className="flex flex-col gap-2">
                           <p className="text-[#0d121b] dark:text-gray-200 text-sm font-semibold">
                             Referencia de la operación / Número de folio{" "}
-                            {/* 
                             <span className="text-gray-400 font-normal">
                               (Opcional)
                             </span>
-                            */}
                           </p>
                           <input
                             className="w-full rounded-lg text-[#0d121b] dark:text-white dark:bg-gray-800 border-[#cfd7e7] dark:border-gray-700 h-11 px-4 placeholder:text-gray-400 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
@@ -343,7 +321,7 @@ export default function Pagar() {
                 )}
               </div>
 
-              {/*NOTI*/}
+              {/* NOTI */}
               <div className="mt-12 bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/30 rounded-xl p-8 text-center flex flex-col items-center">
                 <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-full mb-4">
                   <span className="material-symbols-outlined text-green-600 dark:text-green-400 text-5xl">
@@ -368,6 +346,7 @@ export default function Pagar() {
               </div>
             </div>
 
+            {/* */}
             <div className="lg:col-span-1 space-y-6">
               <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800 p-6 sticky top-24">
                 <h3 className="text-lg font-bold mb-4 border-b border-gray-50 dark:border-gray-800 pb-2">
@@ -404,6 +383,7 @@ export default function Pagar() {
                   términos y condiciones y autorizas el débito de los fondos.
                 </p>
               </div>
+
               <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 flex gap-4">
                 <div className="text-primary">
                   <span className="material-symbols-outlined">info</span>

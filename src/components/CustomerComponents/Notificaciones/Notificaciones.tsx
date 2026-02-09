@@ -2,85 +2,96 @@ export default function Notificaciones() {
   return (
     <div className="flex overflow-hidden">
       <main className="flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark">
-        <div className="p-8">
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div className="p-3 sm:p-8">
+
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 md:mb-8">
             <div className="flex flex-col gap-1">
-              <h2 className="text-2xl font-extrabold tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0d121b] dark:text-white">
                 Centro de Notificaciones
               </h2>
-              <p className="text-[#4c669a] text-sm">
+              <p className="text-[#4c669a] dark:text-gray-400 text-xs sm:text-sm max-w-xl">
                 Gestiona tus avisos de cobranza y mantente al día con tus
                 compromisos.
               </p>
             </div>
-            <div className="flex gap-3">
-              <button className="flex items-center justify-center gap-2 rounded-lg h-11 px-5 bg-background-light dark:bg-gray-800 text-[#0d121b] dark:text-white text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-                <span className="material-symbols-outlined text-xl">
+
+            <div className="flex w-full md:w-auto">
+              <button className="w-full md:w-auto flex items-center justify-center gap-2 h-10 sm:h-11 px-4 sm:px-5 rounded-lg bg-background-light dark:bg-gray-800 text-[#0d121b] dark:text-white text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-700 ">
+                <span className="material-symbols-outlined text-lg sm:text-xl">
                   done_all
                 </span>
                 <span className="truncate">Marcar todo como leído</span>
               </button>
             </div>
-          </div>
+          </div> 
 
-          <div className="grid grid-cols-3 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white dark:bg-background-dark p-6 rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
-              <p className="text-[#4c669a] dark:text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">
+          {/* FACTURAS */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-6 sm:mb-8 ">
+            <div className="bg-white dark:bg-background-dark p-5 sm:p-6 rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
+              <p className="text-[#4c669a] dark:text-gray-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-2">
                 Facturas pagadas
               </p>
               <div className="flex items-end justify-between">
-                <h4 className="text-2xl font-black text-green-600 dark:text-green-400">
+                <h4 className="text-2xl sm:text-3xl font-black text-green-600 dark:text-green-400">
                   92%
                 </h4>
-                <span className="text-xs text-green-600 font-bold bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded">
+                <span className="text-[10px] sm:text-xs text-green-600 font-bold bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded">
                   +4% vs ayer
                 </span>
               </div>
             </div>
-            <div className="bg-white dark:bg-background-dark p-6 rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
-              <p className="text-[#4c669a] dark:text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">
-                Facturas Vencidas
+
+            <div className="bg-white dark:bg-background-dark p-5 sm:p-6 rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
+              <p className="text-[#4c669a] dark:text-gray-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-2">
+                Facturas vencidas
               </p>
               <div className="flex items-end justify-between">
-                <h4 className="text-2xl font-black text-amber-600 dark:text-amber-400">
+                <h4 className="text-2xl sm:text-3xl font-black text-amber-600 dark:text-amber-400">
                   14
                 </h4>
-                <span className="text-xs text-amber-600 font-bold bg-amber-50 dark:bg-amber-900/30 px-2 py-1 rounded">
+                <span className="text-[10px] sm:text-xs text-amber-600 font-bold bg-amber-50 dark:bg-amber-900/30 px-2 py-1 rounded">
                   2 críticas
                 </span>
               </div>
             </div>
-            <div className="bg-white dark:bg-background-dark p-6 rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
-              <p className="text-[#4c669a] dark:text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">
-                Acciones Pendientes
+
+            <div className="bg-white dark:bg-background-dark p-5 sm:p-6 rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
+              <p className="text-[#4c669a] dark:text-gray-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-2">
+                Acciones pendientes
               </p>
               <div className="flex items-end justify-between">
-                <h4 className="text-2xl font-black text-primary">08</h4>
-                <button className="text-xs text-primary font-bold hover:underline">
+                <h4 className="text-2xl sm:text-3xl font-black text-primary">
+                  08
+                </h4>
+                <button className="text-[10px] sm:text-xs text-primary font-bold hover:underline">
                   Ir a tareas
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 rounded-xl p-8 mb-8 shadow-sm border border-slate-200 dark:border-slate-800">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="bg-primary/10 text-primary p-2 rounded-lg">
-                <span className="material-symbols-outlined">
+          {/* Alertas */}
+          <div className="mb-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:mb-8 sm:p-6 lg:p-8 dark:border-slate-800 dark:bg-slate-900">
+            <div className="mb-5 flex items-center gap-3">
+              <div className="rounded-lg bg-primary/10 p-2 text-primary">
+                <span className="material-symbols-outlined text-xl">
                   settings_suggest
                 </span>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+              <h3 className="text-lg font-bold text-slate-900 sm:text-xl dark:text-white">
                 Preferencias de Alertas
               </h3>
             </div>
-            <div className="space-y-6">
-              <p className="text-slate-500 dark:text-slate-400 text-sm">
+
+            <div className="space-y-5 sm:space-y-6">
+              <p className="text-sm leading-relaxed text-slate-500 dark:text-slate-400">
                 Personaliza dónde y cómo prefieres recibir nuestras
                 comunicaciones de cobro.
               </p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 rounded-xl border border-slate-100 dark:border-slate-800 flex items-center justify-between hover:border-primary/30 transition-colors">
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+                <div className="flex items-center justify-between rounded-xl border border-slate-100 p-4 transition-colors hover:border-primary/30 dark:border-slate-800">
                   <div className="flex items-center gap-3">
                     <span className="material-symbols-outlined text-slate-400">
                       mail
@@ -89,13 +100,14 @@ export default function Notificaciones() {
                       Email
                     </span>
                   </div>
-                  <div className="relative inline-flex items-center cursor-pointer">
-                    <input checked className="sr-only peer" type="checkbox" />
-                    <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
-                  </div>
+
+                  <label className="relative inline-flex cursor-pointer items-center">
+                    <input checked type="checkbox" className="peer sr-only" />
+                    <div className="relative h-6 w-11 rounded-full bg-slate-200 transition-all peer-checked:bg-primary dark:bg-slate-700 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all peer-checked:after:translate-x-full"></div>
+                  </label>
                 </div>
 
-                <div className="p-4 rounded-xl border border-slate-100 dark:border-slate-800 flex items-center justify-between hover:border-primary/30 transition-colors">
+                <div className="flex items-center justify-between rounded-xl border border-slate-100 p-4 transition-colors hover:border-primary/30 dark:border-slate-800">
                   <div className="flex items-center gap-3">
                     <span className="material-symbols-outlined text-slate-400">
                       sms
@@ -104,13 +116,14 @@ export default function Notificaciones() {
                       SMS / Móvil
                     </span>
                   </div>
-                  <div className="relative inline-flex items-center cursor-pointer">
-                    <input checked className="sr-only peer" type="checkbox" />
-                    <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
-                  </div>
+
+                  <label className="relative inline-flex cursor-pointer items-center">
+                    <input checked type="checkbox" className="peer sr-only" />
+                    <div className="relative h-6 w-11 rounded-full bg-slate-200 transition-all peer-checked:bg-primary dark:bg-slate-700 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all peer-checked:after:translate-x-full"></div>
+                  </label>
                 </div>
 
-                <div className="p-4 rounded-xl border border-slate-100 dark:border-slate-800 flex items-center justify-between hover:border-primary/30 transition-colors">
+                <div className="flex items-center justify-between rounded-xl border border-slate-100 p-4 transition-colors hover:border-primary/30 dark:border-slate-800">
                   <div className="flex items-center gap-3">
                     <span className="material-symbols-outlined text-slate-400">
                       app_shortcut
@@ -119,25 +132,28 @@ export default function Notificaciones() {
                       Push App
                     </span>
                   </div>
-                  <div className="relative inline-flex items-center cursor-pointer">
-                    <input className="sr-only peer" type="checkbox" />
-                    <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
-                  </div>
+
+                  <label className="relative inline-flex cursor-pointer items-center">
+                    <input type="checkbox" className="peer sr-only" />
+                    <div className="relative h-6 w-11 rounded-full bg-slate-200 transition-all peer-checked:bg-primary dark:bg-slate-700 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all peer-checked:after:translate-x-full"></div>
+                  </label>
                 </div>
               </div>
-              <div className="flex justify-end pt-4">
-                <button className="bg-primary text-white px-8 py-2.5 rounded-lg text-sm font-bold shadow-lg shadow-primary/20 hover:brightness-110 transition-all">
+
+              <div className="flex justify-center pt-4 sm:justify-end">
+                <button className="w-full rounded-lg bg-primary px-8 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:brightness-110 sm:w-auto">
                   Guardar Cambios
                 </button>
               </div>
             </div>
           </div>
 
+          {/* Tabla */}
           <div className="mb-6 bg-white dark:bg-background-dark rounded-xl shadow-sm border border-[#e7ebf3] dark:border-gray-800 overflow-hidden">
-            <div className="flex border-b border-[#e7ebf3] dark:border-gray-800 px-4 gap-4 md:gap-8 overflow-x-auto no-scrollbar">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-8 border-b border-[#e7ebf3] dark:border-gray-800 px-2 md:px-4 py-2">
               <a
-                className="flex items-center gap-2 border-b-[3px] border-b-primary text-primary pb-4 pt-4 whitespace-nowrap"
                 href="#"
+                className="flex items-center gap-2 border-b-4 border-b-primary text-primary pb-2 pt-1 justify-center"
               >
                 <span className="material-symbols-outlined text-[20px]">
                   list_alt
@@ -147,18 +163,20 @@ export default function Notificaciones() {
                   24
                 </span>
               </a>
+
               <a
-                className="flex items-center gap-2 border-b-[3px] border-b-transparent text-[#4c669a] dark:text-gray-400 pb-4 pt-4 hover:text-[#0d121b] dark:hover:text-white whitespace-nowrap transition-colors"
                 href="#"
+                className="flex items-center gap-2 border-b-4 border-b-transparent text-[#4c669a] dark:text-gray-400 pb-2 pt-1 justify-center hover:text-[#0d121b] dark:hover:text-white transition-colors"
               >
                 <span className="material-symbols-outlined text-[20px]">
                   check_circle
                 </span>
                 <p className="text-sm font-bold tracking-[0.015em]">Pagos</p>
               </a>
+
               <a
-                className="flex items-center gap-2 border-b-[3px] border-b-transparent text-[#4c669a] dark:text-gray-400 pb-4 pt-4 hover:text-[#0d121b] dark:hover:text-white whitespace-nowrap transition-colors"
                 href="#"
+                className="flex items-center gap-2 border-b-4 border-b-transparent text-[#4c669a] dark:text-gray-400 pb-2 pt-1 justify-center hover:text-[#0d121b] dark:hover:text-white transition-colors"
               >
                 <span className="material-symbols-outlined text-[20px]">
                   event_busy
@@ -167,9 +185,10 @@ export default function Notificaciones() {
                   Vencimientos
                 </p>
               </a>
+
               <a
-                className="flex items-center gap-2 border-b-[3px] border-b-transparent text-[#4c669a] dark:text-gray-400 pb-4 pt-4 hover:text-[#0d121b] dark:hover:text-white whitespace-nowrap transition-colors"
                 href="#"
+                className="flex items-center gap-2 border-b-4 border-b-transparent text-[#4c669a] dark:text-gray-400 pb-2 pt-1 justify-center hover:text-[#0d121b] dark:hover:text-white transition-colors"
               >
                 <span className="material-symbols-outlined text-[20px]">
                   error
@@ -177,6 +196,7 @@ export default function Notificaciones() {
                 <p className="text-sm font-bold tracking-[0.015em]">Errores</p>
               </a>
             </div>
+
             <div className="flex flex-col divide-y divide-[#e7ebf3] dark:divide-gray-800">
               <div className="bg-background-light/50 dark:bg-gray-800/30 px-6 py-3">
                 <h3 className="text-[#0d121b] dark:text-white text-sm font-extrabold uppercase tracking-widest flex items-center gap-2">
@@ -185,14 +205,14 @@ export default function Notificaciones() {
                 </h3>
               </div>
 
-              <div className="group relative flex flex-col-2 md:flex-row gap-4 bg-white dark:bg-background-dark px-6 py-5 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors">
+              <div className="group flex flex-col md:flex-row gap-4 px-6 py-5 bg-white dark:bg-background-dark hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors">
                 <div className="flex items-start gap-4 flex-1">
-                  <div className="text-green-600 dark:text-green-400 flex items-center justify-center rounded-xl bg-green-50 dark:bg-green-900/30 shrink-0 size-12 border border-green-100 dark:border-green-800">
+                  <div className="flex items-center justify-center shrink-0 size-12 rounded-xl bg-green-50 dark:bg-green-900/30 border border-green-100 dark:border-green-800 text-green-600 dark:text-green-400">
                     <span className="material-symbols-outlined text-2xl">
                       check_circle
                     </span>
                   </div>
-                  <div className="flex flex-1 flex-col justify-center">
+                  <div className="flex flex-col gap-1 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="text-[#0d121b] dark:text-white text-base font-bold leading-normal">
                         Pago recibido de{" "}
@@ -204,13 +224,13 @@ export default function Notificaciones() {
                         Éxito
                       </span>
                     </div>
-                    <p className="text-[#4c669a] dark:text-gray-400 text-xs font-medium flex items-center gap-1 mt-1">
+                    <p className="text-[#4c669a] dark:text-gray-400 text-xs flex items-center gap-1">
                       <span className="material-symbols-outlined text-sm">
                         schedule
                       </span>{" "}
                       hace 5 min
                     </p>
-                    <p className="text-[#4c669a] dark:text-gray-300 text-sm font-normal mt-2 leading-relaxed">
+                    <p className="text-[#4c669a] dark:text-gray-300 text-sm leading-relaxed mt-1">
                       El abono por{" "}
                       <span className="font-bold text-[#0d121b] dark:text-white">
                         $1,500.00 USD
@@ -221,21 +241,21 @@ export default function Notificaciones() {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center shrink-0">
-                  <button className="flex items-center justify-center rounded-lg h-9 px-4 bg-primary text-white text-sm font-bold hover:bg-blue-700 transition-colors w-full md:w-fit">
-                    <span className="truncate">Ver detalle</span>
+                <div className="flex items-center shrink-0 mt-3 md:mt-0">
+                  <button className="flex justify-center items-center rounded-lg px-4 py-2 bg-primary text-white text-sm font-bold hover:bg-blue-700 w-full md:w-fit transition-colors">
+                    Ver detalle
                   </button>
                 </div>
               </div>
 
-              <div className="group relative flex flex-col-2 md:flex-row gap-4 bg-white dark:bg-background-dark px-6 py-5 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors">
+              <div className="group flex flex-col md:flex-row gap-4 px-6 py-5 bg-white dark:bg-background-dark hover:bg-amber-50/30 dark:hover:bg-amber-900/10 transition-colors">
                 <div className="flex items-start gap-4 flex-1">
-                  <div className="text-amber-600 dark:text-amber-400 flex items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-900/30 shrink-0 size-12 border border-amber-100 dark:border-amber-800">
+                  <div className="flex items-center justify-center shrink-0 size-12 rounded-xl bg-amber-50 dark:bg-amber-900/30 border border-amber-100 dark:border-amber-800 text-amber-600 dark:text-amber-400">
                     <span className="material-symbols-outlined text-2xl">
                       warning
                     </span>
                   </div>
-                  <div className="flex flex-1 flex-col justify-center">
+                  <div className="flex flex-col gap-1 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="text-[#0d121b] dark:text-white text-base font-bold leading-normal">
                         Factura vencida de{" "}
@@ -247,13 +267,13 @@ export default function Notificaciones() {
                         Alerta
                       </span>
                     </div>
-                    <p className="text-[#4c669a] dark:text-gray-400 text-xs font-medium flex items-center gap-1 mt-1">
+                    <p className="text-[#4c669a] dark:text-gray-400 text-xs flex items-center gap-1">
                       <span className="material-symbols-outlined text-sm">
                         schedule
                       </span>{" "}
                       hace 2 horas
                     </p>
-                    <p className="text-[#4c669a] dark:text-gray-300 text-sm font-normal mt-2 leading-relaxed">
+                    <p className="text-[#4c669a] dark:text-gray-300 text-sm leading-relaxed mt-1">
                       La factura{" "}
                       <span className="font-bold text-[#0d121b] dark:text-white">
                         #F-2023-85
@@ -263,145 +283,21 @@ export default function Notificaciones() {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center shrink-0">
-                  <button className="flex items-center justify-center rounded-lg h-9 px-4 bg-background-light dark:bg-gray-800 text-[#0d121b] dark:text-white text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors w-full md:w-fit">
-                    <span className="truncate">Gestionar</span>
+                <div className="flex items-center shrink-0 mt-3 md:mt-0">
+                  <button className="flex justify-center items-center rounded-lg px-4 py-2 bg-background-light dark:bg-gray-800 text-[#0d121b] dark:text-white text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-700 w-full md:w-fit transition-colors">
+                    Gestionar
                   </button>
                 </div>
               </div>
 
-              <div className="group relative flex flex-col-2 md:flex-row gap-4 bg-white dark:bg-background-dark px-6 py-5 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors">
-                <div className="flex items-start gap-4 flex-1">
-                  <div className="text-primary flex items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/30 shrink-0 size-12 border border-blue-100 dark:border-blue-800">
-                    <span className="material-symbols-outlined text-2xl">
-                      event_available
-                    </span>
-                  </div>
-                  <div className="flex flex-1 flex-col justify-center">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-[#0d121b] dark:text-white text-base font-bold leading-normal">
-                        Nueva promesa de pago registrada
-                      </p>
-                      <span className="bg-blue-100 dark:bg-blue-900/50 text-primary text-[10px] font-bold px-2 py-0.5 rounded uppercase">
-                        Info
-                      </span>
-                    </div>
-                    <p className="text-[#4c669a] dark:text-gray-400 text-xs font-medium flex items-center gap-1 mt-1">
-                      <span className="material-symbols-outlined text-sm">
-                        schedule
-                      </span>{" "}
-                      hace 4 horas
-                    </p>
-                    <p className="text-[#4c669a] dark:text-gray-300 text-sm font-normal mt-2 leading-relaxed">
-                      Cliente{" "}
-                      <span className="font-bold text-[#0d121b] dark:text-white">
-                        Alimentos Saludables S.A.
-                      </span>{" "}
-                      se comprometió a liquidar el total de su deuda para el
-                      próximo viernes 27 de Octubre.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center shrink-0">
-                  <button className="flex items-center justify-center rounded-lg h-9 px-4 bg-background-light dark:bg-gray-800 text-[#0d121b] dark:text-white text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors w-full md:w-fit">
-                    <span className="truncate">Ver detalle</span>
-                  </button>
-                </div>
+              <div className="p-6 bg-white dark:bg-background-dark border-t border-[#e7ebf3] dark:border-gray-800 text-center">
+                <button className="text-primary text-sm font-bold hover:underline">
+                  Cargar notificaciones anteriores
+                </button>
               </div>
-
-              <div className="bg-background-light/50 dark:bg-gray-800/30 px-6 py-3 border-t border-[#e7ebf3] dark:border-gray-800">
-                <h3 className="text-[#4c669a] dark:text-gray-400 text-sm font-extrabold uppercase tracking-widest">
-                  Ayer
-                </h3>
-              </div>
-
-              <div className="group relative flex flex-col-2 md:flex-row gap-4 bg-white dark:bg-background-dark px-6 py-5 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors">
-                <div className="flex items-start gap-4 flex-1">
-                  <div className="text-red-600 dark:text-red-400 flex items-center justify-center rounded-xl bg-red-50 dark:bg-red-900/30 shrink-0 size-12 border border-red-100 dark:border-red-800">
-                    <span className="material-symbols-outlined text-2xl">
-                      error_outline
-                    </span>
-                  </div>
-                  <div className="flex flex-1 flex-col justify-center">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-[#0d121b] dark:text-white text-base font-bold leading-normal">
-                        Error en envío de recordatorio
-                      </p>
-                      <span className="bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 text-[10px] font-bold px-2 py-0.5 rounded uppercase">
-                        Error
-                      </span>
-                    </div>
-                    <p className="text-[#4c669a] dark:text-gray-400 text-xs font-medium flex items-center gap-1 mt-1">
-                      <span className="material-symbols-outlined text-sm">
-                        schedule
-                      </span>{" "}
-                      hace 1 día
-                    </p>
-                    <p className="text-[#4c669a] dark:text-gray-300 text-sm font-normal mt-2 leading-relaxed">
-                      No se pudo entregar la notificación de cobro al
-                      destinatario{" "}
-                      <span className="font-bold text-[#0d121b] dark:text-white">
-                        admin@serviciosindustriales.net
-                      </span>
-                      . Error de servidor: 550 Mailbox unavailable.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center shrink-0">
-                  <button className="flex items-center justify-center rounded-lg h-9 px-4 bg-background-light dark:bg-gray-800 text-[#0d121b] dark:text-white text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors w-full md:w-fit">
-                    <span className="truncate">Reintentar</span>
-                  </button>
-                </div>
-              </div>
-
-              <div className="group relative flex flex-col-2 md:flex-row gap-4 bg-white dark:bg-background-dark px-6 py-5 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors">
-                <div className="flex items-start gap-4 flex-1">
-                  <div className="text-green-600 dark:text-green-400 flex items-center justify-center rounded-xl bg-green-50 dark:bg-green-900/30 shrink-0 size-12 border border-green-100 dark:border-green-800">
-                    <span className="material-symbols-outlined text-2xl">
-                      check_circle
-                    </span>
-                  </div>
-                  <div className="flex flex-1 flex-col justify-center">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-[#0d121b] dark:text-white text-base font-bold leading-normal">
-                        Pago recibido de{" "}
-                        <span className="text-primary">
-                          Inmobiliaria del Centro
-                        </span>
-                      </p>
-                      <span className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 text-[10px] font-bold px-2 py-0.5 rounded uppercase">
-                        Éxito
-                      </span>
-                    </div>
-                    <p className="text-[#4c669a] dark:text-gray-400 text-xs font-medium flex items-center gap-1 mt-1">
-                      <span className="material-symbols-outlined text-sm">
-                        schedule
-                      </span>{" "}
-                      hace 1 día
-                    </p>
-                    <p className="text-[#4c669a] dark:text-gray-300 text-sm font-normal mt-2 leading-relaxed">
-                      El abono por{" "}
-                      <span className="font-bold text-[#0d121b] dark:text-white">
-                        $850.00 USD
-                      </span>{" "}
-                      ha sido conciliado automáticamente por el sistema.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center shrink-0">
-                  <button className="flex items-center justify-center rounded-lg h-9 px-4 bg-background-light dark:bg-gray-800 text-[#0d121b] dark:text-white text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors w-full md:w-fit">
-                    <span className="truncate">Ver detalle</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-background-dark border-t border-[#e7ebf3] dark:border-gray-800 text-center">
-              <button className="text-primary text-sm font-bold hover:underline">
-                Cargar notificaciones anteriores
-              </button>
             </div>
           </div>
+
         </div>
       </main>
     </div>
