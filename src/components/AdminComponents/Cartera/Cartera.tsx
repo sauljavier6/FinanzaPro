@@ -3,30 +3,29 @@ interface CarteraProps {
 }
 
 export default function Cartera({ onSuccess }: CarteraProps) {
-
   return (
     <div className="flex overflow-hiddenq">
       <main className="flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark">
-        <div className="p-8">
-
+        <div className="p-3 sm:p-8">
           {/* Page Title and Actions */}
-          <div className="flex flex-wrap justify-between items-end gap-4 mb-8">
-            <div className="flex flex-col gap-2">
-              <h2 className="text-2xl font-extrabold tracking-tight">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
+            <div className="flex flex-col gap-1 sm:gap-2">
+              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">
                 Gestión de Cartera
-              </h2> 
+              </h2>
               <p className="text-[#4c669a] text-sm">
                 Monitoreo y seguimiento de saldos pendientes por cliente
               </p>
             </div>
-            <div className="flex gap-3">
-              <button className="flex items-center justify-center gap-2 rounded-lg h-11 px-6 bg-white dark:bg-gray-800 border border-[#cfd7e7] dark:border-gray-700 text-[#0d121b] dark:text-white text-sm font-bold shadow-sm hover:bg-[#f8f9fc] transition-all">
+
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <button className="flex items-center justify-center gap-2 rounded-lg h-11 px-6 bg-white dark:bg-gray-800 border border-[#cfd7e7] dark:border-gray-700 text-[#0d121b] dark:text-white text-sm font-bold shadow-sm hover:bg-[#f8f9fc] transition-all w-full sm:w-auto">
                 <span className="material-symbols-outlined text-[20px]">
                   download
                 </span>
                 <span>Exportar</span>
               </button>
-              <button className="flex items-center justify-center gap-2 rounded-lg h-11 px-6 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all">
+              <button className="flex items-center justify-center gap-2 rounded-lg h-11 px-6 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all w-full sm:w-auto">
                 <span className="material-symbols-outlined text-[20px]">
                   campaign
                 </span>
@@ -36,66 +35,69 @@ export default function Cartera({ onSuccess }: CarteraProps) {
           </div>
 
           {/* Summary Cards */}
-          <div className="flex gap-6 mb-8 overflow-x-auto flex-nowrap pb-3">
-            <div className="w-full bg-white dark:bg-[#161b2a] p-8 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-8">
+            {/* Card 1: Cartera Total */}
+            <div className="w-full sm:w-1/3 bg-white dark:bg-[#161b2a] p-6 sm:p-8 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm flex flex-col justify-between">
               <div className="flex justify-between items-start">
-                <p className="text-[#4c669a] dark:text-gray-400 text-sm font-medium uppercase tracking-wider">
+                <p className="text-[#4c669a] dark:text-gray-400 text-xs sm:text-sm font-medium uppercase tracking-wider">
                   Cartera Total
                 </p>
-                <span className="material-symbols-outlined text-primary">
+                <span className="material-symbols-outlined text-primary text-lg sm:text-xl">
                   account_balance
                 </span>
               </div>
-              <p className="text-[#0d121b] dark:text-white text-3xl font-bold tracking-tight">
+              <p className="text-[#0d121b] dark:text-white text-2xl sm:text-3xl font-bold tracking-tight mt-3 sm:mt-4">
                 $450,230.00
               </p>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 mt-2">
                 <span className="material-symbols-outlined text-[#07883b] text-sm">
                   trending_up
                 </span>
-                <p className="text-[#07883b] text-sm font-bold">
+                <p className="text-[#07883b] text-xs sm:text-sm font-bold">
                   +2.5% vs mes anterior
                 </p>
               </div>
             </div>
-            <div className="w-full bg-white dark:bg-[#161b2a] p-8 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
+            {/* Card 2: Monto Vencido */}
+            <div className="w-full sm:w-1/3 bg-white dark:bg-[#161b2a] p-6 sm:p-8 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm flex flex-col justify-between">
               <div className="flex justify-between items-start">
-                <p className="text-[#4c669a] dark:text-gray-400 text-sm font-medium uppercase tracking-wider">
+                <p className="text-[#4c669a] dark:text-gray-400 text-xs sm:text-sm font-medium uppercase tracking-wider">
                   Monto Vencido
                 </p>
-                <span className="material-symbols-outlined text-orange-500">
+                <span className="material-symbols-outlined text-orange-500 text-lg sm:text-xl">
                   warning
                 </span>
               </div>
-              <p className="text-[#0d121b] dark:text-white text-3xl font-bold tracking-tight">
+              <p className="text-[#0d121b] dark:text-white text-2xl sm:text-3xl font-bold tracking-tight mt-3 sm:mt-4">
                 $82,150.00
               </p>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 mt-2">
                 <span className="material-symbols-outlined text-orange-500 text-sm">
                   trending_up
                 </span>
-                <p className="text-orange-500 text-sm font-bold">
+                <p className="text-orange-500 text-xs sm:text-sm font-bold">
                   +1.2% de incremento
                 </p>
               </div>
             </div>
-            <div className="w-full bg-white dark:bg-[#161b2a] p-8 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
+            {/* Card 3: Casos Críticos */}
+            <div className="w-full sm:w-1/3 bg-white dark:bg-[#161b2a] p-6 sm:p-8 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm flex flex-col justify-between">
               <div className="flex justify-between items-start">
-                <p className="text-[#4c669a] dark:text-gray-400 text-sm font-medium uppercase tracking-wider">
+                <p className="text-[#4c669a] dark:text-gray-400 text-xs sm:text-sm font-medium uppercase tracking-wider">
                   Casos Críticos
                 </p>
-                <span className="material-symbols-outlined text-red-600">
+                <span className="material-symbols-outlined text-red-600 text-lg sm:text-xl">
                   error
                 </span>
               </div>
-              <p className="text-[#0d121b] dark:text-white text-3xl font-bold tracking-tight">
+              <p className="text-[#0d121b] dark:text-white text-2xl sm:text-3xl font-bold tracking-tight mt-3 sm:mt-4">
                 24
               </p>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 mt-2">
                 <span className="material-symbols-outlined text-[#07883b] text-sm">
                   trending_down
                 </span>
-                <p className="text-[#07883b] text-sm font-bold">
+                <p className="text-[#07883b] text-xs sm:text-sm font-bold">
                   -5.0% reducción
                 </p>
               </div>
@@ -114,35 +116,38 @@ export default function Cartera({ onSuccess }: CarteraProps) {
                 type="text"
               />
             </div>
-            <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
-              <button className="flex h-9 shrink-0 items-center gap-2 rounded-lg bg-[#e7ebf3] dark:bg-gray-800 px-4 text-xs font-bold text-[#0d121b] dark:text-white border border-transparent hover:border-primary/30 transition-all">
+            <div className="flex flex-wrap gap-2 w-full pb-2">
+              <button className="flex-1 h-10 flex items-center justify-center gap-2 rounded-lg bg-[#e7ebf3] dark:bg-gray-800 text-sm font-bold text-[#0d121b] dark:text-white border border-transparent hover:border-primary/30 transition-all">
                 <span>Todos</span>
-                <span className="material-symbols-outlined text-[16px]">
+                <span className="material-symbols-outlined text-[18px]">
                   expand_more
                 </span>
               </button>
-              <button className="flex h-9 shrink-0 items-center gap-2 rounded-lg bg-[#e7f5ed] px-4 text-xs font-bold text-[#07883b] border border-[#07883b]/20">
+
+              <button className="flex-1 h-10 flex items-center justify-center gap-2 rounded-lg bg-[#e7f5ed] text-sm font-bold text-[#07883b] border border-[#07883b]/20">
                 <span>Vigente</span>
-                <span className="material-symbols-outlined text-[16px]">
+                <span className="material-symbols-outlined text-[18px]">
                   expand_more
                 </span>
               </button>
-              <button className="flex h-9 shrink-0 items-center gap-2 rounded-lg bg-[#fff9eb] px-4 text-xs font-bold text-orange-600 border border-orange-200">
+
+              <button className="flex-1 h-10 flex items-center justify-center gap-2 rounded-lg bg-[#fff9eb] text-sm font-bold text-orange-600 border border-orange-200">
                 <span>Vencido</span>
-                <span className="material-symbols-outlined text-[16px]">
+                <span className="material-symbols-outlined text-[18px]">
                   expand_more
                 </span>
               </button>
-              <button className="flex h-9 shrink-0 items-center gap-2 rounded-lg bg-red-50 px-4 text-xs font-bold text-red-600 border border-red-100">
+
+              <button className="flex-1 h-10 flex items-center justify-center gap-2 rounded-lg bg-red-50 text-sm font-bold text-red-600 border border-red-100">
                 <span>Crítico</span>
-                <span className="material-symbols-outlined text-[16px]">
+                <span className="material-symbols-outlined text-[18px]">
                   expand_more
                 </span>
               </button>
             </div>
           </div>
 
-          {/* Clients Table */}
+          {/* Clients Table
           <div className="bg-white dark:bg-[#161b2a] border border-[#cfd7e7] dark:border-gray-800 rounded-xl overflow-hidden shadow-sm mb-10">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
@@ -206,7 +211,7 @@ export default function Cartera({ onSuccess }: CarteraProps) {
                           </span>
                         </button>
                         <button
-                        onClick={() => onSuccess('ID: 2490-A')}
+                          onClick={() => onSuccess("ID: 2490-A")}
                           className="p-2 rounded-lg bg-[#e7ebf3] dark:bg-gray-800 text-[#0d121b] dark:text-white hover:bg-[#cfd7e7] transition-all"
                           title="Ver Detalle"
                         >
@@ -370,6 +375,7 @@ export default function Cartera({ onSuccess }: CarteraProps) {
                 </tbody>
               </table>
             </div>
+
             <div className="p-4 border-t border-[#cfd7e7] dark:border-gray-800 bg-[#f8f9fc] dark:bg-gray-800/30 flex items-center justify-between">
               <p className="text-xs text-[#4c669a]">
                 Mostrando{" "}
@@ -404,7 +410,7 @@ export default function Cartera({ onSuccess }: CarteraProps) {
                 </button>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </main>
     </div>
