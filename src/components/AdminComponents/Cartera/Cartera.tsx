@@ -3,6 +3,7 @@ interface CarteraProps {
 }
 
 export default function Cartera({ onSuccess }: CarteraProps) {
+  console.log(onSuccess)
   return (
     <div className="flex overflow-hiddenq">
       <main className="flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark">
