@@ -65,11 +65,10 @@ export default function Dashboar() {
               <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-[#4c669a] mb-1 sm:mb-1.5">
                 Total por cobrar
               </p>
-              <p className="text-sm sm:text-lg lg:text-xl font-extrabold">
+              <p className="text-md lg:2xl font-extrabold">
                 $1,250,000
               </p>
             </div>
-
             <div className="w-full bg-white dark:bg-[#161b2a] p-3 sm:p-4 lg:p-6 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
               <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <span className="p-2 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-xl material-symbols-outlined text-lg sm:text-xl lg:text-2xl">
@@ -82,11 +81,10 @@ export default function Dashboar() {
               <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-[#4c669a] mb-1 sm:mb-1.5">
                 Cartera Vencida
               </p>
-              <p className="text-sm sm:text-lg lg:text-xl font-extrabold text-red-600">
+              <p className="text-md lg:2xl font-extrabold text-red-600">
                 $320,000
               </p>
             </div>
-
             <div className="w-full bg-white dark:bg-[#161b2a] p-3 sm:p-4 lg:p-6 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
               <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <span className="p-2 bg-green-50 dark:bg-green-900/20 text-green-600 rounded-xl material-symbols-outlined text-lg sm:text-xl lg:text-2xl">
@@ -99,11 +97,10 @@ export default function Dashboar() {
               <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-[#4c669a] mb-1 sm:mb-1.5">
                 Recuperado (Mes)
               </p>
-              <p className="text-sm sm:text-lg lg:text-xl font-extrabold">
+              <p className="text-md lg:2xl font-extrabold">
                 $845,000
               </p>
             </div>
-
             <div className="w-full bg-white dark:bg-[#161b2a] p-3 sm:p-4 lg:p-6 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
               <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <span className="p-2 bg-orange-50 dark:bg-orange-900/20 text-orange-600 rounded-xl material-symbols-outlined text-lg sm:text-xl lg:text-2xl">
@@ -116,7 +113,7 @@ export default function Dashboar() {
               <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-[#4c669a] mb-1 sm:mb-1.5">
                 Promedio de pago
               </p>
-              <p className="text-sm sm:text-lg lg:text-xl font-extrabold">
+              <p className="text-md lg:2xl font-extrabold">
                 24 días
               </p>
             </div>

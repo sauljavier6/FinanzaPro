@@ -3,7 +3,7 @@ interface CarteraProps {
 }
 
 export default function Cartera({ onSuccess }: CarteraProps) {
-  console.log(onSuccess)
+  console.log(onSuccess);
   return (
     <div className="flex overflow-hiddenq">
       <main className="flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark">
@@ -47,7 +47,7 @@ export default function Cartera({ onSuccess }: CarteraProps) {
                   account_balance
                 </span>
               </div>
-              <p className="text-[#0d121b] dark:text-white text-2xl sm:text-3xl font-bold tracking-tight mt-3 sm:mt-4">
+              <p className="text-[#0d121b] dark:text-white text-lg font-bold tracking-tight mt-3 sm:mt-4">
                 $450,230.00
               </p>
               <div className="flex items-center gap-1 mt-2">
@@ -69,7 +69,7 @@ export default function Cartera({ onSuccess }: CarteraProps) {
                   warning
                 </span>
               </div>
-              <p className="text-[#0d121b] dark:text-white text-2xl sm:text-3xl font-bold tracking-tight mt-3 sm:mt-4">
+              <p className="text-[#0d121b] dark:text-white text-lg font-bold tracking-tight mt-3 sm:mt-4">
                 $82,150.00
               </p>
               <div className="flex items-center gap-1 mt-2">
@@ -91,7 +91,7 @@ export default function Cartera({ onSuccess }: CarteraProps) {
                   error
                 </span>
               </div>
-              <p className="text-[#0d121b] dark:text-white text-2xl sm:text-3xl font-bold tracking-tight mt-3 sm:mt-4">
+              <p className="text-[#0d121b] dark:text-white text-lg font-bold tracking-tight mt-3 sm:mt-4">
                 24
               </p>
               <div className="flex items-center gap-1 mt-2">
@@ -148,9 +148,103 @@ export default function Cartera({ onSuccess }: CarteraProps) {
             </div>
           </div>
 
-          {/* Clients Table
+          {/* Clients Table*/}
           <div className="bg-white dark:bg-[#161b2a] border border-[#cfd7e7] dark:border-gray-800 rounded-xl overflow-hidden shadow-sm mb-10">
-            <div className="overflow-x-auto">
+            {/* ===================== */}
+            {/* MÓVIL – CARDS */}
+            {/* ===================== */}
+            <div className="sm:hidden divide-y divide-[#cfd7e7] dark:divide-gray-800">
+              {/* Card Alicia Martínez */}
+              <div className="p-4 bg-white dark:bg-[#161b2a] rounded-xl mb-4 shadow-sm">
+                <div className="flex justify-between items-center mb-2">
+                  <div className="flex items-center gap-3">
+                    <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
+                      AM
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-sm text-[#0d121b] dark:text-white">
+                        Alicia Martínez
+                      </span>
+                      <span className="text-xs text-[#4c669a]">ID: 2490-A</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all">
+                      <span className="material-symbols-outlined text-[20px]">
+                        send
+                      </span>
+                    </button>
+                    <button onClick={() => onSuccess("ID: 2490-A")} className="p-2 rounded-lg bg-[#e7ebf3] dark:bg-gray-800 text-[#0d121b] dark:text-white hover:bg-[#cfd7e7] transition-all">
+                      <span className="material-symbols-outlined text-[20px]">
+                        visibility
+                      </span>
+                    </button>
+                  </div>
+                </div>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-[#4c669a]">Monto Total</span>
+                  <span className="font-bold">$12,450.00</span>
+                </div>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-[#4c669a]">Días de Atraso</span>
+                  <span className="text-red-600 font-medium">45 días</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-red-600 border border-red-100">
+                    Crítico
+                  </span>
+                </div>
+              </div>
+
+              {/* Card Jorge Rodríguez */}
+              <div className="p-4 bg-white dark:bg-[#161b2a] rounded-xl mb-4 shadow-sm">
+                <div className="flex justify-between items-center mb-2">
+                  <div className="flex items-center gap-3">
+                    <div className="size-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-sm">
+                      JR
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-sm text-[#0d121b] dark:text-white">
+                        Jorge Rodríguez
+                      </span>
+                      <span className="text-xs text-[#4c669a]">ID: 1102-C</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all">
+                      <span className="material-symbols-outlined text-[20px]">
+                        send
+                      </span>
+                    </button>
+                    <button className="p-2 rounded-lg bg-[#e7ebf3] dark:bg-gray-800 text-[#0d121b] dark:text-white hover:bg-[#cfd7e7] transition-all">
+                      <span className="material-symbols-outlined text-[20px]">
+                        visibility
+                      </span>
+                    </button>
+                  </div>
+                </div>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-[#4c669a]">Monto Total</span>
+                  <span className="font-bold">$3,120.50</span>
+                </div>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-[#4c669a]">Días de Atraso</span>
+                  <span className="text-orange-600 font-medium">12 días</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#fff9eb] text-orange-600 border border-orange-200">
+                    Vencido
+                  </span>
+                </div>
+              </div>
+
+              {/* Repite el mismo patrón para los demás clientes */}
+            </div>
+
+            {/* ===================== */}
+            {/* DESKTOP – TABLA */}
+            {/* ===================== */}
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-[#cfd7e7] dark:border-gray-800 bg-[#f8f9fc] dark:bg-gray-800/50">
@@ -377,7 +471,8 @@ export default function Cartera({ onSuccess }: CarteraProps) {
               </table>
             </div>
 
-            <div className="p-4 border-t border-[#cfd7e7] dark:border-gray-800 bg-[#f8f9fc] dark:bg-gray-800/30 flex items-center justify-between">
+            {/*  */}
+            <div className="p-4 border-t border-[#cfd7e7] dark:border-gray-800 bg-[#f8f9fc] dark:bg-gray-800/30 flex flex-col sm:flex-row items-center justify-between gap-2">
               <p className="text-xs text-[#4c669a]">
                 Mostrando{" "}
                 <span className="font-bold text-[#0d121b] dark:text-white">
@@ -389,21 +484,37 @@ export default function Cartera({ onSuccess }: CarteraProps) {
                 </span>{" "}
                 clientes
               </p>
-              <div className="flex gap-2">
+
+              {/* BOTONES */}
+              <div className="flex gap-2 items-center overflow-x-auto">
+                {/* Botón anterior */}
                 <button className="size-8 flex items-center justify-center rounded bg-white dark:bg-gray-800 border border-[#cfd7e7] dark:border-gray-700 text-[#4c669a] cursor-not-allowed opacity-50">
                   <span className="material-symbols-outlined text-[18px]">
                     chevron_left
                   </span>
                 </button>
-                <button className="size-8 flex items-center justify-center rounded bg-primary text-white font-bold text-xs">
-                  1
-                </button>
-                <button className="size-8 flex items-center justify-center rounded bg-white dark:bg-gray-800 border border-[#cfd7e7] dark:border-gray-700 text-[#4c669a] hover:bg-[#e7ebf3] transition-colors font-bold text-xs">
-                  2
-                </button>
-                <button className="size-8 flex items-center justify-center rounded bg-white dark:bg-gray-800 border border-[#cfd7e7] dark:border-gray-700 text-[#4c669a] hover:bg-[#e7ebf3] transition-colors font-bold text-xs">
-                  3
-                </button>
+
+                {/* Números de página – Desktop */}
+                <div className="hidden sm:flex gap-2">
+                  <button className="size-8 flex items-center justify-center rounded bg-primary text-white font-bold text-xs">
+                    1
+                  </button>
+                  <button className="size-8 flex items-center justify-center rounded bg-white dark:bg-gray-800 border border-[#cfd7e7] dark:border-gray-700 text-[#4c669a] hover:bg-[#e7ebf3] transition-colors font-bold text-xs">
+                    2
+                  </button>
+                  <button className="size-8 flex items-center justify-center rounded bg-white dark:bg-gray-800 border border-[#cfd7e7] dark:border-gray-700 text-[#4c669a] hover:bg-[#e7ebf3] transition-colors font-bold text-xs">
+                    3
+                  </button>
+                </div>
+
+                {/* Móvil – solo página actual */}
+                <div className="flex sm:hidden gap-1">
+                  <span className="size-8 flex items-center justify-center rounded bg-primary text-white font-bold text-xs px-2">
+                    1
+                  </span>
+                </div>
+
+                {/* Botón siguiente */}
                 <button className="size-8 flex items-center justify-center rounded bg-white dark:bg-gray-800 border border-[#cfd7e7] dark:border-gray-700 text-[#4c669a] hover:bg-[#e7ebf3] transition-colors">
                   <span className="material-symbols-outlined text-[18px]">
                     chevron_right
@@ -411,7 +522,8 @@ export default function Cartera({ onSuccess }: CarteraProps) {
                 </button>
               </div>
             </div>
-          </div> */}
+          </div>
+          
         </div>
       </main>
     </div>

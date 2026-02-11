@@ -26,7 +26,7 @@ export default function DashboardCliente() {
           <div className="grid grid-cols-1 gap-3 mb-10 sm:grid-cols-3 sm:gap-6">
             {/* Saldo actual */}
             <div className="bg-white dark:bg-[#161b2a] p-7 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
-              <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center justify-between mb-2">
                 <span className="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-xl material-symbols-outlined text-2xl">
                   account_balance_wallet
                 </span>
@@ -34,12 +34,12 @@ export default function DashboardCliente() {
               <p className="text-sm font-medium text-[#4c669a] mb-1">
                 Saldo actual
               </p>
-              <p className="text-3xl font-extrabold">$320,000</p>
+              <p className="text-md lg:2xls font-extrabold">$320,000</p>
             </div>
 
             {/* Próximo vencimiento */}
             <div className="bg-white dark:bg-[#161b2a] p-7 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
-              <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center justify-between mb-2">
                 <span className="p-3 bg-orange-50 dark:bg-orange-900/20 text-orange-600 rounded-xl material-symbols-outlined text-2xl">
                   schedule
                 </span>
@@ -47,12 +47,12 @@ export default function DashboardCliente() {
               <p className="text-sm font-medium text-[#4c669a] mb-1">
                 Próximo vencimiento
               </p>
-              <p className="text-xl font-extrabold">25 Oct, 2023</p>
+              <p className="text-md lg:2xls font-extrabold">25 Oct, 2023</p>
             </div>
 
             {/* Pagado este mes */}
             <div className="bg-white dark:bg-[#161b2a] p-7 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
-              <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center justify-between mb-2">
                 <span className="p-3 bg-green-50 dark:bg-green-900/20 text-green-600 rounded-xl material-symbols-outlined text-2xl">
                   check_circle
                 </span>
@@ -60,7 +60,7 @@ export default function DashboardCliente() {
               <p className="text-sm font-medium text-[#4c669a] mb-1">
                 Pagado este mes
               </p>
-              <p className="text-3xl font-extrabold">$84,500</p>
+              <p className="text-md lg:2xls font-extrabold">$84,500</p>
             </div>
           </div>
 
