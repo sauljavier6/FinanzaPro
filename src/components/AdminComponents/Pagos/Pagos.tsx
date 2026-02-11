@@ -72,222 +72,150 @@ export default function Pagos() {
 
           <div className="bg-white dark:bg-[#161b2a] rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm overflow-hidden">
             {/* HEADER */}
-<div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-800">
+            <div className="p-4 sm:p-6 border-b border-[#e7ebf3] dark:border-gray-800">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                {/* FILTROS */}
+                <div className="w-full md:w-auto grid grid-cols-2 gap-2 md:flex md:gap-0">
+                  <button className="px-3 py-2 text-xs font-bold bg-primary text-white rounded-md shadow-sm w-full whitespace-nowrap">
+                    Todos
+                  </button>
+                  <button className="px-3 py-2 text-xs font-bold text-[#4c669a] hover:text-primary bg-white/0 sm:bg-transparent rounded-md w-full whitespace-nowrap">
+                    Tarjeta
+                  </button>
+                  <button className="px-3 py-2 text-xs font-bold text-[#4c669a] hover:text-primary bg-white/0 sm:bg-transparent rounded-md w-full whitespace-nowrap">
+                    Transferencia
+                  </button>
+                  <button className="px-3 py-2 text-xs font-bold text-[#4c669a] hover:text-primary bg-white/0 sm:bg-transparent rounded-md w-full whitespace-nowrap">
+                    Efectivo
+                  </button>
+                </div>
 
-  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                {/* DATE PICKER */}
+                <div className="relative w-full md:w-[220px] mt-2 md:mt-0">
+                  <input
+                    className="w-full text-xs font-bold bg-gray-100 dark:bg-gray-800 rounded-lg px-4 py-2 pr-10 focus:outline-none"
+                    readOnly
+                    type="text"
+                    value="01 Oct - 31 Oct, 2023"
+                  />
+                  <span className="material-symbols-outlined absolute right-3 top-2.5 text-gray-400 text-[18px]">
+                    calendar_today
+                  </span>
+                </div>
+              </div>
+            </div>
 
-    {/* ================= FILTROS ================= */}
-    <div className="w-full md:w-auto">
-      <div className="
-        flex
-        gap-2
-        overflow-x-auto
-        md:overflow-visible
-        bg-gray-100 dark:bg-gray-800
-        p-1
-        rounded-xl
-      ">
+            {/* MOBILE VIEW */}
+            <div className="block md:hidden divide-y divide-[#e7ebf3] dark:divide-gray-800">
+              <div className="p-4 space-y-3">
+                <div className="flex justify-between items-start gap-2">
+                  <div>
+                    <p className="text-sm font-bold">12 Oct, 2023</p>
+                    <p className="text-xs text-[#4c669a]">14:25 PM</p>
+                  </div>
+                  <span className="text-xs font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-2 py-1 rounded-full whitespace-nowrap">
+                    Completado
+                  </span>
+                </div>
 
-        <button className="
-          shrink-0
-          px-4 py-2
-          text-xs sm:text-sm
-          font-semibold
-          bg-white dark:bg-gray-700
-          text-gray-900 dark:text-white
-          rounded-lg
-          shadow-sm
-        ">
-          Todos
-        </button>
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-primary font-bold text-[10px] shrink-0">
+                    TC
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold truncate">
+                      Tech Cloud Solutions
+                    </p>
+                    <p className="text-xs text-[#4c669a]">#F-98552</p>
+                  </div>
+                </div>
 
-        <button className="
-          shrink-0
-          px-4 py-2
-          text-xs sm:text-sm
-          font-semibold
-          text-gray-500 dark:text-gray-400
-          hover:text-blue-600
-          rounded-lg
-          transition
-        ">
-          Tarjeta
-        </button>
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#4c669a]">Tarjeta</span>
+                  <span className="font-bold">$15,400.00</span>
+                </div>
+              </div>
+            </div>
 
-        <button className="
-          shrink-0
-          px-4 py-2
-          text-xs sm:text-sm
-          font-semibold
-          text-gray-500 dark:text-gray-400
-          hover:text-blue-600
-          rounded-lg
-          transition
-        ">
-          Transferencia
-        </button>
+            {/* DESKTOP TABLE */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left min-w-[700px]">
+                <thead className="bg-gray-50 dark:bg-gray-800/50">
+                  <tr>
+                    <th className="px-6 py-4 text-xs font-bold text-[#4c669a] uppercase">
+                      Fecha
+                    </th>
+                    <th className="px-6 py-4 text-xs font-bold text-[#4c669a] uppercase">
+                      Cliente
+                    </th>
+                    <th className="px-6 py-4 text-xs font-bold text-[#4c669a] uppercase">
+                      Factura
+                    </th>
+                    <th className="px-6 py-4 text-xs font-bold text-[#4c669a] uppercase">
+                      Método
+                    </th>
+                    <th className="px-6 py-4 text-xs font-bold text-[#4c669a] uppercase">
+                      Monto
+                    </th>
+                    <th className="px-6 py-4 text-xs font-bold text-[#4c669a] uppercase">
+                      Estado
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#e7ebf3] dark:divide-gray-800">
+                  <tr className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
+                    <td className="px-6 py-4 text-sm font-bold">
+                      12 Oct, 2023
+                    </td>
+                    <td className="px-6 py-4 text-sm font-bold">
+                      Tech Cloud Solutions
+                    </td>
+                    <td className="px-6 py-4 text-sm">#F-98552</td>
+                    <td className="px-6 py-4 text-sm">Tarjeta</td>
+                    <td className="px-6 py-4 text-sm font-bold">$15,400.00</td>
+                    <td className="px-6 py-4">
+                      <span className="text-xs font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-2 py-1 rounded-full">
+                        Completado
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
-        <button className="
-          shrink-0
-          px-4 py-2
-          text-xs sm:text-sm
-          font-semibold
-          text-gray-500 dark:text-gray-400
-          hover:text-blue-600
-          rounded-lg
-          transition
-        ">
-          Efectivo
-        </button>
+            {/* FOOTER */}
+            <div className="px-4 md:px-6 py-4 border-t border-[#e7ebf3] dark:border-gray-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <p className="text-sm text-[#4c669a] text-center sm:text-left">
+                Mostrando <span className="font-bold">1-10</span> de{" "}
+                <span className="font-bold">142</span> facturas
+              </p>
 
-      </div>
-    </div>
+              <div className="flex items-center justify-center gap-2 flex-wrap">
+                <button
+                  className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-30"
+                  disabled
+                >
+                  <span className="material-symbols-outlined text-[20px]">
+                    chevron_left
+                  </span>
+                </button>
 
-    {/* ================= FECHA ================= */}
-    <div className="relative w-full md:w-auto md:min-w-[240px]">
+                <button className="h-8 w-8 rounded bg-primary text-white text-sm font-bold">
+                  1
+                </button>
 
-      <input
-        className="
-          w-full
-          text-xs sm:text-sm
-          font-semibold
-          bg-gray-100 dark:bg-gray-800
-          rounded-xl
-          px-4 py-2.5
-          pr-10
-          focus:outline-none
-          focus:ring-2 focus:ring-blue-500/40
-          transition
-        "
-        readOnly
-        type="text"
-        value="01 Oct - 31 Oct, 2023"
-      />
+                <button className="h-8 w-8 rounded text-[#4c669a] text-sm font-bold hover:bg-gray-100 dark:hover:bg-gray-800">
+                  2
+                </button>
 
-      <span className="
-        material-symbols-outlined
-        absolute right-3 top-1/2 -translate-y-1/2
-        text-gray-400
-        text-[18px]
-      ">
-        calendar_today
-      </span>
-
-    </div>
-
-  </div>
-</div>
-
-
-            {/* MOBILE VIEW 
-  <div className="block md:hidden divide-y divide-[#e7ebf3] dark:divide-gray-800">
-    <div className="p-4 space-y-3">
-      <div className="flex justify-between items-start gap-2">
-        <div>
-          <p className="text-sm font-bold">12 Oct, 2023</p>
-          <p className="text-xs text-[#4c669a]">14:25 PM</p>
-        </div>
-        <span className="text-xs font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-2 py-1 rounded-full whitespace-nowrap">
-          Completado
-        </span>
-      </div>
-
-      <div className="flex items-center gap-3 min-w-0">
-        <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-primary font-bold text-[10px] shrink-0">
-          TC
-        </div>
-        <div className="min-w-0">
-          <p className="text-sm font-bold truncate">
-            Tech Cloud Solutions
-          </p>
-          <p className="text-xs text-[#4c669a]">#F-98552</p>
-        </div>
-      </div>
-
-      <div className="flex justify-between text-sm">
-        <span className="text-[#4c669a]">Tarjeta</span>
-        <span className="font-bold">$15,400.00</span>
-      </div>
-    </div>
-  </div>*/}
-
-            {/* DESKTOP TABLE 
-  <div className="hidden md:block overflow-x-auto">
-    <table className="w-full text-left min-w-[700px]">
-      <thead className="bg-gray-50 dark:bg-gray-800/50">
-        <tr>
-          <th className="px-6 py-4 text-xs font-bold text-[#4c669a] uppercase">
-            Fecha
-          </th>
-          <th className="px-6 py-4 text-xs font-bold text-[#4c669a] uppercase">
-            Cliente
-          </th>
-          <th className="px-6 py-4 text-xs font-bold text-[#4c669a] uppercase">
-            Factura
-          </th>
-          <th className="px-6 py-4 text-xs font-bold text-[#4c669a] uppercase">
-            Método
-          </th>
-          <th className="px-6 py-4 text-xs font-bold text-[#4c669a] uppercase">
-            Monto
-          </th>
-          <th className="px-6 py-4 text-xs font-bold text-[#4c669a] uppercase">
-            Estado
-          </th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-[#e7ebf3] dark:divide-gray-800">
-        <tr className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
-          <td className="px-6 py-4 text-sm font-bold">
-            12 Oct, 2023
-          </td>
-          <td className="px-6 py-4 text-sm font-bold">
-            Tech Cloud Solutions
-          </td>
-          <td className="px-6 py-4 text-sm">#F-98552</td>
-          <td className="px-6 py-4 text-sm">Tarjeta</td>
-          <td className="px-6 py-4 text-sm font-bold">$15,400.00</td>
-          <td className="px-6 py-4">
-            <span className="text-xs font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-2 py-1 rounded-full">
-              Completado
-            </span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>*/}
-
-            {/* FOOTER 
-  <div className="px-4 md:px-6 py-4 border-t border-[#e7ebf3] dark:border-gray-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-
-    <p className="text-sm text-[#4c669a] text-center sm:text-left">
-      Mostrando <span className="font-bold">1-10</span> de{" "}
-      <span className="font-bold">142</span> facturas
-    </p>
-
-    <div className="flex items-center justify-center gap-2 flex-wrap">
-      <button className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-30" disabled>
-        <span className="material-symbols-outlined text-[20px]">
-          chevron_left
-        </span>
-      </button>
-
-      <button className="h-8 w-8 rounded bg-primary text-white text-sm font-bold">
-        1
-      </button>
-
-      <button className="h-8 w-8 rounded text-[#4c669a] text-sm font-bold hover:bg-gray-100 dark:hover:bg-gray-800">
-        2
-      </button>
-
-      <button className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800">
-        <span className="material-symbols-outlined text-[20px]">
-          chevron_right
-        </span>
-      </button>
-    </div>
-
-  </div>*/}
+                <button className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800">
+                  <span className="material-symbols-outlined text-[20px]">
+                    chevron_right
+                  </span>
+                </button>
+              </div>
+            </div>
+            
           </div>
         </div>
       </main>
