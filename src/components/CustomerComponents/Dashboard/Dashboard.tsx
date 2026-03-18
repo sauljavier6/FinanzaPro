@@ -1,4 +1,37 @@
+import { useQuery } from "@tanstack/react-query";
+import { getFacturas } from "../../../api/customerApis/homeApi";
+
+export interface Invoice {
+  ClienteNetsuiteID: string;
+  Currency: string;
+  FechaFactura: string;
+  FechaVencimiento: string;
+  ID_Factura: number;
+  NetsuiteInvoiceId: "60055714";
+  SaldoPendiente: number;
+  Status: string;
+  Total: number;
+  Tranid: string;
+}
+
+export interface Info {
+  pagadoEsteMes: number;
+  totalSaldo: string;
+  vencimientoProximo: string;
+}
+
 export default function DashboardCliente() {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["facturasCliente"],
+    queryFn: async () => {
+      const res = await getFacturas();
+      return res;
+    },
+  });
+
+  const invoices = data?.invoices ?? [];
+  const dataInfo = data?.resumen;
+
   const monthlyData = [
     { label: "Ene", pagado: 110, facturado: 180 },
     { label: "Feb", pagado: 100, facturado: 140 },
@@ -7,6 +40,9 @@ export default function DashboardCliente() {
     { label: "May", pagado: 180, facturado: 260 },
     { label: "Jun", pagado: 90, facturado: 110 },
   ];
+
+  if (isLoading) return <p>Cargando...</p>;
+  if (isError) return <p>Error al cargar las facturas.</p>;
 
   return (
     <div className="flex overflow-hidden">
@@ -32,9 +68,11 @@ export default function DashboardCliente() {
                 </span>
               </div>
               <p className="text-sm font-medium text-[#4c669a] mb-1">
-                Saldo actual
+                Saldo pendiente
               </p>
-              <p className="text-md lg:2xls font-extrabold">$320,000</p>
+              <p className="text-md lg:2xls font-extrabold">
+                ${dataInfo?.totalSaldoPendiente?.totalPendiente || '0'}
+              </p>
             </div>
 
             {/* Próximo vencimiento */}
@@ -43,11 +81,16 @@ export default function DashboardCliente() {
                 <span className="p-3 bg-orange-50 dark:bg-orange-900/20 text-orange-600 rounded-xl material-symbols-outlined text-2xl">
                   schedule
                 </span>
+                <p className="text-md lg:2xls font-extrabold">
+                  {dataInfo?.facturaProxima?.SaldoPendiente || "S/S"}
+                </p>
               </div>
               <p className="text-sm font-medium text-[#4c669a] mb-1">
                 Próximo vencimiento
               </p>
-              <p className="text-md lg:2xls font-extrabold">25 Oct, 2023</p>
+              <p className="text-md lg:2xls font-extrabold">
+                {dataInfo?.facturaProxima?.FechaVencimiento || "N/A"}
+              </p>
             </div>
 
             {/* Pagado este mes */}
@@ -60,7 +103,9 @@ export default function DashboardCliente() {
               <p className="text-sm font-medium text-[#4c669a] mb-1">
                 Pagado este mes
               </p>
-              <p className="text-md lg:2xls font-extrabold">$84,500</p>
+              <p className="text-md lg:2xls font-extrabold">
+                ${dataInfo?.pagadoEsteMes}
+              </p>
             </div>
           </div>
 
@@ -121,62 +166,46 @@ export default function DashboardCliente() {
               </button>
             </div>
 
-            {/* ===================== */}
-            {/* MÓVIL – CARDS */}
-            {/* ===================== */}
+            {/* Móvil – Cards */}
             <div className="sm:hidden divide-y">
-              {/* Card 1 */}
-              <div className="p-4 space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-xs text-[#4c669a]">Factura</span>
-                  <span className="font-bold">#F-98552</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-xs text-[#4c669a]">Fecha</span>
-                  <span>12 Oct, 2023</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-xs text-[#4c669a]">Monto</span>
-                  <span className="font-bold">$15,400</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full">
-                    Pagada
-                  </span>
-                  <button className="text-primary text-sm font-bold">
-                    Ver
-                  </button>
-                </div>
-              </div>
-
-              {/* Card 2 */}
-              <div className="p-4 space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-xs text-[#4c669a]">Factura</span>
-                  <span className="font-bold">#F-98561</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-xs text-[#4c669a]">Fecha</span>
-                  <span>18 Oct, 2023</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-xs text-[#4c669a]">Monto</span>
-                  <span className="font-bold">$22,800</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-1 rounded-full">
-                    Pendiente
-                  </span>
-                  <button className="text-primary text-sm font-bold">
-                    Pagar
-                  </button>
-                </div>
-              </div>
+              {invoices?.map((inv: Invoice) => {
+                const isPending = inv.SaldoPendiente > 0;
+                return (
+                  <div key={inv.ID_Factura} className="p-4 space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-xs text-[#4c669a]">Factura</span>
+                      <span className="font-bold">{inv.Tranid}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-xs text-[#4c669a]">Fecha</span>
+                      <span>
+                        {new Date(inv.FechaFactura).toLocaleDateString("es-MX")}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-xs text-[#4c669a]">Monto</span>
+                      <span className="font-bold">${inv.Total}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span
+                        className={`text-xs font-bold px-2 py-1 rounded-full ${
+                          isPending
+                            ? "bg-yellow-100 text-yellow-700"
+                            : "bg-green-100 text-green-700"
+                        }`}
+                      >
+                        {isPending ? "Pendiente" : "Pagada"}
+                      </span>
+                      <button className="text-primary text-sm font-bold">
+                        {isPending ? "Pagar" : "Ver"}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
-            {/* ===================== */}
-            {/* DESKTOP – TABLA */}
-            {/* ===================== */}
+            {/* Desktop – Tabla */}
             <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-left">
                 <thead className="bg-gray-50 dark:bg-gray-800/50">
@@ -191,42 +220,40 @@ export default function DashboardCliente() {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="border-t">
-                    <td className="px-6 py-4 font-bold">#F-98552</td>
-                    <td className="px-6 py-4">12 Oct, 2023</td>
-                    <td className="px-6 py-4 font-bold">$15,400</td>
-                    <td className="px-6 py-4">
-                      <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full">
-                        Pagada
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <button className="text-primary text-sm font-bold">
-                        Ver
-                      </button>
-                    </td>
-                  </tr>
-
-                  <tr className="border-t">
-                    <td className="px-6 py-4 font-bold">#F-98561</td>
-                    <td className="px-6 py-4">18 Oct, 2023</td>
-                    <td className="px-6 py-4 font-bold">$22,800</td>
-                    <td className="px-6 py-4">
-                      <span className="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-1 rounded-full">
-                        Pendiente
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <button className="text-primary text-sm font-bold">
-                        Pagar
-                      </button>
-                    </td>
-                  </tr>
+                  {invoices?.map((inv: Invoice) => {
+                    const isPending = inv.SaldoPendiente > 0;
+                    return (
+                      <tr key={inv.ID_Factura} className="border-t">
+                        <td className="px-6 py-4 font-bold">{inv.Tranid}</td>
+                        <td className="px-6 py-4">
+                          {new Date(inv.FechaFactura).toLocaleDateString(
+                            "es-MX",
+                          )}
+                        </td>
+                        <td className="px-6 py-4 font-bold">${inv.Total}</td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`text-xs font-bold px-2 py-1 rounded-full ${
+                              isPending
+                                ? "bg-yellow-100 text-yellow-700"
+                                : "bg-green-100 text-green-700"
+                            }`}
+                          >
+                            {isPending ? "Pendiente" : "Pagada"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <button className="text-primary text-sm font-bold">
+                            {isPending ? "Pagar" : "Ver"}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           </div>
-          
         </div>
       </main>
     </div>

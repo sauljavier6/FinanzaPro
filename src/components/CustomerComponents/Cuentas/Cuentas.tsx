@@ -1,40 +1,80 @@
+import { useQuery } from "@tanstack/react-query";
+import { getFacturas } from "../../../api/customerApis/cuentasApi";
+import { useState } from "react";
+
+export interface estado {
+  color: string;
+  label: string;
+}
+
+export interface Invoice {
+  ClienteNetsuiteID: string;
+  Currency: string;
+  FechaFactura: string;
+  FechaVencimiento: string;
+  ID_Factura: number;
+  NetsuiteInvoiceId: "60055714";
+  SaldoPendiente: number;
+  estado: estado;
+  Total: number;
+  Tranid: string;
+}
+
+export interface Info {
+  pagadoEsteMes: number;
+  totalSaldo: number;
+  vencimientoProximo: string;
+  variacion: any;
+}
+
 type CuentasProps = {
-  onAbrirFactura: (id: string) => void;
+  onAbrirFactura: (id: number) => void;
 };
 
 export default function Cuentas({ onAbrirFactura }: CuentasProps) {
-  const facturas = [
-    {
-      id: "FACT-2023-0891",
-      fecha: "01 Sep 2023",
-      vencimiento: "15 Sep 2023",
-      estado: "Atrasado",
-      estadoColor: "bg-red-100 text-red-700",
-      monto: "$4,250.00",
-    },
-    {
-      id: "FACT-2023-0942",
-      fecha: "15 Sep 2023",
-      vencimiento: "30 Sep 2023",
-      estado: "Pendiente",
-      estadoColor: "bg-amber-100 text-amber-700",
-      monto: "$5,200.00",
-    },
-    {
-      id: "FACT-2023-1005",
-      fecha: "01 Oct 2023",
-      vencimiento: "15 Oct 2023",
-      estado: "Por vencer",
-      estadoColor: "bg-blue-100 text-blue-700",
-      monto: "$3,000.00",
-    },
-  ];
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+
+  const { data } = useQuery({
+    queryKey: ["cuentasCliente", page, pageSize] as const,
+    queryFn: () => getFacturas(page, pageSize),
+
+    refetchOnWindowFocus: false,
+  });
+
+  const totalPages = data?.totalPages ?? 1;
+  const invoices = data?.invoices ?? [];
+  const dataInfo = data?.resumen;
+
+  const parseFechaMX = (fecha: string): Date | null => {
+    const [day, month, year] = fecha.split("/").map(Number);
+    if (!day || !month || !year) return null;
+    return new Date(year, month - 1, day);
+  };
+
+  const calcularDiasRestantes = (fecha: string) => {
+    const hoy = new Date();
+    const vencimiento = parseFechaMX(fecha);
+
+    if (!vencimiento) return null;
+
+    hoy.setHours(0, 0, 0, 0);
+    vencimiento.setHours(0, 0, 0, 0);
+
+    const diff = vencimiento.getTime() - hoy.getTime();
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  };
+
+  const v = data?.resumen?.variacion;
+
+  const diasRestantes = dataInfo?.ProximoVencimiento
+    ? calcularDiasRestantes(dataInfo.ProximoVencimiento)
+    : null;
 
   return (
-    <div className="flex overflow-hiddenq">
+    <div className="flex overflow-hidden">
       <main className="flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark">
         <div className="p-3 sm:p-8">
-          
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-6 sm:mb-8">
             <div className="flex flex-col gap-1 sm:gap-2">
@@ -75,13 +115,20 @@ export default function Cuentas({ onAbrirFactura }: CuentasProps) {
                 Saldo Total Pendiente
               </p>
               <p className="text-2xl sm:text-3xl font-black text-primary">
-                $12,450.00
+                ${dataInfo?.TotalSaldoPendiente?.toFixed(2)}
               </p>
               <div className="mt-3 sm:mt-4 flex items-center gap-1 text-red-500 text-xs sm:text-sm font-bold">
                 <span className="material-symbols-outlined text-sm">
-                  trending_up
+                  {v?.trend === "up"
+                    ? "trending_up"
+                    : v?.trend === "down"
+                      ? "trending_down"
+                      : "trending_flat"}
                 </span>
-                <span>5.2% vs mes anterior</span>
+                <span>
+                  {v?.percent > 0 && `${v?.percent}% `}
+                  {v?.label}
+                </span>
               </div>
             </div>
 
@@ -90,13 +137,21 @@ export default function Cuentas({ onAbrirFactura }: CuentasProps) {
                 Próximo Vencimiento
               </p>
               <p className="text-2xl sm:text-3xl font-black text-[#0d121b] dark:text-white">
-                15 Oct 2023
+                {dataInfo?.ProximoVencimiento || "Sin vencimientos"}
               </p>
               <div className="mt-3 sm:mt-4 flex items-center gap-1 text-gray-400 text-xs sm:text-sm">
                 <span className="material-symbols-outlined text-sm">
                   calendar_today
                 </span>
-                <span>En 12 días</span>
+                <span>
+                  {diasRestantes !== null
+                    ? diasRestantes > 0
+                      ? `En ${diasRestantes} días`
+                      : diasRestantes === 0
+                        ? "Vence hoy"
+                        : `Vencido hace ${Math.abs(diasRestantes)} días`
+                    : "--"}
+                </span>
               </div>
             </div>
 
@@ -105,13 +160,13 @@ export default function Cuentas({ onAbrirFactura }: CuentasProps) {
                 Último Pago Realizado
               </p>
               <p className="text-2xl sm:text-3xl font-black text-[#0d121b] dark:text-white">
-                $3,200.00
+                ${dataInfo?.UltimoPago?.monto || "S/F"}
               </p>
               <div className="mt-3 sm:mt-4 flex items-center gap-1 text-green-600 text-xs sm:text-sm font-bold">
                 <span className="material-symbols-outlined text-sm">
                   verified_user
                 </span>
-                <span>Completado el 02 Sep</span>
+                <span>Completado el {dataInfo?.UltimoPago?.fecha}</span>
               </div>
             </div>
           </div>
@@ -136,28 +191,36 @@ export default function Cuentas({ onAbrirFactura }: CuentasProps) {
             </div>
 
             <div className="sm:hidden divide-y divide-[#cfd7e7] dark:divide-gray-800">
-              {facturas.map((f) => (
-                <div key={f.id} className="p-4 flex flex-col gap-2">
+              {invoices.map((f: Invoice) => (
+                <div key={f.ID_Factura} className="p-4 flex flex-col gap-2">
                   <div className="flex justify-between items-center">
-                    <span className="font-bold text-sm">{f.id}</span>
+                    <div className="flex items-center gap-2">
+                      <input
+                        disabled={f.SaldoPendiente === 0}
+                        type="checkbox"
+                        aria-label={`Seleccionar factura ${f.Tranid}`}
+                        className="h-3.5 w-3.5 accent-primary cursor-pointer"
+                      />
+                      <span className="font-bold text-sm">{f.ID_Factura}</span>
+                    </div>
                     <span
-                      className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${f.estadoColor}`}
+                      className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${f.estado.color}`}
                     >
-                      {f.estado}
+                      {f.estado.label}
                     </span>
                   </div>
 
                   <div className="text-xs text-gray-500">
-                    Emisión: {f.fecha}
+                    Emisión: {f.FechaFactura}
                   </div>
                   <div className="text-xs text-gray-500">
-                    Vence: {f.vencimiento}
+                    Vence: {f.FechaVencimiento}
                   </div>
 
                   <div className="flex justify-between items-center mt-2">
-                    <span className="font-black">{f.monto}</span>
+                    <span className="font-black">{f.Total}</span>
                     <button
-                      onClick={() => onAbrirFactura?.(f.id)}
+                      onClick={() => onAbrirFactura?.(f.ID_Factura)}
                       className="text-primary font-bold text-sm"
                     >
                       Ver detalle
@@ -171,6 +234,9 @@ export default function Cuentas({ onAbrirFactura }: CuentasProps) {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-background-light/50 dark:bg-gray-800/50">
+                    <th className="px-4 py-4 text-xs font-bold text-gray-400 uppercase w-12">
+                      <span className="sr-only">Seleccionar</span>
+                    </th>
                     <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">
                       Nº Factura
                     </th>
@@ -193,31 +259,41 @@ export default function Cuentas({ onAbrirFactura }: CuentasProps) {
                 </thead>
 
                 <tbody className="divide-y divide-[#cfd7e7] dark:divide-gray-800">
-                  {facturas.map((f) => (
+                  {invoices.map((f: Invoice) => (
                     <tr
-                      key={f.id}
+                      key={f.ID_Factura}
                       className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                     >
-                      <td className="px-6 py-4 text-sm font-bold">{f.id}</td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
-                        {f.fecha}
+                      <td className="px-4 py-4">
+                        <input
+                          disabled={f.SaldoPendiente === 0}
+                          type="checkbox"
+                          aria-label={`Seleccionar factura ${f.Tranid}`}
+                          className="h-3.5 w-3.5 accent-primary cursor-pointer"
+                        />
+                      </td>
+                      <td className="px-6 py-4 text-sm font-bold">
+                        {f.Tranid}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
-                        {f.vencimiento}
+                        {f.FechaFactura}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-500">
+                        {f.FechaVencimiento}
                       </td>
                       <td className="px-6 py-4 text-sm">
                         <span
-                          className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${f.estadoColor}`}
+                          className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${f.estado.color}`}
                         >
-                          {f.estado}
+                          {f.estado.label}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm font-black">
-                        {f.monto}
+                        {f.Total}
                       </td>
                       <td className="px-6 py-4 text-right">
                         <button
-                          onClick={() => onAbrirFactura?.(f.id)}
+                          onClick={() => onAbrirFactura?.(f.ID_Factura)}
                           className="text-primary font-bold text-sm hover:underline"
                         >
                           Ver detalle
@@ -231,22 +307,54 @@ export default function Cuentas({ onAbrirFactura }: CuentasProps) {
 
             <div className="px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-800/30 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-gray-400">
-                Mostrando {facturas.length} de 12 facturas pendientes
+                Mostrando {invoices.length} de {data?.total} factura(s)
+                pendientes
               </p>
 
               <div className="flex gap-2 justify-end">
-                <button className="size-8 flex items-center justify-center rounded border border-[#cfd7e7] dark:border-gray-700 text-gray-400">
+                <button
+                  disabled={page === 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className={`size-8 flex items-center justify-center rounded border
+                  ${
+                    page === 1
+                      ? "text-gray-300 cursor-not-allowed"
+                      : "text-gray-400 hover:bg-gray-100"
+                  }
+                `}
+                >
                   <span className="material-symbols-outlined text-sm">
                     chevron_left
                   </span>
                 </button>
-                <button className="size-8 flex items-center justify-center rounded border border-primary bg-primary text-white text-xs font-bold">
-                  1
-                </button>
-                <button className="size-8 flex items-center justify-center rounded border border-[#cfd7e7] dark:border-gray-700 text-gray-500 text-xs font-bold">
-                  2
-                </button>
-                <button className="size-8 flex items-center justify-center rounded border border-[#cfd7e7] dark:border-gray-700 text-gray-400">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (p) => (
+                    <button
+                      key={p}
+                      onClick={() => setPage(p)}
+                      className={`size-8 flex items-center justify-center rounded border text-xs font-bold
+                      ${
+                        p === page
+                          ? "border-primary bg-primary text-white"
+                          : "border-[#cfd7e7] text-gray-500 hover:bg-gray-100"
+                      }
+                    `}
+                    >
+                      {p}
+                    </button>
+                  ),
+                )}
+                <button
+                  disabled={page === totalPages}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  className={`size-8 flex items-center justify-center rounded border
+                  ${
+                    page === totalPages
+                      ? "text-gray-300 cursor-not-allowed"
+                      : "text-gray-400 hover:bg-gray-100"
+                  }
+                `}
+                >
                   <span className="material-symbols-outlined text-sm">
                     chevron_right
                   </span>
@@ -269,7 +377,8 @@ export default function Cuentas({ onAbrirFactura }: CuentasProps) {
                   ¿Tienes dudas sobre tu estado de cuenta?
                 </p>
                 <p className="text-white/80 text-xs sm:text-sm mt-1">
-                  Nuestro equipo de soporte financiero está disponible 24/7.
+                  Nuestro equipo de soporte financiero está disponible de lunes
+                  a viernes en un horario de 8 A.M. a 5 P.M.
                 </p>
               </div>
             </div>
@@ -278,7 +387,6 @@ export default function Cuentas({ onAbrirFactura }: CuentasProps) {
               Contactar Soporte
             </button>
           </div>
-          
         </div>
       </main>
     </div>

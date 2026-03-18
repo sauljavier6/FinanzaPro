@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import SidebarItem from "./SidebarItem";
 import UserProfile from "./UserProfile";
 
@@ -9,14 +9,48 @@ type SidebarProps = {
 };
 
 export default function Sidebarmovil({ isOpen = true, onClose }: SidebarProps) {
-  const [activeItem, setActiveItem] = useState("Home");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const [activeItem, setActiveItem] = useState<string>(() => {
+    return localStorage.getItem("activeSidebarItem") || "Home";
+  });
 
   const goTo = (label: string, path: string) => {
     setActiveItem(label);
+    localStorage.setItem("activeSidebarItem", label);
     navigate(path);
-    onClose?.(); // 👈 cierra en mobile/tablet
+    onClose?.();
   };
+
+  useEffect(() => {
+    const path = location.pathname;
+    switch (path) {
+      case "/clientes/":
+        setActiveItem("Home");
+        localStorage.setItem("activeSidebarItem", "Home");
+        break;
+      case "/clientes/cuentas":
+        setActiveItem("Cuentas");
+        localStorage.setItem("activeSidebarItem", "Cuentas");
+        break;
+      case "/clientes/pagos":
+        setActiveItem("Pagos");
+        localStorage.setItem("activeSidebarItem", "Pagos");
+        break;
+      case "/clientes/notificaciones":
+        setActiveItem("Notificaciones");
+        localStorage.setItem("activeSidebarItem", "Notificaciones");
+        break;
+      case "/clientes/configuracion":
+        setActiveItem("configuracion");
+        localStorage.setItem("activeSidebarItem", "configuracion");
+        break;
+      default:
+        setActiveItem("Home");
+        localStorage.setItem("activeSidebarItem", "Home");
+    }
+  }, [location.pathname]);
 
   return (
     <aside
@@ -46,9 +80,7 @@ export default function Sidebarmovil({ isOpen = true, onClose }: SidebarProps) {
         </div>
         <div>
           <h1 className="text-lg font-bold">FinanzaPro</h1>
-          <p className="text-xs text-[#4c669a] uppercase">
-            Sistema Cobranza
-          </p>
+          <p className="text-xs text-[#4c669a] uppercase">Sistema Cobranza</p>
         </div>
       </div>
 
@@ -60,39 +92,33 @@ export default function Sidebarmovil({ isOpen = true, onClose }: SidebarProps) {
           active={activeItem === "Home"}
           onClick={() => goTo("Home", "/clientes/")}
         />
-
         <SidebarItem
           icon="description"
-          label="Estado de cuentas"
+          label="Cuentas"
           active={activeItem === "Cuentas"}
           onClick={() => goTo("Cuentas", "/clientes/cuentas")}
         />
-
         <SidebarItem
           icon="payments"
-          label="Historial de pagos"
+          label="Pagos"
           active={activeItem === "Pagos"}
           onClick={() => goTo("Pagos", "/clientes/pagos")}
         />
-
         <SidebarItem
           icon="handshake"
-          label="Promesas de pagos"
+          label="Promesas"
           active={activeItem === "Promesas"}
         />
-
         <div className="my-4 border-t border-gray-200 dark:border-gray-800" />
-
         <SidebarItem
           icon="notifications"
           label="Notificaciones"
           active={activeItem === "Notificaciones"}
           onClick={() => goTo("Notificaciones", "/clientes/notificaciones")}
         />
-
         <SidebarItem
           icon="settings"
-          label="Configuración"
+          label="configuracion"
           active={activeItem === "configuracion"}
           onClick={() => goTo("configuracion", "/clientes/configuracion")}
         />

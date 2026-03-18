@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import SidebarItem from "./SidebarItem";
 import UserProfile from "./UserProfile";
 
@@ -9,14 +9,57 @@ type SidebarProps = {
 };
 
 export default function Sidebarmovil({ isOpen = true, onClose }: SidebarProps) {
-  const [activeItem, setActiveItem] = useState("Home");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const [activeItem, setActiveItem] = useState<string>(() => {
+    return localStorage.getItem("activeSidebarItem") || "Home";
+  });
 
   const goTo = (label: string, path: string) => {
     setActiveItem(label);
+    localStorage.setItem("activeSidebarItem", label);
     navigate(path);
-    onClose?.(); // cierra el menú en mobile
+    onClose?.();
   };
+
+  useEffect(() => {
+    const path = location.pathname;
+
+    switch (path) {
+      case "/admin/":
+        setActiveItem("Home");
+        localStorage.setItem("activeSidebarItem", "Home");
+        break;
+      case "/admin/cartera":
+        setActiveItem("Cartera");
+        localStorage.setItem("activeSidebarItem", "Cartera");
+        break;
+      case "/admin/clientes":
+        setActiveItem("Clientes");
+        localStorage.setItem("activeSidebarItem", "Clientes");
+        break;
+      case "/admin/facturas":
+        setActiveItem("Facturas");
+        localStorage.setItem("activeSidebarItem", "Facturas");
+        break;
+      case "/admin/pagos":
+        setActiveItem("Pagos");
+        localStorage.setItem("activeSidebarItem", "Pagos");
+        break;
+      case "/admin/reportes":
+        setActiveItem("Reportes");
+        localStorage.setItem("activeSidebarItem", "Reportes");
+        break;
+      case "/admin/notificaciones":
+        setActiveItem("Notificaciones");
+        localStorage.setItem("activeSidebarItem", "Notificaciones");
+        break;
+      default:
+        setActiveItem("Home");
+        localStorage.setItem("activeSidebarItem", "Home");
+    }
+  }, [location.pathname]);
 
   return (
     <aside
@@ -58,45 +101,37 @@ export default function Sidebarmovil({ isOpen = true, onClose }: SidebarProps) {
           active={activeItem === "Home"}
           onClick={() => goTo("Home", "/admin/")}
         />
-
         <SidebarItem
           icon="work"
           label="Cartera"
           active={activeItem === "Cartera"}
           onClick={() => goTo("Cartera", "/admin/cartera")}
         />
-
         <SidebarItem
           icon="group"
           label="Clientes"
           active={activeItem === "Clientes"}
           onClick={() => goTo("Clientes", "/admin/clientes")}
         />
-
         <SidebarItem
           icon="receipt_long"
           label="Facturas"
           active={activeItem === "Facturas"}
           onClick={() => goTo("Facturas", "/admin/facturas")}
         />
-
         <SidebarItem
           icon="credit_score"
           label="Pagos"
           active={activeItem === "Pagos"}
           onClick={() => goTo("Pagos", "/admin/pagos")}
         />
-
         <SidebarItem
           icon="bar_chart"
           label="Reportes"
           active={activeItem === "Reportes"}
           onClick={() => goTo("Reportes", "/admin/reportes")}
         />
-
-        {/* Separador */}
         <div className="my-4 border-t border-gray-200 dark:border-gray-800" />
-
         <SidebarItem
           icon="notifications"
           label="Notificaciones"

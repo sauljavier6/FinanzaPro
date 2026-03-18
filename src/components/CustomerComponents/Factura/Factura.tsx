@@ -1,16 +1,64 @@
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { getFacturaById } from "../../../api/customerApis/FacturaApi";
+
+interface ItemLineaFactura {
+  Amount: number;
+  FacturaId: number;
+  ID_Linea: number;
+  ItemId: string;
+  ItemName: string;
+  Quantity: number;
+  Rate: number;
+  TaxCode: string;
+}
+
+interface PagosFactura {
+  FechaPago: string;
+  ID_Factura: number;
+  ID_Pago: number;
+  MontoPago: number;
+  NetsuitePaymentId: string;
+  PagoKey: string;
+  PaymentTranId: string;
+  PaymentMethod: string;
+}
 
 type FacturaProps = {
-  id: string;
+  id: number;
   onVolver: () => void;
 };
 
 export default function Factura({ id, onVolver }: FacturaProps) {
   const navigate = useNavigate();
 
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["cuentasCliente", id] as const,
+    queryFn: () => getFacturaById(id),
+
+    refetchOnWindowFocus: false,
+  });
+
+  console.log("efbvarbe", data);
+
   const handlePagar = () => {
     navigate(`/clientes/pagar/${id}`);
   };
+
+  const parseFechaMX = (fecha: string | Date): string => {
+    const d = new Date(fecha);
+    return d.toLocaleDateString("es-MX", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
+  const formatCurrency = (value?: number) =>
+    new Intl.NumberFormat("es-MX", {
+      style: "currency",
+      currency: "MXN",
+    }).format(value ?? 0);
 
   return (
     <div className="flex overflow-hidden">
@@ -27,7 +75,7 @@ export default function Factura({ id, onVolver }: FacturaProps) {
             </button>
             <span className="text-gray-400 font-medium">/</span>
             <span className="text-gray-900 dark:text-white font-bold truncate">
-              Factura #{id}
+              Factura #{data?.Tranid}
             </span>
           </div>
 
@@ -38,13 +86,24 @@ export default function Factura({ id, onVolver }: FacturaProps) {
                 <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-[#0d121b] dark:text-white truncate min-w-0">
                   Detalle de Factura
                 </h2>
-                <span className="p-1 py-1 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 text-xs font-bold rounded-full border border-amber-200 dark:border-amber-800 whitespace-nowrap">
-                  PENDIENTE DE PAGO
+
+                <span
+                  className={`p-1 py-1 text-xs font-bold rounded-full border whitespace-nowrap
+                  ${
+                    data?.SaldoPendiente === 0
+                      ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800"
+                      : "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800"
+                  }`}
+                >
+                  {data?.SaldoPendiente === 0 ? "PAGADA" : "PENDIENTE DE PAGO"}
                 </span>
               </div>
 
               <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
-                Factura #{id} • Vence el 12 de Diciembre, 2023
+                Factura #{data?.Tranid} • Vence el{" "}
+                {data?.FechaVencimiento != null
+                  ? parseFechaMX(data?.FechaVencimiento)
+                  : "S/F"}
               </p>
             </div>
 
@@ -56,7 +115,15 @@ export default function Factura({ id, onVolver }: FacturaProps) {
                 Descargar PDF
               </button>
 
-              <button onClick={handlePagar} className="w-full sm:w-auto bg-primary text-white px-6 sm:px-8 py-2.5 rounded-lg font-bold text-sm shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2">
+              <button
+                disabled={data?.SaldoPendiente === 0}
+                onClick={handlePagar}
+                className={`w-full sm:w-auto px-6 sm:px-8 py-2.5 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2 ${
+                  data?.SaldoPendiente === 0
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed shadow-none"
+                    : "bg-primary text-white shadow-lg shadow-primary/20 hover:bg-primary/90"
+                }`}
+              >
                 <span className="material-symbols-outlined text-lg">
                   credit_card
                 </span>
@@ -72,15 +139,15 @@ export default function Factura({ id, onVolver }: FacturaProps) {
                 Total de la Factura
               </p>
               <p className="text-gray-900 dark:text-white tracking-tight text-2xl font-black">
-                $2,450.00
+                ${data?.Total}
               </p>
             </div>
             <div className="flex flex-col gap-1 rounded-xl p-5 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
               <p className="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wider">
-                Pagos Realizados
+                Pagado
               </p>
               <p className="text-green-600 tracking-tight text-2xl font-black">
-                $1,100.00
+                ${data?.Total - data?.SaldoPendiente}
               </p>
             </div>
             <div className="flex flex-col gap-1 rounded-xl p-5 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
@@ -88,7 +155,7 @@ export default function Factura({ id, onVolver }: FacturaProps) {
                 Monto Pendiente
               </p>
               <p className="text-primary tracking-tight text-2xl font-black">
-                $1,350.00
+                ${data?.SaldoPendiente}
               </p>
             </div>
           </div>
@@ -169,44 +236,46 @@ export default function Factura({ id, onVolver }: FacturaProps) {
                   </thead>
 
                   <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                    <tr>
-                      <td className="px-4 py-3">
-                        <p className="text-gray-900 dark:text-white font-medium">
-                          Suscripción Anual Cloud ERP
-                        </p>
-                        <p className="text-gray-400 text-xs">
-                          Periodo: Ene 2024 - Dic 2024
-                        </p>
-                      </td>
-                      <td className="px-4 py-3 text-center text-gray-700 dark:text-gray-300">
-                        1
-                      </td>
-                      <td className="px-4 py-3 text-right text-gray-700 dark:text-gray-300">
-                        $1,800.00
-                      </td>
-                      <td className="px-4 py-3 text-right text-gray-900 dark:text-white font-bold">
-                        $1,800.00
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="px-4 py-3">
-                        <p className="text-gray-900 dark:text-white font-medium">
-                          Soporte Técnico Premium
-                        </p>
-                        <p className="text-gray-400 text-xs">
-                          Bolsa de 10 horas mensuales
-                        </p>
-                      </td>
-                      <td className="px-4 py-3 text-center text-gray-700 dark:text-gray-300">
-                        1
-                      </td>
-                      <td className="px-4 py-3 text-right text-gray-700 dark:text-gray-300">
-                        $650.00
-                      </td>
-                      <td className="px-4 py-3 text-right text-gray-900 dark:text-white font-bold">
-                        $650.00
-                      </td>
-                    </tr>
+                    {data?.lineas && data?.lineas.length > 0 ? (
+                      data?.lineas.map(
+                        (linea: ItemLineaFactura, index: number) => (
+                          <tr key={linea.ID_Linea ?? index}>
+                            {/* DESCRIPCIÓN */}
+                            <td className="px-4 py-2.5">
+                              <p className="text-sm text-gray-900 dark:text-white">
+                                {linea.ItemName}
+                              </p>
+                            </td>
+
+                            {/* CANTIDAD */}
+                            <td className="px-4 py-2.5 text-center text-xs text-gray-700 dark:text-gray-300">
+                              {linea.Quantity}
+                            </td>
+
+                            {/* PRECIO UNITARIO */}
+                            <td className="px-4 py-2.5 text-right text-xs text-gray-700 dark:text-gray-300">
+                              {linea.ItemName?.toUpperCase().includes("IEPS")
+                                ? `${linea.Rate}%`
+                                : formatCurrency(linea.Rate)}
+                            </td>
+
+                            {/* IMPORTE */}
+                            <td className="px-4 py-2.5 text-right text-xs text-gray-900 dark:text-white font-semibold">
+                              {formatCurrency(linea.Amount)}
+                            </td>
+                          </tr>
+                        ),
+                      )
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan={4}
+                          className="px-4 py-6 text-center text-gray-400"
+                        >
+                          Sin líneas de factura
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
 
                   <tfoot className="bg-gray-50 dark:bg-gray-800/20">
@@ -218,7 +287,7 @@ export default function Factura({ id, onVolver }: FacturaProps) {
                         Subtotal
                       </td>
                       <td className="px-4 py-2 text-right text-gray-900 dark:text-white font-bold">
-                        $2,450.00
+                        ${data?.SubTotal}
                       </td>
                     </tr>
                     <tr>
@@ -226,10 +295,10 @@ export default function Factura({ id, onVolver }: FacturaProps) {
                         colSpan={3}
                         className="px-4 py-2 text-right text-gray-500 font-medium"
                       >
-                        IVA (16%)
+                        Impuestos
                       </td>
                       <td className="px-4 py-2 text-right text-gray-900 dark:text-white font-bold">
-                        $392.00
+                        ${data?.Impuestos}
                       </td>
                     </tr>
                     <tr>
@@ -240,7 +309,7 @@ export default function Factura({ id, onVolver }: FacturaProps) {
                         Monto Total
                       </td>
                       <td className="px-4 py-2 text-right text-primary text-2xl font-black">
-                        $2,842.00
+                        ${data?.Total}
                       </td>
                     </tr>
                   </tfoot>
@@ -249,48 +318,47 @@ export default function Factura({ id, onVolver }: FacturaProps) {
 
               {/* Para móviles, cada fila como card */}
               <div className="md:hidden flex flex-col gap-4 p-4">
-                {[
-                  {
-                    descripcion: "Suscripción Anual Cloud ERP",
-                    detalle: "Periodo: Ene 2024 - Dic 2024",
-                    cantidad: 1,
-                    precio: "$1,800.00",
-                    subtotal: "$1,800.00",
-                  },
-                  {
-                    descripcion: "Soporte Técnico Premium",
-                    detalle: "Bolsa de 10 horas mensuales",
-                    cantidad: 1,
-                    precio: "$650.00",
-                    subtotal: "$650.00",
-                  },
-                ].map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="bg-gray-50 dark:bg-gray-800/20 rounded-lg p-4 flex flex-col gap-2"
-                  >
-                    <p className="text-gray-900 dark:text-white font-medium">
-                      {item.descripcion}
-                    </p>
-                    <p className="text-gray-400 text-xs">{item.detalle}</p>
-                    <div className="flex justify-between text-gray-700 dark:text-gray-300 font-medium mt-2">
-                      <span>Cant.: {item.cantidad}</span>
-                      <span>Unit.: {item.precio}</span>
-                      <span className="text-gray-900 dark:text-white font-bold">
-                        {item.subtotal}
-                      </span>
+                {data?.lineas && data?.lineas.length > 0 ? (
+                  data?.lineas.map((linea: ItemLineaFactura, index: number) => (
+                    <div
+                      key={linea.ID_Linea ?? index}
+                      className="bg-gray-50 dark:bg-gray-800/20 rounded-lg p-4 flex flex-col gap-2"
+                    >
+                      <p className="text-sm text-gray-900 dark:text-white font-medium">
+                        {linea.ItemName}
+                      </p>
+                      <div className="flex justify-between text-xs text-gray-700 dark:text-gray-300 font-medium mt-1">
+                        <span>Cant.: {linea.Quantity}</span>
+                        <span>
+                          Unit.:{" "}
+                          {linea.ItemName?.toUpperCase().includes("IEPS")
+                            ? `${linea.Rate}%`
+                            : formatCurrency(linea.Rate)}
+                        </span>
+                        <span className="text-gray-900 dark:text-white font-semibold">
+                          {formatCurrency(linea.Amount)}
+                        </span>
+                      </div>
                     </div>
+                  ))
+                ) : (
+                  <div className="bg-gray-50 dark:bg-gray-800/20 rounded-lg p-4 text-center text-sm text-gray-400">
+                    Sin líneas de factura
                   </div>
-                ))}
+                )}
 
                 {/* Totales */}
                 <div className="flex flex-col gap-1 mt-2 text-right">
-                  <p className="text-gray-500">Subtotal: $2,450.00</p>
-                  <p className="text-gray-500">IVA (16%): $392.00</p>
-                  <p className="text-gray-900 dark:text-white font-bold text-lg">
+                  <p className="text-gray-500 text-sm">
+                    Subtotal: {formatCurrency(data?.SubTotal)}
+                  </p>
+                  <p className="text-gray-500 text-sm">
+                    Impuestos: {formatCurrency(data?.Impuestos)}
+                  </p>
+                  <p className="text-gray-900 dark:text-white font-bold text-base">
                     Monto Total:{" "}
-                    <span className="text-primary text-2xl font-black">
-                      $2,842.00
+                    <span className="text-primary text-xl font-black">
+                      {formatCurrency(data?.Total)}
                     </span>
                   </p>
                 </div>
@@ -309,22 +377,7 @@ export default function Factura({ id, onVolver }: FacturaProps) {
               </div>
 
               <ul className="divide-y divide-gray-100 dark:divide-gray-800">
-                {[
-                  {
-                    method: "Transferencia Bancaria",
-                    date: "15 de Noviembre, 2023",
-                    ref: "BNX-00129",
-                    amount: "$600.00",
-                    icon: "account_balance_wallet",
-                  },
-                  {
-                    method: "Pago en Efectivo (Caja)",
-                    date: "20 de Noviembre, 2023",
-                    ref: "CJ-8821",
-                    amount: "$500.00",
-                    icon: "payments",
-                  },
-                ].map((item, idx) => (
+                {data?.pagos?.map((item: PagosFactura, idx: number) => (
                   <li
                     key={idx}
                     className="px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors"
@@ -333,23 +386,23 @@ export default function Factura({ id, onVolver }: FacturaProps) {
                       {/* Ícono */}
                       <div className="bg-green-100 dark:bg-green-900/40 p-2 rounded-full text-green-600 flex-shrink-0 flex items-center justify-center">
                         <span className="material-symbols-outlined text-xl">
-                          {item.icon}
+                          payments
                         </span>
                       </div>
 
                       {/* Texto */}
                       <div className="flex flex-col min-w-0 w-full sm:w-auto">
                         <p className="text-gray-900 dark:text-white font-bold truncate">
-                          {item.method}
+                          {item.PaymentMethod}
                         </p>
                         <p className="text-gray-500 text-xs sm:text-sm truncate">
-                          {item.date} • Ref: {item.ref}
+                          {item.FechaPago} • Ref: {item.PaymentTranId}
                         </p>
                       </div>
                     </div>
 
                     <p className="text-gray-900 dark:text-white font-black text-lg mt-2 sm:mt-0 whitespace-nowrap">
-                      {item.amount}
+                      {item.MontoPago}
                     </p>
                   </li>
                 ))}

@@ -1,16 +1,59 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import SidebarItem from "./SidebarItem";
 import UserProfile from "./UserProfile";
 
 export default function Sidebar() {
-  const [activeItem, setActiveItem] = useState("Home");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const [activeItem, setActiveItem] = useState<string>(() => {
+    return localStorage.getItem("activeSidebarItem") || "Home";
+  });
 
   const goTo = (label: string, path: string) => {
     setActiveItem(label);
+    localStorage.setItem("activeSidebarItem", label);
     navigate(path);
   };
+
+  useEffect(() => {
+    const path = location.pathname;
+
+    switch (path) {
+      case "/admin/":
+        setActiveItem("Home");
+        localStorage.setItem("activeSidebarItem", "Home");
+        break;
+      case "/admin/cartera":
+        setActiveItem("Cartera");
+        localStorage.setItem("activeSidebarItem", "Cartera");
+        break;
+      case "/admin/clientes":
+        setActiveItem("Clientes");
+        localStorage.setItem("activeSidebarItem", "Clientes");
+        break;
+      case "/admin/facturas":
+        setActiveItem("Facturas");
+        localStorage.setItem("activeSidebarItem", "Facturas");
+        break;
+      case "/admin/pagos":
+        setActiveItem("Pagos");
+        localStorage.setItem("activeSidebarItem", "Pagos");
+        break;
+      case "/admin/reportes":
+        setActiveItem("Reportes");
+        localStorage.setItem("activeSidebarItem", "Reportes");
+        break;
+      case "/admin/notificaciones":
+        setActiveItem("Notificaciones");
+        localStorage.setItem("activeSidebarItem", "Notificaciones");
+        break;
+      default:
+        setActiveItem("Home");
+        localStorage.setItem("activeSidebarItem", "Home");
+    }
+  }, [location.pathname]);
 
   return (
     <aside className="w-64 flex-shrink-0 flex flex-col border-r border-[#e7ebf3] dark:border-gray-800 bg-white dark:bg-[#161b2a]">

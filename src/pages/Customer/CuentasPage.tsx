@@ -6,10 +6,9 @@ type Vista = "cuentas" | "factura";
 
 export default function CuentasPage() {
   const [vista, setVista] = useState<Vista>("cuentas");
-  const [facturaId, setFacturaId] = useState<string | null>(null);
+  const [facturaId, setFacturaId] = useState<number | null>(null);
 
-  const abrirFactura = (id: string) => {
-    console.log(id)
+  const abrirFactura = (id: number) => {
     setFacturaId(id);
     setVista("factura");
   };

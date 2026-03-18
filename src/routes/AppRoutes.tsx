@@ -1,4 +1,6 @@
 import { Routes, Route } from "react-router-dom";
+import ProtectedRoute from "./ProtectedRoutes";
+
 import ErrorPage from "../pages/ErrorPage/ErrorPage";
 import AuthPage from "../pages/AuthPage/AuthPage";
 import AuthLayout from "../Layouts/AuthLayout/AuthLayout";
@@ -19,36 +21,48 @@ import NotificacionesPageC from "../pages/Customer/NotificacionesPage";
 import PagarPage from "../pages/Customer/PagarPage";
 import PagosPageC from "../pages/Customer/PagosPage";
 import ConfiguracionPage from "../pages/Customer/ConfiguracionPage";
+import ResetPassword from "../components/AuthComponents/ResetPassword";
 
 const AppRoutes = () => {
   return (
     <Routes>
+
       <Route path="/" element={<AuthLayout />}>
         <Route index element={<AuthPage />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
       </Route>
 
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<HomePage />} />
-        <Route path="cartera" element={<CarteraPage />} />
-        <Route path="clientes" element={<ClientesPage />} />
-        <Route path="facturas" element={<FacturasPage />} />
-        <Route path="pagos" element={<PagosPage />} />
-        <Route path="notificaciones" element={<NotificacionesPage />} />
-        <Route path="reportes" element={<ReportesPage />} />
+      <Route element={
+        <ProtectedRoute allowedRoles={["SuperAdministrador", "Administrador", "Supervisor"]} />
+      }>
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<HomePage />} />
+          <Route path="cartera" element={<CarteraPage />} />
+          <Route path="clientes" element={<ClientesPage />} />
+          <Route path="facturas" element={<FacturasPage />} />
+          <Route path="pagos" element={<PagosPage />} />
+          <Route path="notificaciones" element={<NotificacionesPage />} />
+          <Route path="reportes" element={<ReportesPage />} />
+        </Route>
       </Route>
 
-      <Route path="/clientes" element={<CustomerLayout />}>
-        <Route index element={<HomePageC />} />
-        <Route path="cuentas" element={<CuentasPage />} />
-        <Route path="factura" element={<FacturaPage />} />
-        <Route path="notificaciones" element={<NotificacionesPageC />} /> 
-        <Route path="pagos" element={<PagosPageC />} /> 
-        <Route path="configuracion" element={<ConfiguracionPage />} /> 
-        <Route path="pagar/:id" element={<PagarPage />} />
+      <Route element={
+        <ProtectedRoute allowedRoles={["Cliente", "Invitado"]} />
+      }>
+        <Route path="/clientes" element={<CustomerLayout />}>
+          <Route index element={<HomePageC />} />
+          <Route path="cuentas" element={<CuentasPage />} />
+          <Route path="factura" element={<FacturaPage />} />
+          <Route path="notificaciones" element={<NotificacionesPageC />} />
+          <Route path="pagos" element={<PagosPageC />} />
+          <Route path="configuracion" element={<ConfiguracionPage />} />
+          <Route path="pagar/:id" element={<PagarPage />} />
+        </Route>
       </Route>
 
-      {/* Redirección */}
+      <Route path="/error" element={<ErrorPage />} />
       <Route path="*" element={<ErrorPage />} />
+
     </Routes>
   );
 };

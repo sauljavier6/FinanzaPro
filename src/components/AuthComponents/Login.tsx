@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 interface LoginProps {
   onRegister?: (register: boolean) => void;
@@ -6,43 +9,46 @@ interface LoginProps {
 }
 
 export default function Login({ onRegister, onRecoverPassword }: LoginProps) {
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const navigate = useNavigate();
+  const { login, user } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    rememberMe: false,
+  });
 
-  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    if (!user?.roleName) return;
+
+    if (
+      ["SuperAdministrador", "Administrador", "Supervisor"].includes(
+        user.roleName
+      )
+    ) {
+      navigate("/admin");
+    } else {
+      navigate("/clientes");
+    }
+  }, [user, navigate]);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Iniciando sesión con:", formData);
+
+    try {
+      await login(formData);
+      toast.success("Login exitoso");
+    } catch (error) {
+      toast.error("Credenciales incorrectas");
+    }
   };
 
   return (
     <div className="bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-display">
-      {/* Header */}
-      <header className="w-full flex items-center justify-between border-b border-solid border-[#e7ebf3] dark:border-gray-800 bg-white dark:bg-background-dark px-4 sm:px-6 lg:px-20 py-3 sm:py-4">
-        <div className="flex items-center gap-2 sm:gap-3 text-primary">
-          <div className="size-8 sm:size-10 flex items-center justify-center bg-primary/10 rounded-lg">
-            <span className="material-symbols-outlined text-primary text-2xl sm:text-3xl">
-              account_balance
-            </span>
-          </div>
-          <h2 className="text-[#0d121b] dark:text-white text-base sm:text-lg font-bold leading-tight tracking-tight">
-            Sistema de Cobranza
-          </h2>
-        </div>
-        <div className="flex items-center gap-3 sm:gap-4">
-          <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 hidden sm:block">
-            v2.4.0
-          </span>
-          <span className="material-symbols-outlined text-gray-400 text-lg sm:text-xl">
-            help_outline
-          </span>
-        </div>
-      </header>
 
-      {/* Main */}
       <main className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
         <div className="w-full max-w-[480px] flex flex-col gap-4 sm:gap-6">
-          {/* Card */}
           <div className="bg-white dark:bg-[#1a2133] shadow-xl rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800">
-            {/* Banner */}
             <div className="w-full h-24 sm:h-32 bg-[#0a3a9c] flex items-center justify-center relative overflow-hidden">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.25),transparent_55%)]" />
               <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
@@ -51,7 +57,6 @@ export default function Login({ onRegister, onRecoverPassword }: LoginProps) {
               </span>
             </div>
 
-            {/* Form Content */}
             <div className="px-4 sm:px-8 pt-6 sm:pt-8 pb-8 sm:pb-10">
               <div className="mb-6 sm:mb-10 text-center">
                 <h1 className="text-[#0d121b] dark:text-white text-2xl sm:text-3xl font-bold leading-tight mb-1 sm:mb-2">
@@ -63,7 +68,6 @@ export default function Login({ onRegister, onRecoverPassword }: LoginProps) {
               </div>
 
               <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
-                {/* Email */}
                 <div className="flex flex-col gap-1 sm:gap-2">
                   <label
                     className="text-sm sm:text-sm font-bold text-[#0d121b] dark:text-gray-200"
@@ -88,7 +92,6 @@ export default function Login({ onRegister, onRecoverPassword }: LoginProps) {
                   </div>
                 </div>
 
-                {/* Password */}
                 <div className="flex flex-col gap-1 sm:gap-2">
                   <label
                     className="text-sm sm:text-sm font-bold text-[#0d121b] dark:text-gray-200"
@@ -102,7 +105,7 @@ export default function Login({ onRegister, onRecoverPassword }: LoginProps) {
                     </span>
                     <input
                       id="password"
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
                       value={formData.password}
                       onChange={(e) =>
@@ -112,22 +115,30 @@ export default function Login({ onRegister, onRecoverPassword }: LoginProps) {
                     />
                     <button
                       type="button"
+                      onClick={() => setShowPassword(!showPassword)}
                       className="absolute inset-y-0 right-2 sm:right-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
                     >
                       <span className="material-symbols-outlined text-base sm:text-xl">
-                        visibility
+                        {showPassword ? "visibility_off" : "visibility"}
                       </span>
                     </button>
                   </div>
                 </div>
 
-                {/* Options */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between py-1 gap-2 sm:gap-0">
                   <label className="flex items-center gap-2 cursor-pointer group">
                     <input
                       type="checkbox"
+                      checked={formData.rememberMe}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          rememberMe: e.target.checked,
+                        })
+                      }
                       className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
                     />
+
                     <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200">
                       Recordarme
                     </span>
@@ -141,7 +152,6 @@ export default function Login({ onRegister, onRecoverPassword }: LoginProps) {
                   </button>
                 </div>
 
-                {/* Submit */}
                 <button
                   type="submit"
                   className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 sm:py-3.5 rounded-lg shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 mt-2 sm:mt-4 text-sm sm:text-base"
@@ -152,7 +162,6 @@ export default function Login({ onRegister, onRecoverPassword }: LoginProps) {
                   </span>
                 </button>
 
-                {/* Register */}
                 <div className="text-center mt-3 sm:mt-4 text-xs sm:text-sm">
                   <span className="text-gray-500 dark:text-gray-400">
                     ¿No tienes cuenta?
@@ -173,32 +182,6 @@ export default function Login({ onRegister, onRecoverPassword }: LoginProps) {
             </div>
           </div>
 
-          {/* Footer */}
-          <div className="flex flex-col items-center gap-2 sm:gap-4 py-4">
-            <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
-              © 2026 Sistema de Cobranza S.A.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm">
-              <a
-                className="text-gray-400 hover:text-primary transition-colors"
-                href="#"
-              >
-                Términos de Servicio
-              </a>
-              <a
-                className="text-gray-400 hover:text-primary transition-colors"
-                href="#"
-              >
-                Privacidad
-              </a>
-              <a
-                className="text-gray-400 hover:text-primary transition-colors"
-                href="#"
-              >
-                Soporte
-              </a>
-            </div>
-          </div>
         </div>
       </main>
     </div>

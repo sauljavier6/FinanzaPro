@@ -1,16 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import SidebarItem from "./SidebarItem";
 import UserProfile from "./UserProfile";
 
 export default function Sidebar() {
-  const [activeItem, setActiveItem] = useState("Home");
   const navigate = useNavigate();
+
+  const [activeItem, setActiveItem] = useState<string>(() => {
+    return localStorage.getItem("activeSidebarItem") || "Home";
+  });
 
   const goTo = (label: string, path: string) => {
     setActiveItem(label);
+    localStorage.setItem("activeSidebarItem", label);
     navigate(path);
   };
+
+  useEffect(() => {
+    const path = window.location.pathname;
+    switch (path) {
+      case "/clientes/":
+        setActiveItem("Home");
+        break;
+      case "/clientes/cuentas":
+        setActiveItem("Cuentas");
+        break;
+      case "/clientes/pagos":
+        setActiveItem("Pagos");
+        break;
+      case "/clientes/notificaciones":
+        setActiveItem("Notificaciones");
+        break;
+      case "/clientes/configuracion":
+        setActiveItem("configuracion");
+        break;
+      default:
+        setActiveItem("Home");
+    }
+  }, []);
 
   return (
     <aside className="w-64 flex-shrink-0 flex flex-col border-r border-[#e7ebf3] dark:border-gray-800 bg-white dark:bg-[#161b2a]">
@@ -35,29 +62,25 @@ export default function Sidebar() {
           active={activeItem === "Home"}
           onClick={() => goTo("Home", "/clientes/")}
         />
-
         <SidebarItem
           icon="description"
-          label="Estado de cuentas"
+          label="Cuentas"
           active={activeItem === "Cuentas"}
           onClick={() => goTo("Cuentas", "/clientes/cuentas")}
         />
-
         <SidebarItem
           icon="payments"
-          label="Historial de pagos"
+          label="Pagos"
           active={activeItem === "Pagos"}
           onClick={() => goTo("Pagos", "/clientes/pagos")}
         />
-
         <SidebarItem
           icon="handshake"
-          label="Promesas de pagos"
+          label="Promesas"
           active={activeItem === "Promesas"}
-          //onClick={() => goTo("Promesas", "/clientes/Promesas")}
+          // onClick={() => goTo("Promesas", "/clientes/Promesas")}
         />
 
-        {/* Separador */}
         <div className="my-4 border-t border-gray-200 dark:border-gray-800" />
 
         <SidebarItem
@@ -66,7 +89,6 @@ export default function Sidebar() {
           active={activeItem === "Notificaciones"}
           onClick={() => goTo("Notificaciones", "/clientes/notificaciones")}
         />
-
         <SidebarItem
           icon="settings"
           label="configuracion"

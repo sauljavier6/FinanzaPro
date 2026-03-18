@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Login from "../../components/AuthComponents/Login";
 import RecoverPassword from "../../components/AuthComponents/RecoverPassword";
+import Register from "../../components/AuthComponents/Register";
 
 const AuthPage = () => {
   const [view, setView] = useState("login"); 
@@ -17,7 +18,7 @@ const AuthPage = () => {
 
       {view === "register" && (
         <div className="p-6 text-center">
-          Por el momento no hay registro desarrollado
+          <Register onBackToLogin={() => setView("login")} />
         </div>
       )}
 
