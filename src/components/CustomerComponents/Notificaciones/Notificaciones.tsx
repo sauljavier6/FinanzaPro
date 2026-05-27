@@ -1,301 +1,242 @@
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import dayjs from "../../../utils/dayjs";
+import { getNotificaciones, ReadAllNotificaciones, ReadNotificacionById } from "../../../api/customerApis/NotificacionesApi";
+
+
+interface NotificationStyles {
+  icon: string;
+  color: string;
+  bg: string; 
+  tag: string;
+}
+
+interface Notification {
+  id: number;
+  tipotransaccion: number,
+  transaction: number,
+  type: "success" | "warning" | "danger" | "info";
+  title: string;
+  message: string;
+  company: string;
+  time: string;
+  styles: NotificationStyles;
+}
+
 export default function Notificaciones() {
+  const navigate = useNavigate();
+  const [page] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const { data, isFetching } = useQuery({
+    queryKey: ["notificacionesadmin", page, pageSize],
+    queryFn: () => getNotificaciones(page, pageSize),
+    refetchOnWindowFocus: false,
+    placeholderData: (prev) => prev,
+  });
+
+  const counts = (data?.countsByType || []).reduce(
+    (acc: any, item: any) => {
+      acc[item.type] = Number(item.total);
+      return acc;
+    },
+    {
+      success: 0,
+      warning: 0,
+      danger: 0
+    }
+  );
+
+  const handleReadNotificationsById = async (id: number) => {
+    await ReadNotificacionById(id)
+  }
+
+  const handleReadAllNotifications = async () => {
+    await ReadAllNotificaciones()
+  }
+
+  const formatRelativeTime = (date: string) => {
+    return dayjs.utc(date).local().fromNow();
+  };
+
+
   return (
     <div className="flex overflow-hidden">
       <main className="flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark">
         <div className="p-3 sm:p-8">
 
-          {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 md:mb-8">
-            <div className="flex flex-col gap-1">
-              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0d121b] dark:text-white">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div className="min-w-0">
+              <h2 className="text-2xl font-extrabold tracking-tight">
                 Centro de Notificaciones
               </h2>
-              <p className="text-[#4c669a] dark:text-gray-400 text-xs sm:text-sm max-w-xl">
-                Gestiona tus avisos de cobranza y mantente al día con tus
-                compromisos.
+              <p className="text-sm text-[#64748b] mt-1 break-words">
+                Gestiona la actividad reciente de la cartera de clientes
               </p>
             </div>
 
-            <div className="flex w-full md:w-auto">
-              <button className="w-full md:w-auto flex items-center justify-center gap-2 h-10 sm:h-11 px-4 sm:px-5 rounded-lg bg-background-light dark:bg-gray-800 text-[#0d121b] dark:text-white text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-700 ">
-                <span className="material-symbols-outlined text-lg sm:text-xl">
-                  done_all
-                </span>
-                <span className="truncate">Marcar todo como leído</span>
-              </button>
-            </div>
-          </div> 
+            <button
+              onClick={handleReadAllNotifications}
+              className="w-full md:w-auto flex items-center justify-center gap-2 rounded-lg h-11 px-5 
+                bg-background-light dark:bg-gray-800 
+                text-[#0d121b] dark:text-white text-sm font-bold 
+                hover:bg-blue-100 dark:hover:bg-blue-900/30 
+                hover:text-blue-700 dark:hover:text-blue-400
+                transition-colors"
+            >
+              <span className="material-symbols-outlined text-xl">
+                done_all
+              </span>
+              <span className="truncate">Marcar todo como leído</span>
+            </button>
+          </div>
 
-          {/* FACTURAS */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-6 sm:mb-8 ">
-            <div className="bg-white dark:bg-background-dark p-5 sm:p-6 rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
-              <p className="text-[#4c669a] dark:text-gray-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-2">
-                Facturas pagadas
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 xl:gap-6 mb-8">
+            <div className="bg-white dark:bg-background-dark p-6 rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
+              <p className="text-[#4c669a] dark:text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">
+                Éxito
               </p>
+
               <div className="flex items-end justify-between">
-                <h4 className="text-2xl sm:text-3xl font-black text-green-600 dark:text-green-400">
-                  92%
+                <h4 className="text-3xl sm:text-2xl font-black text-green-600 dark:text-green-400">
+                  {counts.success}
                 </h4>
-                <span className="text-[10px] sm:text-xs text-green-600 font-bold bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded">
-                  +4% vs ayer
-                </span>
-              </div>
-            </div>
 
-            <div className="bg-white dark:bg-background-dark p-5 sm:p-6 rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
-              <p className="text-[#4c669a] dark:text-gray-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-2">
-                Facturas vencidas
-              </p>
-              <div className="flex items-end justify-between">
-                <h4 className="text-2xl sm:text-3xl font-black text-amber-600 dark:text-amber-400">
-                  14
-                </h4>
-                <span className="text-[10px] sm:text-xs text-amber-600 font-bold bg-amber-50 dark:bg-amber-900/30 px-2 py-1 rounded">
-                  2 críticas
+                <span className="text-xs text-green-600 font-bold bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded">
+                  OK
                 </span>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-background-dark p-5 sm:p-6 rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
-              <p className="text-[#4c669a] dark:text-gray-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-2">
-                Acciones pendientes
+            <div className="bg-white dark:bg-background-dark p-6 rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
+              <p className="text-[#4c669a] dark:text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">
+                Alertas
               </p>
+
               <div className="flex items-end justify-between">
-                <h4 className="text-2xl sm:text-3xl font-black text-primary">
-                  08
+                <h4 className="text-3xl sm:text-2xl font-black text-amber-600 dark:text-amber-400">
+                  {counts.warning}
                 </h4>
-                <button className="text-[10px] sm:text-xs text-primary font-bold hover:underline">
+
+                <span className="text-xs text-amber-600 font-bold bg-amber-50 dark:bg-amber-900/30 px-2 py-1 rounded">
+                  Pendientes
+                </span>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-background-dark p-6 rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
+              <p className="text-[#4c669a] dark:text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">
+                Errores
+              </p>
+
+              <div className="flex items-end justify-between">
+                <h4 className="text-3xl sm:text-2xl font-black text-red-600 dark:text-red-400">
+                  {counts.danger}
+                </h4>
+
+                <button className="text-xs text-red-600 dark:text-red-400 font-bold hover:underline">
                   Ir a tareas
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Alertas */}
-          <div className="mb-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:mb-8 sm:p-6 lg:p-8 dark:border-slate-800 dark:bg-slate-900">
-            <div className="mb-5 flex items-center gap-3">
-              <div className="rounded-lg bg-primary/10 p-2 text-primary">
-                <span className="material-symbols-outlined text-xl">
-                  settings_suggest
-                </span>
-              </div>
-              <h3 className="text-lg font-bold text-slate-900 sm:text-xl dark:text-white">
-                Preferencias de Alertas
-              </h3>
-            </div>
-
-            <div className="space-y-5 sm:space-y-6">
-              <p className="text-sm leading-relaxed text-slate-500 dark:text-slate-400">
-                Personaliza dónde y cómo prefieres recibir nuestras
-                comunicaciones de cobro.
-              </p>
-
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
-                <div className="flex items-center justify-between rounded-xl border border-slate-100 p-4 transition-colors hover:border-primary/30 dark:border-slate-800">
-                  <div className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-slate-400">
-                      mail
-                    </span>
-                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                      Email
-                    </span>
-                  </div>
-
-                  <label className="relative inline-flex cursor-pointer items-center">
-                    <input checked type="checkbox" className="peer sr-only" />
-                    <div className="relative h-6 w-11 rounded-full bg-slate-200 transition-all peer-checked:bg-primary dark:bg-slate-700 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all peer-checked:after:translate-x-full"></div>
-                  </label>
-                </div>
-
-                <div className="flex items-center justify-between rounded-xl border border-slate-100 p-4 transition-colors hover:border-primary/30 dark:border-slate-800">
-                  <div className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-slate-400">
-                      sms
-                    </span>
-                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                      SMS / Móvil
-                    </span>
-                  </div>
-
-                  <label className="relative inline-flex cursor-pointer items-center">
-                    <input checked type="checkbox" className="peer sr-only" />
-                    <div className="relative h-6 w-11 rounded-full bg-slate-200 transition-all peer-checked:bg-primary dark:bg-slate-700 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all peer-checked:after:translate-x-full"></div>
-                  </label>
-                </div>
-
-                <div className="flex items-center justify-between rounded-xl border border-slate-100 p-4 transition-colors hover:border-primary/30 dark:border-slate-800">
-                  <div className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-slate-400">
-                      app_shortcut
-                    </span>
-                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                      Push App
-                    </span>
-                  </div>
-
-                  <label className="relative inline-flex cursor-pointer items-center">
-                    <input type="checkbox" className="peer sr-only" />
-                    <div className="relative h-6 w-11 rounded-full bg-slate-200 transition-all peer-checked:bg-primary dark:bg-slate-700 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all peer-checked:after:translate-x-full"></div>
-                  </label>
-                </div>
-              </div>
-
-              <div className="flex justify-center pt-4 sm:justify-end">
-                <button className="w-full rounded-lg bg-primary px-8 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:brightness-110 sm:w-auto">
-                  Guardar Cambios
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Tabla */}
           <div className="mb-6 bg-white dark:bg-background-dark rounded-xl shadow-sm border border-[#e7ebf3] dark:border-gray-800 overflow-hidden">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-8 border-b border-[#e7ebf3] dark:border-gray-800 px-2 md:px-4 py-2">
-              <a
-                href="#"
-                className="flex items-center gap-2 border-b-4 border-b-primary text-primary pb-2 pt-1 justify-center"
-              >
-                <span className="material-symbols-outlined text-[20px]">
+            <div className="grid grid-cols-2 sm:flex border-b border-[#e7ebf3] dark:border-gray-800 md:px-4 gap-4 md:gap-8">
+              <button
+                className="flex items-center justify-center gap-1.5 py-3 text-xs font-bold border-b-2 transition border-primary text-primary">
+                <span className="material-symbols-outlined text-[18px]">
                   list_alt
                 </span>
-                <p className="text-sm font-bold tracking-[0.015em]">Todos</p>
-                <span className="bg-primary/10 text-primary text-[10px] px-1.5 py-0.5 rounded-full">
-                  24
+                Todos
+                <span className="bg-primary/10 text-primary text-[9px] px-1.5 py-0.5 rounded-full">
+                  {data?.data?.length}
                 </span>
-              </a>
-
-              <a
-                href="#"
-                className="flex items-center gap-2 border-b-4 border-b-transparent text-[#4c669a] dark:text-gray-400 pb-2 pt-1 justify-center hover:text-[#0d121b] dark:hover:text-white transition-colors"
-              >
-                <span className="material-symbols-outlined text-[20px]">
-                  check_circle
-                </span>
-                <p className="text-sm font-bold tracking-[0.015em]">Pagos</p>
-              </a>
-
-              <a
-                href="#"
-                className="flex items-center gap-2 border-b-4 border-b-transparent text-[#4c669a] dark:text-gray-400 pb-2 pt-1 justify-center hover:text-[#0d121b] dark:hover:text-white transition-colors"
-              >
-                <span className="material-symbols-outlined text-[20px]">
-                  event_busy
-                </span>
-                <p className="text-sm font-bold tracking-[0.015em]">
-                  Vencimientos
-                </p>
-              </a>
-
-              <a
-                href="#"
-                className="flex items-center gap-2 border-b-4 border-b-transparent text-[#4c669a] dark:text-gray-400 pb-2 pt-1 justify-center hover:text-[#0d121b] dark:hover:text-white transition-colors"
-              >
-                <span className="material-symbols-outlined text-[20px]">
-                  error
-                </span>
-                <p className="text-sm font-bold tracking-[0.015em]">Errores</p>
-              </a>
+              </button>
             </div>
 
+            {/* */}
             <div className="flex flex-col divide-y divide-[#e7ebf3] dark:divide-gray-800">
-              <div className="bg-background-light/50 dark:bg-gray-800/30 px-6 py-3">
-                <h3 className="text-[#0d121b] dark:text-white text-sm font-extrabold uppercase tracking-widest flex items-center gap-2">
-                  <span className="size-2 bg-primary rounded-full animate-pulse"></span>
-                  Hoy
-                </h3>
-              </div>
+              {data?.data?.map((n: Notification) => (
+                <div
+                  key={n.id}
+                  className="group flex flex-col md:flex-row gap-4 bg-white dark:bg-background-dark px-6 py-5 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors"
+                >
 
-              <div className="group flex flex-col md:flex-row gap-4 px-6 py-5 bg-white dark:bg-background-dark hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors">
-                <div className="flex items-start gap-4 flex-1">
-                  <div className="flex items-center justify-center shrink-0 size-12 rounded-xl bg-green-50 dark:bg-green-900/30 border border-green-100 dark:border-green-800 text-green-600 dark:text-green-400">
-                    <span className="material-symbols-outlined text-2xl">
-                      check_circle
+                  {/* ICON */}
+                  <div className={`flex items-center justify-center rounded-xl ${n.styles.bg} shrink-0 size-12 border`}>
+                    <span className={`material-symbols-outlined text-2xl ${n.styles.color}`}>
+                      {n.styles.icon}
                     </span>
                   </div>
-                  <div className="flex flex-col gap-1 flex-1">
+
+                  {/* CONTENT */}
+                  <div className="flex flex-col flex-1 min-w-0">
+
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-[#0d121b] dark:text-white text-base font-bold leading-normal">
-                        Pago recibido de{" "}
+                      <p className="text-[#0d121b] dark:text-white text-base font-bold break-words">
+                        {n.title}{" "}
                         <span className="text-primary">
-                          Distribuidora Galaxia S.A.
+                          {n.company}
                         </span>
                       </p>
-                      <span className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 text-[10px] font-bold px-2 py-0.5 rounded uppercase">
-                        Éxito
+
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${n.styles.tag}`}>
+                        {n.type}
                       </span>
                     </div>
-                    <p className="text-[#4c669a] dark:text-gray-400 text-xs flex items-center gap-1">
+
+                    <p className="text-[#4c669a] dark:text-gray-400 text-xs font-medium flex items-center gap-1 mt-1">
                       <span className="material-symbols-outlined text-sm">
                         schedule
-                      </span>{" "}
-                      hace 5 min
-                    </p>
-                    <p className="text-[#4c669a] dark:text-gray-300 text-sm leading-relaxed mt-1">
-                      El abono por{" "}
-                      <span className="font-bold text-[#0d121b] dark:text-white">
-                        $1,500.00 USD
-                      </span>{" "}
-                      correspondiente a la factura{" "}
-                      <span className="underline">#F-2023-90</span> ha sido
-                      procesado exitosamente vía transferencia bancaria.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center shrink-0 mt-3 md:mt-0">
-                  <button className="flex justify-center items-center rounded-lg px-4 py-2 bg-primary text-white text-sm font-bold hover:bg-blue-700 w-full md:w-fit transition-colors">
-                    Ver detalle
-                  </button>
-                </div>
-              </div>
-
-              <div className="group flex flex-col md:flex-row gap-4 px-6 py-5 bg-white dark:bg-background-dark hover:bg-amber-50/30 dark:hover:bg-amber-900/10 transition-colors">
-                <div className="flex items-start gap-4 flex-1">
-                  <div className="flex items-center justify-center shrink-0 size-12 rounded-xl bg-amber-50 dark:bg-amber-900/30 border border-amber-100 dark:border-amber-800 text-amber-600 dark:text-amber-400">
-                    <span className="material-symbols-outlined text-2xl">
-                      warning
-                    </span>
-                  </div>
-                  <div className="flex flex-col gap-1 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-[#0d121b] dark:text-white text-base font-bold leading-normal">
-                        Factura vencida de{" "}
-                        <span className="text-primary">
-                          Logística Express Norte
-                        </span>
-                      </p>
-                      <span className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded uppercase">
-                        Alerta
                       </span>
-                    </div>
-                    <p className="text-[#4c669a] dark:text-gray-400 text-xs flex items-center gap-1">
-                      <span className="material-symbols-outlined text-sm">
-                        schedule
-                      </span>{" "}
-                      hace 2 horas
+                      {formatRelativeTime(n.time)}
                     </p>
-                    <p className="text-[#4c669a] dark:text-gray-300 text-sm leading-relaxed mt-1">
-                      La factura{" "}
-                      <span className="font-bold text-[#0d121b] dark:text-white">
-                        #F-2023-85
-                      </span>{" "}
-                      por un monto de $4,200.00 ha superado la fecha límite por
-                      3 días. Se recomienda gestión inmediata.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center shrink-0 mt-3 md:mt-0">
-                  <button className="flex justify-center items-center rounded-lg px-4 py-2 bg-background-light dark:bg-gray-800 text-[#0d121b] dark:text-white text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-700 w-full md:w-fit transition-colors">
-                    Gestionar
-                  </button>
-                </div>
-              </div>
 
-              <div className="p-6 bg-white dark:bg-background-dark border-t border-[#e7ebf3] dark:border-gray-800 text-center">
-                <button className="text-primary text-sm font-bold hover:underline">
-                  Cargar notificaciones anteriores
-                </button>
-              </div>
+                    <p className="text-[#4c669a] dark:text-gray-300 text-sm mt-2 leading-relaxed break-words">
+                      {n.message}
+                    </p>
+
+                  </div>
+
+                  {/* BUTTON */}
+                  <div className="flex items-center w-full md:w-auto">
+                    <button
+                      disabled={!(n.tipotransaccion === 1 || n.tipotransaccion === 2)}
+                      onClick={() => {
+                        if (n.tipotransaccion === 2) {
+                          navigate(`/admin/facturas/${n.transaction}`);
+                        }
+                        if (n.tipotransaccion === 1) {
+                          navigate(`/admin/pagos/${n.transaction}`);
+                        }
+                        handleReadNotificationsById(n.id)
+                      }}
+                      className="w-full md:w-auto h-9 px-4 bg-primary text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition-colors">
+                      Ver detalle
+                    </button>
+                  </div>
+
+                </div>
+              ))}
             </div>
+
+            {/**/}
+            <div className="p-6 bg-white dark:bg-background-dark border-t border-[#e7ebf3] dark:border-gray-800 text-center">
+              <button
+                disabled={isFetching || !data || data.page >= data.totalPages}
+                onClick={() => setPageSize(pageSize + 10)}
+                className="text-primary text-sm font-bold hover:underline disabled:opacity-50"
+              >
+                {isFetching
+                  ? "Cargando..."
+                  : data?.page >= data?.totalPages
+                    ? "No hay más notificaciones"
+                    : "Cargar más notificaciones"}
+              </button>
+            </div>
+
           </div>
 
         </div>

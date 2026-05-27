@@ -49,6 +49,10 @@ export default function Sidebar() {
         setActiveItem("Notificaciones");
         localStorage.setItem("activeSidebarItem", "Notificaciones");
         break;
+      case "/admin/Campana":
+        setActiveItem("Campana");
+        localStorage.setItem("activeSidebarItem", "Campana");
+        break;
       default:
         setActiveItem("Home");
         localStorage.setItem("activeSidebarItem", "Home");
@@ -122,6 +126,13 @@ export default function Sidebar() {
           label="Notificaciones"
           active={activeItem === "Notificaciones"}
           onClick={() => goTo("Notificaciones", "/admin/notificaciones")}
+        />
+
+        <SidebarItem
+          icon="campaign"
+          label="Campañas de cobranza"
+          active={activeItem === "Campana"}
+          onClick={() => goTo("Campana", "/admin/Campana")}
         />
       </nav>
 

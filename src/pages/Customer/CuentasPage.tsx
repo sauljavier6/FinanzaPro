@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Cuentas from "../../components/CustomerComponents/Cuentas/Cuentas";
-import Factura from "../../components/CustomerComponents/Factura/Factura";
+import Factura from "../../components/CustomerComponents/Facturas/Factura";
 
 type Vista = "cuentas" | "factura";
 
@@ -25,7 +25,7 @@ export default function CuentasPage() {
       )}
 
       {vista === "factura" && facturaId && (
-        <Factura id={facturaId} onVolver={volverACuentas} />
+        <Factura facturaId={facturaId} onBack={volverACuentas} />
       )}
     </>
   );

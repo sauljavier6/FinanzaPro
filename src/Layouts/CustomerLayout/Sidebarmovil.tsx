@@ -34,6 +34,10 @@ export default function Sidebarmovil({ isOpen = true, onClose }: SidebarProps) {
         setActiveItem("Cuentas");
         localStorage.setItem("activeSidebarItem", "Cuentas");
         break;
+      case "/clientes/facturas":
+        setActiveItem("Facturas");
+        localStorage.setItem("activeSidebarItem", "Facturas");
+        break;
       case "/clientes/pagos":
         setActiveItem("Pagos");
         localStorage.setItem("activeSidebarItem", "Pagos");
@@ -93,10 +97,16 @@ export default function Sidebarmovil({ isOpen = true, onClose }: SidebarProps) {
           onClick={() => goTo("Home", "/clientes/")}
         />
         <SidebarItem
-          icon="description"
-          label="Cuentas"
+          icon="request_quote"
+          label="Estado de Cuentas"
           active={activeItem === "Cuentas"}
           onClick={() => goTo("Cuentas", "/clientes/cuentas")}
+        />
+        <SidebarItem
+          icon="receipt_long"
+          label="Facturas"
+          active={activeItem === "Facturas"}
+          onClick={() => goTo("Facturas", "/clientes/facturas")}
         />
         <SidebarItem
           icon="payments"

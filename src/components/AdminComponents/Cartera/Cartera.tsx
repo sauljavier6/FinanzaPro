@@ -1,9 +1,132 @@
+import { useQuery } from "@tanstack/react-query";
+import { getdatacartera, getdatacarteraTable } from "../../../api/AdminApis/carteraApi";
+import { useEffect, useState } from "react";
+import { formatoMoneda } from "../../../utils/formatMoneda";
+
+interface Customer {
+  id: string;
+  companyname: string;
+}
+
+interface DataTable {
+  id: number;
+  entity: string;
+  status: string;
+  subtotal: number;
+  companyname: string;
+  amount: number;
+  trandate: string;
+  duedate: string;
+  balance: number;
+  tranid: string;
+  customer: Customer;
+}
+
 interface CarteraProps {
-  onSuccess: (facturaId: string) => void;
+  onSuccess: (facturaId: number) => void;
 }
 
 export default function Cartera({ onSuccess }: CarteraProps) {
-  console.log(onSuccess);
+  const [search, setSearch] = useState("");
+  const [estado, setEstado] = useState<"Todos" | "Pagado" | "Vigente" | "Critico">("Todos");
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+
+  console.log(search)
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  useEffect(() => {
+    setPage(1);
+    setSearch("");
+  }, [estado]);
+
+  const { data } = useQuery({
+    queryKey: ["dashboarCartera"],
+    queryFn: async () => {
+      const res = await getdatacartera();
+      return res;
+    },
+  });
+
+  const { data: dataTable } = useQuery({
+    queryKey: ["dashboarAdminClientes", page, pageSize, estado, search],
+    queryFn: () => getdatacarteraTable(page, pageSize, estado, search),
+    refetchOnWindowFocus: false,
+    placeholderData: (prev) => prev,
+  });
+
+  const currentPage = dataTable?.pagination?.page || 1;
+  const totalPages = dataTable?.pagination?.totalPages || 0;
+
+  const getPages = () => {
+    const pages = [];
+    const maxVisible = 5;
+
+    let start = Math.max(currentPage - 2, 1);
+    let end = Math.min(start + maxVisible - 1, totalPages);
+
+    if (end - start < maxVisible) {
+      start = Math.max(end - maxVisible + 1, 1);
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  };
+
+  const getDiasAtraso = (fecha?: string) => {
+    if (!fecha) return 0;
+
+    const hoy = new Date().getTime();
+    const vencimiento = new Date(fecha).getTime();
+
+    return Math.max(0, Math.floor((hoy - vencimiento) / (1000 * 60 * 60 * 24)));
+  };
+
+  const getPaymentStatus = (balance: number, duedate?: string) => {
+    const dias = getDiasAtraso(duedate);
+
+    if (balance === 0) {
+      return {
+        label: "Pagado",
+        className: "bg-green-50 text-green-700 border-green-200",
+      };
+    }
+
+    if (dias >= 0 && dias <= 30) {
+      return {
+        label: "Vigente",
+        className: "bg-orange-50 text-orange-600 border-orange-200",
+      };
+    }
+
+    if (dias > 30) {
+      return {
+        label: "Crítico",
+        className: "bg-red-50 text-red-600 border-red-200",
+      };
+    }
+
+    return {
+      label: "Vigente",
+      className: "bg-orange-50 text-orange-600 border-orange-200",
+    };
+  };
+
+  const handleSelect = (id: number) => {
+    setSelectedIds((prev) =>
+      prev.includes(id)
+        ? prev.filter((i) => i !== id) // quitar
+        : [...prev, id] // agregar
+    );
+  };
+
   return (
     <div className="flex overflow-hiddenq">
       <main className="flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark">
@@ -20,12 +143,6 @@ export default function Cartera({ onSuccess }: CarteraProps) {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-              <button className="flex items-center justify-center gap-2 rounded-lg h-11 px-6 bg-white dark:bg-gray-800 border border-[#cfd7e7] dark:border-gray-700 text-[#0d121b] dark:text-white text-sm font-bold shadow-sm hover:bg-[#f8f9fc] transition-all w-full sm:w-auto">
-                <span className="material-symbols-outlined text-[20px]">
-                  download
-                </span>
-                <span>Exportar</span>
-              </button>
               <button className="flex items-center justify-center gap-2 rounded-lg h-11 px-6 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all w-full sm:w-auto">
                 <span className="material-symbols-outlined text-[20px]">
                   campaign
@@ -47,16 +164,11 @@ export default function Cartera({ onSuccess }: CarteraProps) {
                   account_balance
                 </span>
               </div>
-              <p className="text-[#0d121b] dark:text-white text-lg font-bold tracking-tight mt-3 sm:mt-4">
-                $450,230.00
+              <p className="text-red-500 dark:text-red-400 text-lg font-bold tracking-tight mt-3 sm:mt-4">
+                {formatoMoneda.format(data?.totalPendiente || 0)}
               </p>
               <div className="flex items-center gap-1 mt-2">
-                <span className="material-symbols-outlined text-[#07883b] text-sm">
-                  trending_up
-                </span>
-                <p className="text-[#07883b] text-xs sm:text-sm font-bold">
-                  +2.5% vs mes anterior
-                </p>
+
               </div>
             </div>
             {/* Card 2: Monto Vencido */}
@@ -69,16 +181,11 @@ export default function Cartera({ onSuccess }: CarteraProps) {
                   warning
                 </span>
               </div>
-              <p className="text-[#0d121b] dark:text-white text-lg font-bold tracking-tight mt-3 sm:mt-4">
-                $82,150.00
+              <p className="text-red-500 dark:text-red-400 text-lg font-bold tracking-tight mt-3 sm:mt-4">
+                {formatoMoneda.format(data?.totalVencido || 0)}
               </p>
               <div className="flex items-center gap-1 mt-2">
-                <span className="material-symbols-outlined text-orange-500 text-sm">
-                  trending_up
-                </span>
-                <p className="text-orange-500 text-xs sm:text-sm font-bold">
-                  +1.2% de incremento
-                </p>
+
               </div>
             </div>
             {/* Card 3: Casos Críticos */}
@@ -91,382 +198,314 @@ export default function Cartera({ onSuccess }: CarteraProps) {
                   error
                 </span>
               </div>
-              <p className="text-[#0d121b] dark:text-white text-lg font-bold tracking-tight mt-3 sm:mt-4">
-                24
+              <p className="text-red-500 dark:text-red-400 text-lg font-bold tracking-tight mt-3 sm:mt-4">
+                {data?.countVencidas}
               </p>
               <div className="flex items-center gap-1 mt-2">
-                <span className="material-symbols-outlined text-[#07883b] text-sm">
-                  trending_down
-                </span>
-                <p className="text-[#07883b] text-xs sm:text-sm font-bold">
-                  -5.0% reducción
-                </p>
+
               </div>
             </div>
           </div>
 
           {/* Search and Filters */}
-          <div className="bg-white dark:bg-[#161b2a] border border-[#cfd7e7] dark:border-gray-800 rounded-xl p-2 mb-6 flex flex-col md:flex-row gap-4 items-center shadow-sm">
-            <div className="flex-1 w-full relative">
-              <span className="material-symbols-outlined absolute inset-y-0 left-3 flex items-center text-gray-400 text-xl pointer-events-none">
-                search
-              </span>
-              <input
-                className="w-full h-11 pl-12 pr-4 bg-[#f0f2f7] dark:bg-gray-800 border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-[#4c669a] dark:text-white"
-                placeholder="Buscar por nombre de cliente o ID..."
-                type="text"
-              />
+          <div className="relative bg-white dark:bg-[#161b2a] border border-[#cfd7e7] dark:border-gray-800 rounded-xl p-2 mb-6 grid grid-cols-2 md:grid-cols-4 gap-2 shadow-sm">
+            <div
+              className={"transition-all duration-300 relative"}
+            >
+              <div className="relative w-full">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl pointer-events-none">
+                  search
+                </span>
+
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full h-10 pl-10 pr-4 bg-[#f0f2f7] dark:bg-gray-800 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-[#4c669a] dark:text-white"
+                  placeholder="Buscar..."
+                  type="text"
+                />
+              </div>
             </div>
-            <div className="flex flex-wrap gap-2 w-full pb-2">
-              <button className="flex-1 h-10 flex items-center justify-center gap-2 rounded-lg bg-[#e7ebf3] dark:bg-gray-800 text-sm font-bold text-[#0d121b] dark:text-white border border-transparent hover:border-primary/30 transition-all">
-                <span>Todos</span>
-                <span className="material-symbols-outlined text-[18px]">
-                  expand_more
-                </span>
-              </button>
 
-              <button className="flex-1 h-10 flex items-center justify-center gap-2 rounded-lg bg-[#e7f5ed] text-sm font-bold text-[#07883b] border border-[#07883b]/20">
-                <span>Vigente</span>
-                <span className="material-symbols-outlined text-[18px]">
-                  expand_more
-                </span>
-              </button>
+            <button
+              onClick={() => setEstado("Todos")}
+              className={`h-10 flex items-center justify-center gap-2 rounded-lg text-sm font-bold border transition-all
+              ${estado === "Todos"
+                  ? "bg-[#e7ebf3] dark:bg-gray-800 text-[#0d121b] dark:text-white border-primary/30"
+                  : "bg-[#e7ebf3] dark:bg-gray-800 text-[#0d121b] dark:text-white border-transparent hover:border-primary/30"
+                }`}
+            >
+              <span>Todos</span>
+            </button>
 
-              <button className="flex-1 h-10 flex items-center justify-center gap-2 rounded-lg bg-[#fff9eb] text-sm font-bold text-orange-600 border border-orange-200">
-                <span>Vencido</span>
-                <span className="material-symbols-outlined text-[18px]">
-                  expand_more
-                </span>
-              </button>
+            <button
+              onClick={() => setEstado("Vigente")}
+              className={`h-10 flex items-center justify-center gap-2 rounded-lg text-sm font-bold border transition-all
+              ${estado === "Vigente"
+                  ? "bg-[#fff9eb] text-orange-600 border-orange-300"
+                  : "bg-[#fff9eb] text-orange-600 border-orange-200 hover:border-orange-300"
+                }`}
+            >
+              <span>Vigente</span>
+            </button>
 
-              <button className="flex-1 h-10 flex items-center justify-center gap-2 rounded-lg bg-red-50 text-sm font-bold text-red-600 border border-red-100">
-                <span>Crítico</span>
-                <span className="material-symbols-outlined text-[18px]">
-                  expand_more
-                </span>
-              </button>
-            </div>
+            <button
+              onClick={() => setEstado("Critico")}
+              className={`h-10 flex items-center justify-center gap-2 rounded-lg text-sm font-bold border transition-all
+              ${estado === "Critico"
+                  ? "bg-red-50 text-red-600 border-red-300"
+                  : "bg-red-50 text-red-600 border-red-100 hover:border-red-300"
+                }`}
+            >
+              <span>Crítico</span>
+            </button>
           </div>
 
           {/* Clients Table*/}
           <div className="bg-white dark:bg-[#161b2a] border border-[#cfd7e7] dark:border-gray-800 rounded-xl overflow-hidden shadow-sm mb-10">
-            {/* ===================== */}
-            {/* MÓVIL – CARDS */}
-            {/* ===================== */}
             <div className="sm:hidden divide-y divide-[#cfd7e7] dark:divide-gray-800">
-              {/* Card Alicia Martínez */}
-              <div className="p-4 bg-white dark:bg-[#161b2a] rounded-xl mb-4 shadow-sm">
-                <div className="flex justify-between items-center mb-2">
-                  <div className="flex items-center gap-3">
-                    <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-                      AM
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="font-bold text-sm text-[#0d121b] dark:text-white">
-                        Alicia Martínez
-                      </span>
-                      <span className="text-xs text-[#4c669a]">ID: 2490-A</span>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <button className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all">
-                      <span className="material-symbols-outlined text-[20px]">
-                        send
-                      </span>
-                    </button>
-                    <button onClick={() => onSuccess("ID: 2490-A")} className="p-2 rounded-lg bg-[#e7ebf3] dark:bg-gray-800 text-[#0d121b] dark:text-white hover:bg-[#cfd7e7] transition-all">
-                      <span className="material-symbols-outlined text-[20px]">
-                        visibility
-                      </span>
-                    </button>
-                  </div>
-                </div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-[#4c669a]">Monto Total</span>
-                  <span className="font-bold">$12,450.00</span>
-                </div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-[#4c669a]">Días de Atraso</span>
-                  <span className="text-red-600 font-medium">45 días</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-red-600 border border-red-100">
-                    Crítico
-                  </span>
-                </div>
-              </div>
+              {dataTable?.data?.map((m: DataTable) => {
 
-              {/* Card Jorge Rodríguez */}
-              <div className="p-4 bg-white dark:bg-[#161b2a] rounded-xl mb-4 shadow-sm">
-                <div className="flex justify-between items-center mb-2">
-                  <div className="flex items-center gap-3">
-                    <div className="size-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-sm">
-                      JR
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="font-bold text-sm text-[#0d121b] dark:text-white">
-                        Jorge Rodríguez
-                      </span>
-                      <span className="text-xs text-[#4c669a]">ID: 1102-C</span>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <button className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all">
-                      <span className="material-symbols-outlined text-[20px]">
-                        send
-                      </span>
-                    </button>
-                    <button className="p-2 rounded-lg bg-[#e7ebf3] dark:bg-gray-800 text-[#0d121b] dark:text-white hover:bg-[#cfd7e7] transition-all">
-                      <span className="material-symbols-outlined text-[20px]">
-                        visibility
-                      </span>
-                    </button>
-                  </div>
-                </div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-[#4c669a]">Monto Total</span>
-                  <span className="font-bold">$3,120.50</span>
-                </div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-[#4c669a]">Días de Atraso</span>
-                  <span className="text-orange-600 font-medium">12 días</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#fff9eb] text-orange-600 border border-orange-200">
-                    Vencido
-                  </span>
-                </div>
-              </div>
+                const initials = m.customer?.companyname
+                  ?.split(" ")
+                  .map((w) => w[0])
+                  .join("")
+                  .slice(0, 2)
+                  .toUpperCase();
 
-              {/* Repite el mismo patrón para los demás clientes */}
+                return (
+                  <div
+                    key={m.id}
+                    className={`p-4 rounded-xl mb-4 shadow-sm transition ${selectedIds.includes(m.id)
+                      ? "bg-primary/10"
+                      : "bg-white dark:bg-[#161b2a]"
+                      }`}
+                  >
+
+                    {/* HEADER */}
+                    <div className="flex justify-between items-start mb-3">
+
+                      <div className="flex items-start gap-3">
+
+                        {/* checkbox */}
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(m.id)}
+                          onChange={() => handleSelect(m.id)}
+                          className="mt-1 w-4 h-4 accent-primary cursor-pointer"
+                        />
+
+                        {/* avatar + name */}
+                        <div className="flex items-center gap-3">
+                          <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
+                            {initials}
+                          </div>
+
+                          <div className="flex flex-col leading-tight">
+                            <span className="font-semibold text-sm text-[#0d121b] dark:text-white">
+                              {m.customer?.companyname}
+                            </span>
+                            <span className="text-xs text-[#6b7a99]">
+                              ID: {m.tranid}
+                            </span>
+                          </div>
+                        </div>
+
+                      </div>
+
+                      {/* acciones */}
+                      <div className="flex gap-1">
+                        <button className="p-2 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all">
+                          <span className="material-symbols-outlined text-[18px]">
+                            send
+                          </span>
+                        </button>
+
+                        <button
+                          onClick={() => onSuccess(m.id)}
+                          className="p-2 rounded-md bg-[#e7ebf3] dark:bg-gray-800 text-[#0d121b] dark:text-white hover:bg-[#cfd7e7] transition-all"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">
+                            visibility
+                          </span>
+                        </button>
+                      </div>
+
+                    </div>
+
+                    {/* DATA */}
+                    <div className="space-y-1 text-sm">
+
+                      <div className="flex justify-between">
+                        <span className="text-[#4c669a]">Monto Total</span>
+                        <span className="font-semibold">
+                          {formatoMoneda.format(m.amount || m.subtotal || 0)}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between">
+                        <span className="text-[#4c669a]">Días de Atraso</span>
+                        <span className="text-red-600 font-medium">
+                          {Math.max(
+                            0,
+                            Math.floor(
+                              (new Date().getTime() - new Date(m.duedate).getTime()) /
+                              (1000 * 60 * 60 * 24)
+                            )
+                          )} días
+                        </span>
+                      </div>
+
+                      <div className="flex justify-end pt-1">
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border ${getPaymentStatus(m.balance, m.duedate).className
+                            }`}
+                        >
+                          {getPaymentStatus(m.balance, m.duedate).label}
+                        </span>
+                      </div>
+
+                    </div>
+
+                  </div>
+                );
+              })}
             </div>
 
-            {/* ===================== */}
-            {/* DESKTOP – TABLA */}
-            {/* ===================== */}
             <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-[#cfd7e7] dark:border-gray-800 bg-[#f8f9fc] dark:bg-gray-800/50">
-                    <th className="p-4 text-xs font-bold text-[#4c669a] dark:text-gray-400 uppercase tracking-wider">
+
+                    <th className="w-10 px-2 py-3 text-xs font-bold text-[#4c669a] uppercase tracking-wider text-center">
+                      #
+                    </th>
+
+                    <th className="px-3 py-3 text-xs font-bold text-[#4c669a] uppercase tracking-wider">
                       Cliente
                     </th>
-                    <th className="p-4 text-xs font-bold text-[#4c669a] dark:text-gray-400 uppercase tracking-wider">
+
+                    <th className="px-3 py-3 text-xs font-bold text-[#4c669a] uppercase tracking-wider">
                       Monto Total
                     </th>
-                    <th className="p-4 text-xs font-bold text-[#4c669a] dark:text-gray-400 uppercase tracking-wider text-center">
-                      Días de Atraso
+
+                    <th className="px-3 py-3 text-xs font-bold text-[#4c669a] uppercase tracking-wider text-center">
+                      Días
                     </th>
-                    <th className="p-4 text-xs font-bold text-[#4c669a] dark:text-gray-400 uppercase tracking-wider">
+
+                    <th className="px-3 py-3 text-xs font-bold text-[#4c669a] uppercase tracking-wider">
                       Estado
                     </th>
-                    <th className="p-4 text-xs font-bold text-[#4c669a] dark:text-gray-400 uppercase tracking-wider text-right">
+
+                    <th className="px-3 py-3 text-xs font-bold text-[#4c669a] uppercase tracking-wider text-right">
                       Acciones
                     </th>
                   </tr>
                 </thead>
+
                 <tbody className="divide-y divide-[#cfd7e7] dark:divide-gray-800">
-                  <tr className="hover:bg-primary/5 transition-colors">
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-                          AM
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="font-bold text-sm text-[#0d121b] dark:text-white">
-                            Alicia Martínez
+                  {dataTable?.data?.map((m: DataTable) => {
+
+                    const initials = m.customer?.companyname
+                      ?.split(" ")
+                      .map((w) => w[0])
+                      .join("")
+                      .slice(0, 2)
+                      .toUpperCase();
+
+                    return (
+                      <tr
+                        key={m.id}
+                        className={`transition-colors ${selectedIds.includes(m.id)
+                          ? "bg-primary/10"
+                          : "hover:bg-primary/5"
+                          }`}
+                      >
+
+                        {/* checkbox */}
+                        <td className="px-2 py-3 text-center">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.includes(m.id)}
+                            onChange={() => handleSelect(m.id)}
+                            className="w-4 h-4 accent-primary cursor-pointer"
+                          />
+                        </td>
+
+                        {/* Cliente */}
+                        <td className="px-3 py-3">
+                          <div className="flex items-center gap-3">
+
+                            <div className="size-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
+                              {initials}
+                            </div>
+
+                            <div className="flex flex-col leading-tight">
+                              <span className="font-semibold text-sm text-[#0d121b] dark:text-white">
+                                {m.customer?.companyname}
+                              </span>
+                              <span className="text-[11px] text-[#6b7a99]">
+                                ID: {m.tranid}
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Monto */}
+                        <td className="px-3 py-3">
+                          <span className="text-sm font-semibold">
+                            {formatoMoneda.format(m.amount || m.subtotal || 0)}
                           </span>
-                          <span className="text-xs text-[#4c669a]">
-                            ID: 2490-A
+                        </td>
+
+                        {/* Días */}
+                        <td className="px-3 py-3 text-center">
+                          <span className="text-sm font-medium text-red-600">
+                            {Math.max(
+                              0,
+                              Math.floor(
+                                (new Date().getTime() - new Date(m.duedate).getTime()) /
+                                (1000 * 60 * 60 * 24)
+                              )
+                            )} días
                           </span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <span className="text-sm font-bold">$12,450.00</span>
-                    </td>
-                    <td className="p-4 text-center">
-                      <span className="text-sm font-medium text-red-600">
-                        45 días
-                      </span>
-                    </td>
-                    <td className="p-4">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-red-600 border border-red-100">
-                        Crítico
-                      </span>
-                    </td>
-                    <td className="p-4 text-right">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all"
-                          title="Enviar Recordatorio"
-                        >
-                          <span className="material-symbols-outlined text-[20px]">
-                            send
+                        </td>
+
+                        {/* Estado */}
+                        <td className="px-3 py-3">
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border ${getPaymentStatus(m.balance, m.duedate).className
+                              }`}
+                          >
+                            {getPaymentStatus(m.balance, m.duedate).label}
                           </span>
-                        </button>
-                        <button
-                          onClick={() => onSuccess("ID: 2490-A")}
-                          className="p-2 rounded-lg bg-[#e7ebf3] dark:bg-gray-800 text-[#0d121b] dark:text-white hover:bg-[#cfd7e7] transition-all"
-                          title="Ver Detalle"
-                        >
-                          <span className="material-symbols-outlined text-[20px]">
-                            visibility
-                          </span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-primary/5 transition-colors">
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="size-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-sm">
-                          JR
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="font-bold text-sm text-[#0d121b] dark:text-white">
-                            Jorge Rodríguez
-                          </span>
-                          <span className="text-xs text-[#4c669a]">
-                            ID: 1102-C
-                          </span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <span className="text-sm font-bold">$3,120.50</span>
-                    </td>
-                    <td className="p-4 text-center">
-                      <span className="text-sm font-medium text-orange-600">
-                        12 días
-                      </span>
-                    </td>
-                    <td className="p-4">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#fff9eb] text-orange-600 border border-orange-200">
-                        Vencido
-                      </span>
-                    </td>
-                    <td className="p-4 text-right">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all"
-                          title="Enviar Recordatorio"
-                        >
-                          <span className="material-symbols-outlined text-[20px]">
-                            send
-                          </span>
-                        </button>
-                        <button
-                          className="p-2 rounded-lg bg-[#e7ebf3] dark:bg-gray-800 text-[#0d121b] dark:text-white hover:bg-[#cfd7e7] transition-all"
-                          title="Ver Detalle"
-                        >
-                          <span className="material-symbols-outlined text-[20px]">
-                            visibility
-                          </span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-primary/5 transition-colors">
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="size-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-sm">
-                          CP
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="font-bold text-sm text-[#0d121b] dark:text-white">
-                            Corporación Prisma
-                          </span>
-                          <span className="text-xs text-[#4c669a]">
-                            ID: 8831-P
-                          </span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <span className="text-sm font-bold">$45,000.00</span>
-                    </td>
-                    <td className="p-4 text-center">
-                      <span className="text-sm font-medium text-[#4c669a]">
-                        0 días
-                      </span>
-                    </td>
-                    <td className="p-4">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#e7f5ed] text-[#07883b] border border-[#07883b]/20">
-                        Vigente
-                      </span>
-                    </td>
-                    <td className="p-4 text-right">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all"
-                          title="Enviar Recordatorio"
-                        >
-                          <span className="material-symbols-outlined text-[20px]">
-                            send
-                          </span>
-                        </button>
-                        <button
-                          className="p-2 rounded-lg bg-[#e7ebf3] dark:bg-gray-800 text-[#0d121b] dark:text-white hover:bg-[#cfd7e7] transition-all"
-                          title="Ver Detalle"
-                        >
-                          <span className="material-symbols-outlined text-[20px]">
-                            visibility
-                          </span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-primary/5 transition-colors">
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-sm">
-                          LM
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="font-bold text-sm text-[#0d121b] dark:text-white">
-                            Lucía Morales
-                          </span>
-                          <span className="text-xs text-[#4c669a]">
-                            ID: 5542-M
-                          </span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <span className="text-sm font-bold">$840.00</span>
-                    </td>
-                    <td className="p-4 text-center">
-                      <span className="text-sm font-medium text-red-600">
-                        62 días
-                      </span>
-                    </td>
-                    <td className="p-4">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-red-600 border border-red-100">
-                        Crítico
-                      </span>
-                    </td>
-                    <td className="p-4 text-right">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all"
-                          title="Enviar Recordatorio"
-                        >
-                          <span className="material-symbols-outlined text-[20px]">
-                            send
-                          </span>
-                        </button>
-                        <button
-                          className="p-2 rounded-lg bg-[#e7ebf3] dark:bg-gray-800 text-[#0d121b] dark:text-white hover:bg-[#cfd7e7] transition-all"
-                          title="Ver Detalle"
-                        >
-                          <span className="material-symbols-outlined text-[20px]">
-                            visibility
-                          </span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                        </td>
+
+                        {/* Acciones */}
+                        <td className="px-3 py-3 text-right">
+                          <div className="flex justify-end gap-1">
+
+                            <button className="p-2 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all">
+                              <span className="material-symbols-outlined text-[18px]">
+                                send
+                              </span>
+                            </button>
+
+                            <button
+                              onClick={() => onSuccess(m.id)}
+                              className="p-2 rounded-md bg-[#e7ebf3] dark:bg-gray-800 text-[#0d121b] dark:text-white hover:bg-[#cfd7e7] transition-all"
+                            >
+                              <span className="material-symbols-outlined text-[18px]">
+                                visibility
+                              </span>
+                            </button>
+
+                          </div>
+                        </td>
+
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -476,54 +515,75 @@ export default function Cartera({ onSuccess }: CarteraProps) {
               <p className="text-xs text-[#4c669a]">
                 Mostrando{" "}
                 <span className="font-bold text-[#0d121b] dark:text-white">
-                  4
+                  {pageSize}
                 </span>{" "}
                 de{" "}
                 <span className="font-bold text-[#0d121b] dark:text-white">
-                  128
+                  {dataTable?.pagination?.total}
                 </span>{" "}
-                clientes
+                facturas
               </p>
 
               {/* BOTONES */}
               <div className="flex gap-2 items-center overflow-x-auto">
-                {/* Botón anterior */}
-                <button className="size-8 flex items-center justify-center rounded bg-white dark:bg-gray-800 border border-[#cfd7e7] dark:border-gray-700 text-[#4c669a] cursor-not-allowed opacity-50">
+                {/* Anterior */}
+                <button
+                  onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                  disabled={currentPage === 1}
+                  className={`size-8 flex items-center justify-center rounded border ${currentPage === 1
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-[#e7ebf3]"
+                    }`}
+                >
                   <span className="material-symbols-outlined text-[18px]">
                     chevron_left
                   </span>
                 </button>
 
-                {/* Números de página – Desktop */}
+                {/* Números */}
                 <div className="hidden sm:flex gap-2">
-                  <button className="size-8 flex items-center justify-center rounded bg-primary text-white font-bold text-xs">
-                    1
-                  </button>
-                  <button className="size-8 flex items-center justify-center rounded bg-white dark:bg-gray-800 border border-[#cfd7e7] dark:border-gray-700 text-[#4c669a] hover:bg-[#e7ebf3] transition-colors font-bold text-xs">
-                    2
-                  </button>
-                  <button className="size-8 flex items-center justify-center rounded bg-white dark:bg-gray-800 border border-[#cfd7e7] dark:border-gray-700 text-[#4c669a] hover:bg-[#e7ebf3] transition-colors font-bold text-xs">
-                    3
-                  </button>
+                  {getPages().map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => setPage(p)}
+                      className={`size-8 flex items-center justify-center rounded text-xs font-bold transition-colors
+                        ${p === currentPage
+                          ? "bg-primary text-white"
+                          : "bg-white dark:bg-gray-800 border border-[#cfd7e7] dark:border-gray-700 text-[#4c669a] hover:bg-[#e7ebf3]"
+                        }`}
+                    >
+                      {p}
+                    </button>
+                  ))}
                 </div>
 
-                {/* Móvil – solo página actual */}
+                {/* Mobile */}
                 <div className="flex sm:hidden gap-1">
                   <span className="size-8 flex items-center justify-center rounded bg-primary text-white font-bold text-xs px-2">
-                    1
+                    {currentPage}
                   </span>
                 </div>
 
-                {/* Botón siguiente */}
-                <button className="size-8 flex items-center justify-center rounded bg-white dark:bg-gray-800 border border-[#cfd7e7] dark:border-gray-700 text-[#4c669a] hover:bg-[#e7ebf3] transition-colors">
+                {/* Siguiente */}
+                <button
+                  onClick={() =>
+                    setPage((p) => Math.min(p + 1, totalPages))
+                  }
+                  disabled={currentPage === totalPages}
+                  className={`size-8 flex items-center justify-center rounded border ${currentPage === totalPages
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-[#e7ebf3]"
+                    }`}
+                >
                   <span className="material-symbols-outlined text-[18px]">
                     chevron_right
                   </span>
                 </button>
               </div>
+
             </div>
           </div>
-          
+
         </div>
       </main>
     </div>

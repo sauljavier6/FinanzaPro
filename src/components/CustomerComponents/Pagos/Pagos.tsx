@@ -1,30 +1,66 @@
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { getPayments } from "../../../api/customerApis/PagosApi";
+import { formatDate } from "../../../utils/formatDate";
+import { formatoMoneda } from "../../../utils/formatMoneda";
+import formatRelativeTime from "../../../utils/daytime";
+
+interface CustomerPayments {
+  id: number
+  companyname: string
+}
+
+interface CustomerPayments {
+  applications: []
+  customer: CustomerPayments
+  id: number
+  paymentmethod: string
+  total: number
+  trandate: string
+  tranid: string
+  transactionnumber: string
+}
+
+
 export default function Pagos() {
-  const facturas = [
-    {
-      fecha: "12 Oct 2023",
-      factura: "FACT-2023-1102",
-      metodo: "Tarjeta (**** 4231)",
-      estado: "Confirmado",
-      estadoColor: "bg-green-100 text-green-700",
-      monto: "$3,200.00",
-    },
-    {
-      fecha: "05 Oct 2023",
-      factura: "FACT-2023-1089",
-      metodo: "SPEI",
-      estado: "Confirmado",
-      estadoColor: "bg-green-100 text-green-700",
-      monto: "$5,400.00",
-    },
-    {
-      fecha: "14 Oct 2023",
-      factura: "FACT-2023-1205",
-      metodo: "OXXO",
-      estado: "En Proceso",
-      estadoColor: "bg-blue-100 text-blue-700",
-      monto: "$1,850.00",
-    },
-  ];
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+
+  const { data } = useQuery({
+    queryKey: ["pagosbycliente", page, pageSize, search],
+    queryFn: () => getPayments(page, pageSize, search),
+    refetchOnWindowFocus: false,
+    placeholderData: (prev) => prev,
+  });
+
+  console.log('data', data)
+
+  const tabla = data?.payments;
+  const resumen = data?.resumen;
+
+
+  const currentPage = data?.page || 1;
+  const totalPages = data?.totalPages || 0;
+
+  const getPages = () => {
+    const pages = [];
+    const maxVisible = 5;
+
+    let start = Math.max(currentPage - 2, 1);
+    let end = Math.min(start + maxVisible - 1, totalPages);
+
+    if (end - start < maxVisible) {
+      start = Math.max(end - maxVisible + 1, 1);
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  };
+
   return (
     <div className="flex overflow-hiddenq">
       <main className="flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark">
@@ -40,13 +76,6 @@ export default function Pagos() {
                 realizadas.
               </p>
             </div>
-
-            <button className="w-full sm:w-auto bg-primary text-white px-5 sm:px-6 py-2.5 rounded-lg font-bold text-sm shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2">
-              <span className="material-symbols-outlined text-lg">
-                calendar_today
-              </span>
-              Descargar Reporte Anual
-            </button>
           </div>
 
           {/* Totales */}
@@ -56,7 +85,7 @@ export default function Pagos() {
                 Total Pagado este Año
               </p>
               <p className="text-2xl sm:text-3xl font-black text-primary">
-                $45,800.00
+                {formatoMoneda.format(resumen?.totalPagadoAnio || 0)}
               </p>
               <div className="mt-3 sm:mt-4 flex items-center gap-1 text-green-600 text-xs sm:text-sm font-bold">
                 <span className="material-symbols-outlined text-sm">
@@ -72,17 +101,14 @@ export default function Pagos() {
               </p>
               <div className="flex items-baseline gap-2">
                 <p className="text-2xl sm:text-3xl font-black text-[#0d121b] dark:text-white">
-                  $3,200.00
-                </p>
-                <p className="text-xs sm:text-sm text-gray-500 font-medium">
-                  12 Oct 2023
+                  {formatoMoneda.format(resumen?.ultimoPago?.total || 0)}
                 </p>
               </div>
               <div className="mt-3 sm:mt-4 flex items-center gap-1 text-blue-500 text-xs sm:text-sm font-bold">
                 <span className="material-symbols-outlined text-sm">
                   schedule
                 </span>
-                <span>Hace 5 días</span>
+                <span>{formatRelativeTime(resumen?.ultimoPago?.trandate)}</span>
               </div>
             </div>
 
@@ -92,7 +118,7 @@ export default function Pagos() {
               </p>
               <div className="flex items-center gap-3">
                 <p className="text-2xl sm:text-3xl font-black text-[#0d121b] dark:text-white">
-                  Tarjeta
+                  {resumen?.metodoPagoMasUsado?.metodo}
                 </p>
                 <span className="material-symbols-outlined text-gray-400">
                   credit_card
@@ -102,7 +128,7 @@ export default function Pagos() {
                 <span className="material-symbols-outlined text-sm">
                   history
                 </span>
-                <span>85% de tus transacciones</span>
+                <span>{resumen?.metodoPagoMasUsado?.porcentaje}% de tus transacciones</span>
               </div>
             </div>
           </div>
@@ -116,34 +142,18 @@ export default function Pagos() {
                     search
                   </span>
                   <input
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
                     type="text"
                     placeholder="Buscar por factura..."
                     className="pl-10 pr-4 py-2 bg-background-light dark:bg-gray-800 rounded-lg text-sm w-full focus:ring-2 focus:ring-primary"
                   />
                 </div>
-
-                <div className="flex items-center gap-2 border border-[#cfd7e7] dark:border-gray-700 rounded-lg px-3 py-2 bg-background-light dark:bg-gray-800 w-full sm:w-auto">
-                  <span className="material-symbols-outlined text-gray-400 text-sm">
-                    date_range
-                  </span>
-                  <input
-                    type="text"
-                    placeholder="Rango de fechas"
-                    className="bg-transparent border-none p-0 text-sm focus:ring-0 w-full sm:w-32 outline-none"
-                  />
-                </div>
               </div>
-
-              <button className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 border border-[#cfd7e7] dark:border-gray-800 rounded-lg font-bold text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                <span className="material-symbols-outlined text-lg">
-                  filter_list
-                </span>
-                Filtros
-              </button>
             </div>
 
             <div className="sm:hidden divide-y divide-[#cfd7e7] dark:divide-gray-800">
-              {facturas?.map((p) => (
+              {/*facturas?.map((p) => (
                 <div key={p.factura} className="p-4 flex flex-col gap-2">
                   <div className="flex justify-between items-center">
                     <span className="font-bold text-sm">{p.factura}</span>
@@ -166,7 +176,7 @@ export default function Pagos() {
                     </button>
                   </div>
                 </div>
-              ))}
+              ))*/}
             </div>
 
             <div className="hidden sm:block overflow-x-auto">
@@ -177,13 +187,10 @@ export default function Pagos() {
                       Fecha de Pago
                     </th>
                     <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">
-                      Factura
+                      #Pago
                     </th>
                     <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">
                       Método
-                    </th>
-                    <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">
-                      Estado
                     </th>
                     <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">
                       Monto
@@ -194,70 +201,95 @@ export default function Pagos() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#cfd7e7] dark:divide-gray-800">
-                  <tr>
-                    <td className="px-6 py-4">12 Oct 2023</td>
-                    <td className="px-6 py-4 font-bold">FACT-2023-1102</td>
-                    <td className="px-6 py-4">Tarjeta (**** 4231)</td>
-                    <td className="px-6 py-4">
-                      <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700">
-                        Confirmado
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 font-black">$3,200.00</td>
-                    <td className="px-6 py-4 text-center">
-                      <button className="p-2 text-primary hover:bg-primary/10 rounded-lg">
-                        <span className="material-symbols-outlined">
-                          receipt_long
-                        </span>
-                      </button>
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td className="px-6 py-4">05 Oct 2023</td>
-                    <td className="px-6 py-4 font-bold">FACT-2023-1089</td>
-                    <td className="px-6 py-4">SPEI</td>
-                    <td className="px-6 py-4">
-                      <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700">
-                        Confirmado
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 font-black">$5,400.00</td>
-                    <td className="px-6 py-4 text-center">
-                      <button className="p-2 text-primary hover:bg-primary/10 rounded-lg">
-                        <span className="material-symbols-outlined">
-                          receipt_long
-                        </span>
-                      </button>
-                    </td>
-                  </tr>
+                  {tabla?.map((row: CustomerPayments) => (
+                    <tr key={row.id}>
+                      <td className="px-6 py-4">{formatDate(row?.trandate)}</td>
+                      <td className="px-6 py-4 font-bold">{row.tranid}</td>
+                      <td className="px-6 py-4">{row.paymentmethod}</td>
+                      <td className="px-6 py-4 font-black">{row.total}</td>
+                      <td className="px-6 py-4 text-center">
+                        <button className="p-2 text-primary hover:bg-primary/10 rounded-lg">
+                          <span className="material-symbols-outlined">
+                            receipt_long
+                          </span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
 
             <div className="px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-800/30 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-gray-400">
-                Mostrando 4 de 24 registros
+              <p className="text-xs text-[#4c669a]">
+                Mostrando{" "}
+                <span className="font-bold text-[#0d121b] dark:text-white">
+                  {pageSize}
+                </span>{" "}
+                de{" "}
+                <span className="font-bold text-[#0d121b] dark:text-white">
+                  {data?.total}
+                </span>{" "}
+                facturas
               </p>
 
-              <div className="flex gap-2 justify-end">
-                <button className="size-8 flex items-center justify-center rounded border border-[#cfd7e7] text-gray-400">
-                  <span className="material-symbols-outlined text-sm">
+              {/* BOTONES */}
+              <div className="flex gap-2 items-center overflow-x-auto">
+                {/* Anterior */}
+                <button
+                  onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                  disabled={currentPage === 1}
+                  className={`size-8 flex items-center justify-center rounded border ${currentPage === 1
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-[#e7ebf3]"
+                    }`}
+                >
+                  <span className="material-symbols-outlined text-[18px]">
                     chevron_left
                   </span>
                 </button>
-                <button className="size-8 flex items-center justify-center rounded border border-primary bg-primary text-white text-xs font-bold">
-                  1
-                </button>
-                <button className="size-8 flex items-center justify-center rounded border border-[#cfd7e7] text-gray-500 text-xs font-bold">
-                  2
-                </button>
-                <button className="size-8 flex items-center justify-center rounded border border-[#cfd7e7] text-gray-400">
-                  <span className="material-symbols-outlined text-sm">
+
+                {/* Números */}
+                <div className="hidden sm:flex gap-2">
+                  {getPages().map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => setPage(p)}
+                      className={`size-8 flex items-center justify-center rounded text-xs font-bold transition-colors
+                        ${p === currentPage
+                          ? "bg-primary text-white"
+                          : "bg-white dark:bg-gray-800 border border-[#cfd7e7] dark:border-gray-700 text-[#4c669a] hover:bg-[#e7ebf3]"
+                        }`}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Mobile */}
+                <div className="flex sm:hidden gap-1">
+                  <span className="size-8 flex items-center justify-center rounded bg-primary text-white font-bold text-xs px-2">
+                    {currentPage}
+                  </span>
+                </div>
+
+                {/* Siguiente */}
+                <button
+                  onClick={() =>
+                    setPage((p) => Math.min(p + 1, totalPages))
+                  }
+                  disabled={currentPage === totalPages}
+                  className={`size-8 flex items-center justify-center rounded border ${currentPage === totalPages
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-[#e7ebf3]"
+                    }`}
+                >
+                  <span className="material-symbols-outlined text-[18px]">
                     chevron_right
                   </span>
                 </button>
               </div>
+
             </div>
           </div>
 
@@ -286,7 +318,7 @@ export default function Pagos() {
               Reportar un Pago
             </button>
           </div>
-          
+
         </div>
       </main>
     </div>

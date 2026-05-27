@@ -1,0 +1,8 @@
+VITE_API_URL=/api
+VITE_MEDIA_URL=/public
+VITE_API_URL_IMAGES=http://192.168.10.211:4582/uploads/
+
+
+VITE_API_URL=http://localhost:4582/api
+VITE_MEDIA_URL=http://localhost:4582/public
+VITE_API_URL_IMAGES=http://localhost:4582/uploads/

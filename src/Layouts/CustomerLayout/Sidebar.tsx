@@ -25,6 +25,9 @@ export default function Sidebar() {
       case "/clientes/cuentas":
         setActiveItem("Cuentas");
         break;
+      case "/clientes/facturas":
+        setActiveItem("Facturas");
+        break;
       case "/clientes/pagos":
         setActiveItem("Pagos");
         break;
@@ -63,10 +66,16 @@ export default function Sidebar() {
           onClick={() => goTo("Home", "/clientes/")}
         />
         <SidebarItem
-          icon="description"
-          label="Cuentas"
+          icon="request_quote"
+          label="Estado de Cuentas"
           active={activeItem === "Cuentas"}
           onClick={() => goTo("Cuentas", "/clientes/cuentas")}
+        />
+        <SidebarItem
+          icon="receipt_long"
+          label="Facturas"
+          active={activeItem === "Facturas"}
+          onClick={() => goTo("Facturas", "/clientes/facturas")}
         />
         <SidebarItem
           icon="payments"
@@ -78,7 +87,7 @@ export default function Sidebar() {
           icon="handshake"
           label="Promesas"
           active={activeItem === "Promesas"}
-          // onClick={() => goTo("Promesas", "/clientes/Promesas")}
+        // onClick={() => goTo("Promesas", "/clientes/Promesas")}
         />
 
         <div className="my-4 border-t border-gray-200 dark:border-gray-800" />

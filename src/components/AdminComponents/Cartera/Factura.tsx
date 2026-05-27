@@ -1,10 +1,138 @@
+import { useQuery } from "@tanstack/react-query";
+import { getInvoiceById, getPdfById } from "../../../api/AdminApis/facturaApi";
+import { formatDate } from "../../../utils/formatDate";
+import { formatoMoneda } from "../../../utils/formatMoneda";
+
 interface FacturaProps {
-  facturaId: string;
+  facturaId: number;
   onBack: () => void;
 }
 
+interface CustomerInvoiceLine {
+  customer_invoice_id: string | number;
+  lineuniquekey: string | number;
+  lineorder: string | number;
+  item: string;
+  description: string;
+  itemtype: string;
+  quantity: number | null;
+  units: string | null;
+  rate: number | null;
+  amount: number | null;
+  descuento: number | null;
+  taxcode: string | number | null;
+  ratepercent: number | null;
+  taxtype: string | null;
+  account: string;
+  department: string;
+  class: string;
+  location: string;
+  createddate: string;
+  lastmodifieddate: string;
+  uuid: string;
+  idpdf: string;
+}
+
+interface CustomerInvoicePayment {
+  id: number;
+  tranid: string;
+  total: number;
+  trandate: string;
+}
+
+interface PaymentApplication {
+  payment_id: number;
+  invoice_id: number;
+  amount: number;
+  nexttype: string;
+  previoustype: string;
+  payment_trandate: string;
+  invoice_trandate: string;
+  status: string;
+  lastmodifieddate: string;
+  payment?: CustomerInvoicePayment;
+}
+
 export default function Factura({ facturaId, onBack }: FacturaProps) {
-  console.log(facturaId);
+
+  const { data } = useQuery({
+    queryKey: ["dashboarAdminClientes", facturaId],
+    queryFn: () => getInvoiceById(facturaId),
+    refetchOnWindowFocus: false,
+    placeholderData: (prev) => prev,
+  });
+
+  const cabecera = data?.data?.cabecera
+  const customer = data?.data?.customer
+  const lineas = data?.data?.lineas
+  const info = data?.data
+  const pagos = data?.data.payments
+  console.log('data', data)
+
+  const porcentajePagado =
+    Number(cabecera?.amount) > 0
+      ? (Number(cabecera?.amountpaid) / Number(cabecera?.amount)) * 100
+      : 0;
+
+  const getShareUrl = () => {
+    return `${window.location.origin}/facturas/${facturaId}`;
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleSendEmail = () => {
+    const email = customer?.email || "";
+    const subject = `Factura #${cabecera?.tranid}`;
+    const body = `Hola ${customer?.fullname || customer?.companyname || ""},
+
+    Te comparto la factura #${cabecera?.tranid}.
+
+    Total: ${formatoMoneda.format(cabecera?.amount || 0)}
+    Saldo pendiente: ${formatoMoneda.format(cabecera?.balance || 0)}
+
+    Puedes revisarla aquí:
+    ${getShareUrl()}
+    `;
+
+    window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
+
+  const handleShare = async () => {
+    const url = getShareUrl();
+
+    if (navigator.share) {
+      await navigator.share({
+        title: `Factura #${cabecera?.tranid}`,
+        text: `Consulta la factura #${cabecera?.tranid}`,
+        url,
+      });
+    } else {
+      await navigator.clipboard.writeText(url);
+      alert("Enlace copiado al portapapeles");
+    }
+  };
+
+  const handleDownload = async () => {
+    const idpdf = cabecera?.idpdf
+
+    console.log('idpdf', idpdf)
+
+    const blob = await getPdfById(idpdf);
+
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `factura_${facturaId}.pdf`;
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    window.URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="flex overflow-hidden">
@@ -20,7 +148,7 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
             </button>
             <span className="text-gray-400 font-medium">/</span>
             <span className="text-gray-900 dark:text-white font-bold truncate">
-              Factura #{facturaId}
+              Factura #{cabecera?.tranid}
             </span>
           </div>
 
@@ -28,26 +156,17 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
             <div className="flex flex-col gap-2 w-full">
               <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3 gap-2 min-w-0">
                 <h1 className="text-gray-900 dark:text-white text-2xl sm:text-3xl lg:text-4xl font-black leading-tight tracking-[-0.02em] truncate">
-                  Factura #FACT-2023-0852
+                  Factura #{cabecera?.tranid}
                 </h1>
 
-                <span className="w-fit px-3 py-1 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 text-xs font-bold rounded-full border border-amber-200 dark:border-amber-800 whitespace-nowrap">
-                  PENDIENTE DE PAGO
+                <span className={`font-semibold rounded-full px-5 ${data?.data?.estatusColor}`}>
+                  {data?.data?.estatus}
                 </span>
               </div>
 
-              <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base leading-snug break-words sm:truncate">
-                Emitida el 12 de Noviembre, 2023 • Vencimiento: 1218 días
+              <p>
+                Emitida el {formatDate(cabecera?.trandate)} • {`UUID: ${cabecera?.uuid} `}
               </p>
-            </div>
-
-            <div className="w-full lg:w-fit">
-              <button className="w-full md:w-auto shrink-0 flex items-center justify-center rounded-lg h-10 bg-primary text-white gap-2 text-sm font-bold px-4 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors">
-                <span className="material-symbols-outlined text-[20px]">
-                  account_balance_wallet
-                </span>
-                <span className="whitespace-nowrap">Gestionar Cobro</span>
-              </button>
             </div>
           </div>
 
@@ -56,6 +175,7 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
             {/* Botones izquierda */}
             <div className="flex flex-wrap md:flex-nowrap gap-2 w-full md:w-auto">
               <button
+                onClick={handlePrint}
                 className="flex-1 md:flex-none min-w-[110px] p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg flex items-center justify-center gap-2"
                 title="Imprimir"
               >
@@ -66,6 +186,7 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
               </button>
 
               <button
+                onClick={handleSendEmail}
                 className="flex-1 md:flex-none min-w-[110px] p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg flex items-center justify-center gap-2"
                 title="Enviar por correo"
               >
@@ -76,6 +197,7 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
               </button>
 
               <button
+                onClick={handleShare}
                 className="flex-1 md:flex-none min-w-[110px] p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg flex items-center justify-center gap-2"
                 title="Compartir enlace"
               >
@@ -87,12 +209,28 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
             </div>
 
             {/* Botón derecha */}
-            <button className="w-full md:w-auto shrink-0 flex items-center justify-center rounded-lg h-10 bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white gap-2 text-sm font-bold px-4 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors">
-              <span className="material-symbols-outlined text-[20px]">
-                download
-              </span>
-              <span className="whitespace-nowrap">Descargar PDF</span>
-            </button>
+            <div className="w-full lg:w-fit">
+              <button
+                disabled={!cabecera?.idpdf || cabecera?.idpdf === ""}
+                onClick={handleDownload}
+                className={`
+                  w-full md:w-auto shrink-0 flex items-center justify-center 
+                  rounded-lg h-10 gap-2 text-sm font-bold px-4 transition-colors
+                  ${!cabecera?.idpdf || cabecera?.idpdf === ""
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-primary text-white hover:bg-gray-300 dark:hover:bg-gray-700"
+                  }
+                `}
+              >
+                <span className="material-symbols-outlined text-[20px]">
+                  download
+                </span>
+
+                <span className="whitespace-nowrap">
+                  Descargar
+                </span>
+              </button>
+            </div>
           </div>
 
           {/*  */}
@@ -102,13 +240,12 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
                 Total Facturado
               </p>
               <p className="text-gray-900 dark:text-white tracking-tight text-3xl font-black">
-                $2,450.00
+                {formatoMoneda.format(cabecera?.amount || 0)}
               </p>
               <div className="flex items-center gap-1 text-green-600 text-xs font-bold bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded w-fit">
                 <span className="material-symbols-outlined text-sm">
                   trending_up
                 </span>
-                <span>12% vs mes anterior</span>
               </div>
             </div>
             <div className="flex w-full flex-1 flex-col gap-2 rounded-xl p-6 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
@@ -116,10 +253,10 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
                 Monto Pagado
               </p>
               <p className="text-gray-900 dark:text-white tracking-tight text-3xl font-black">
-                $1,100.00
+                {formatoMoneda.format(cabecera?.amountpaid || 0)}
               </p>
               <p className="text-primary text-sm font-bold leading-normal">
-                45% Cubierto
+                {formatoMoneda.format(porcentajePagado || 0)}% Cubierto
               </p>
             </div>
             <div className="flex w-full flex-1 flex-col gap-2 rounded-xl p-6 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
@@ -127,13 +264,16 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
                 Saldo Pendiente
               </p>
               <p className="text-primary tracking-tight text-3xl font-black">
-                $1,350.00
+                {formatoMoneda.format(cabecera?.balance || 0)}
               </p>
-              <div className="flex items-center gap-1 text-red-500 text-xs font-bold bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded w-fit">
+              <div
+                className={`flex items-center gap-1 text-xs font-bold px-2 py-1 rounded w-fit ${data?.data?.estatusColor} dark:bg-opacity-20`}
+              >
                 <span className="material-symbols-outlined text-sm">
-                  event_busy
+                  {data?.data?.estatusIcon}
                 </span>
-                <span>Vence en 5 días</span>
+
+                <span>{data?.data?.estatus}</span>
               </div>
             </div>
           </div>
@@ -153,10 +293,10 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
                       Cliente
                     </p>
                     <p className="text-gray-900 dark:text-white font-bold break-words">
-                      TechSolutions S.A. de C.V.
+                      {customer?.companyname}
                     </p>
                     <p className="text-gray-500 dark:text-gray-400 text-sm break-all">
-                      RFC: TSOL-920101-ABC
+                      RFC: {customer?.rfc}
                     </p>
                   </div>
                   <div className="min-w-0">
@@ -164,23 +304,23 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
                       Contacto
                     </p>
                     <p className="text-gray-900 dark:text-white font-bold break-words">
-                      Roberto Mendoza
+                      {customer?.fullname}
                     </p>
                     <p className="text-gray-500 dark:text-gray-400 text-sm break-all">
-                      r.mendoza@techsolutions.com
+                      {customer?.email}
                     </p>
                   </div>
                   <div className="sm:col-span-2 min-w-0">
                     <p className="text-[11px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">
-                      Dirección Fiscal
+                      Telefono
                     </p>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm italic leading-relaxed break-words">
-                      Av. Insurgentes Sur 1450, Col. Del Valle, Ciudad de
-                      México, 03100.
+                    <p className="text-gray-500 dark:text-gray-400 text-sm break-all">
+                      {customer?.phone}
                     </p>
                   </div>
                 </div>
               </div>
+              
               <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
                 <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-800">
                   <h3 className="text-gray-900 dark:text-white text-base sm:text-lg font-bold">
@@ -205,40 +345,30 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
                         </th>
                       </tr>
                     </thead>
+
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                      <tr>
-                        <td className="px-6 py-4">
-                          <p className="text-gray-900 dark:text-white font-medium">
-                            Suscripción Anual Cloud ERP
-                          </p>
-                          <p className="text-gray-500 text-xs italic">
-                            Periodo: Ene 2024 - Dic 2024
-                          </p>
-                        </td>
-                        <td className="px-6 py-4 text-center">1</td>
-                        <td className="px-6 py-4 text-right">$1,800.00</td>
-                        <td className="px-6 py-4 text-right font-bold">
-                          $1,800.00
-                        </td>
-                      </tr>
-
-                      <tr>
-                        <td className="px-6 py-4">
-                          <p className="text-gray-900 dark:text-white font-medium">
-                            Soporte Técnico Premium
-                          </p>
-                          <p className="text-gray-500 text-xs italic">
-                            Bolsa de 10 horas mensuales
-                          </p>
-                        </td>
-                        <td className="px-6 py-4 text-center">1</td>
-                        <td className="px-6 py-4 text-right">$650.00</td>
-                        <td className="px-6 py-4 text-right font-bold">
-                          $650.00
-                        </td>
-                      </tr>
+                      {lineas?.map((row: CustomerInvoiceLine) => (
+                        <tr key={row.lineorder}>
+                          <td className="px-6 py-4">
+                            <p className="text-gray-900 dark:text-white font-medium">
+                              {row.description}
+                            </p>
+                          </td>
+                          <td className="px-6 py-4 text-center">{row.quantity}</td>
+                          <td className="px-6 py-4 text-right">
+                            {formatoMoneda.format(Number(row.rate) || 0)}
+                          </td>
+                          <td className="px-6 py-4 text-right font-bold">
+                            {(row.description || "").toUpperCase().includes("D DESC")
+                              ? ""
+                              : formatoMoneda.format(
+                                (Number(row.amount) || 0) + (Number(row.descuento) || 0)
+                              )
+                            }
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
-
                     <tfoot className="bg-gray-50 dark:bg-gray-800/20">
                       <tr>
                         <td
@@ -248,7 +378,18 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
                           Subtotal
                         </td>
                         <td className="px-6 py-3 text-right font-bold">
-                          $2,450.00
+                          {formatoMoneda.format(cabecera?.subtotal || 0)}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td
+                          colSpan={3}
+                          className="px-6 py-3 text-right text-gray-500 font-medium"
+                        >
+                          IVA
+                        </td>
+                        <td className="px-6 py-3 text-right font-bold">
+                          {formatoMoneda.format(cabecera?.tax || 0)}
                         </td>
                       </tr>
                       <tr>
@@ -256,81 +397,72 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
                           colSpan={3}
                           className="px-6 py-3 text-right text-gray-500 font-medium text-lg"
                         >
-                          Total a Pagar
+                          Total
                         </td>
                         <td className="px-6 py-3 text-right text-primary text-2xl font-black">
-                          $2,450.00
+                          {formatoMoneda.format(cabecera?.amount || 0)}
                         </td>
                       </tr>
                     </tfoot>
                   </table>
                 </div>
 
+
                 <div className="md:hidden divide-y divide-gray-100 dark:divide-gray-800">
-                  <div className="p-4 space-y-3">
-                    <div>
-                      <p className="text-gray-900 dark:text-white font-medium">
-                        Suscripción Anual Cloud ERP
-                      </p>
-                      <p className="text-gray-500 text-xs italic">
-                        Periodo: Ene 2024 - Dic 2024
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-3 text-sm">
+                  {lineas?.map((row: CustomerInvoiceLine) => (
+                    <div key={row.lineorder} className="p-4 space-y-3">
                       <div>
-                        <p className="text-gray-500 text-xs">Cant.</p>
-                        <p className="font-medium">1</p>
+                        <p className="text-gray-900 dark:text-white font-medium">
+                          {row.description}
+                        </p>
                       </div>
-                      <div className="text-right">
-                        <p className="text-gray-500 text-xs">Unitario</p>
-                        <p className="font-medium">$1,800.00</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-gray-500 text-xs">Importe</p>
-                        <p className="font-bold">$1,800.00</p>
+                      <div className="grid grid-cols-3 text-sm">
+                        <div>
+                          <p className="text-gray-500 text-xs">Cant.</p>
+                          <p className="font-medium">{row.quantity}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-gray-500 text-xs">Unitario</p>
+                          <p className="font-medium">
+                            {formatoMoneda.format(Number(row.rate) || 0)}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-gray-500 text-xs">Importe</p>
+                          <p className="font-bold">
+                            {(row.description || "").toUpperCase().includes("D DESC")
+                              ? ""
+                              : formatoMoneda.format(
+                                (Number(row.amount) || 0) + (Number(row.descuento) || 0)
+                              )
+                            }
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="p-4 space-y-3">
-                    <div>
-                      <p className="text-gray-900 dark:text-white font-medium">
-                        Soporte Técnico Premium
-                      </p>
-                      <p className="text-gray-500 text-xs italic">
-                        Bolsa de 10 horas mensuales
-                      </p>
-                    </div>
+                  ))}
 
-                    <div className="grid grid-cols-3 text-sm">
-                      <div>
-                        <p className="text-gray-500 text-xs">Cant.</p>
-                        <p className="font-medium">1</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-gray-500 text-xs">Unitario</p>
-                        <p className="font-medium">$650.00</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-gray-500 text-xs">Importe</p>
-                        <p className="font-bold">$650.00</p>
-                      </div>
-                    </div>
-                  </div>
                   <div className="p-4 bg-gray-50 dark:bg-gray-800/20 space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">Subtotal</span>
-                      <span className="font-bold">$2,450.00</span>
+                      <span className="font-bold">{formatoMoneda.format(cabecera?.subtotal || 0)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">IVA</span>
+                      <span className="font-bold">{formatoMoneda.format(cabecera?.tax || 0)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500 font-medium">Total</span>
                       <span className="text-primary text-xl font-black">
-                        $2,450.00
+                        {formatoMoneda.format(cabecera?.amount || 0)}
                       </span>
                     </div>
                   </div>
                 </div>
+
               </div>
+
+
               <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden 2xl:mb-8">
                 <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                   <h3 className="text-gray-900 dark:text-white text-base sm:text-lg font-bold">
@@ -338,59 +470,42 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
                   </h3>
 
                   <span className="self-start sm:self-auto text-xs font-bold text-primary px-2 py-1 bg-primary/10 rounded">
-                    2 abonos registrados
+                    {pagos?.length} pago(s) registrado(s)
                   </span>
                 </div>
                 <ul className="divide-y divide-gray-100 dark:divide-gray-800">
-                  <li className="px-4 sm:px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                      <div className="flex items-start sm:items-center gap-3">
-                        <div className="bg-green-100 dark:bg-green-900/40 p-2 rounded-full text-green-600 shrink-0">
-                          <span className="material-symbols-outlined text-xl">
-                            account_balance_wallet
-                          </span>
+                  {pagos?.map((pago: PaymentApplication) => (
+                    <li
+                      key={pago.payment_id}
+                      className="px-4 sm:px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div className="flex items-start sm:items-center gap-3">
+                          <div className="bg-green-100 dark:bg-green-900/40 p-2 rounded-full text-green-600 shrink-0">
+                            <span className="material-symbols-outlined text-xl">
+                              account_balance_wallet
+                            </span>
+                          </div>
+
+                          <div>
+                            <p className="text-gray-900 dark:text-white font-bold text-sm sm:text-base">
+                              Transferencia Bancaria
+                            </p>
+                            <p className="text-gray-500 text-xs">
+                              {formatDate(pago.payment_trandate)} • Ref: {pago.payment?.tranid}
+                            </p>
+                          </div>
                         </div>
 
-                        <div>
-                          <p className="text-gray-900 dark:text-white font-bold text-sm sm:text-base">
-                            Transferencia Bancaria
-                          </p>
-                          <p className="text-gray-500 text-xs">
-                            15 de Noviembre, 2023 • Ref: BNX-00129
-                          </p>
-                        </div>
+                        <p className="text-gray-900 dark:text-white font-black text-base sm:text-lg sm:text-right">
+                          {formatoMoneda.format(pago.amount || 0)}
+                        </p>
                       </div>
-                      <p className="text-gray-900 dark:text-white font-black text-base sm:text-lg sm:text-right">
-                        $600.00
-                      </p>
-                    </div>
-                  </li>
-                  <li className="px-4 sm:px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                      <div className="flex items-start sm:items-center gap-3">
-                        <div className="bg-green-100 dark:bg-green-900/40 p-2 rounded-full text-green-600 shrink-0">
-                          <span className="material-symbols-outlined text-xl">
-                            payments
-                          </span>
-                        </div>
-
-                        <div>
-                          <p className="text-gray-900 dark:text-white font-bold text-sm sm:text-base">
-                            Pago en Efectivo (Caja)
-                          </p>
-                          <p className="text-gray-500 text-xs">
-                            20 de Noviembre, 2023 • Ref: CJ-8821
-                          </p>
-                        </div>
-                      </div>
-
-                      <p className="text-gray-900 dark:text-white font-black text-base sm:text-lg sm:text-right">
-                        $500.00
-                      </p>
-                    </div>
-                  </li>
+                    </li>
+                  ))}
                 </ul>
               </div>
+
             </div>
 
             <div className="lg:col-span-1 flex flex-col gap-4 sm:gap-6">
@@ -441,7 +556,8 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
                         liberará el pago el próximo viernes sin falta.
                       </p>
                       <div className="mt-2 px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs text-gray-500 italic inline-block">
-                        "Promesa de pago para el 15/Dic"
+                        "Promesa de pago para el " {formatDate(data?.data?.vencimiento)}
+
                       </div>
                     </div>
                   </div>
@@ -458,7 +574,7 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
                       </p>
 
                       <time className="block text-gray-400 text-[11px] uppercase tracking-wider">
-                        12 Nov, 2023
+                        {formatDate(data?.data?.fecha)}
                       </time>
 
                       <p className="mt-1 text-gray-600 dark:text-gray-400 text-sm">
@@ -479,7 +595,7 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
                       Días de crédito
                     </span>
                     <span className="font-bold text-sm sm:text-base">
-                      30 Días
+                      {info?.diasCredito} Días
                     </span>
                   </div>
                   <div className="flex justify-between items-center border-b border-white/20 pb-3">
@@ -487,7 +603,7 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
                       Días transcurridos
                     </span>
                     <span className="font-bold text-sm sm:text-base">
-                      25 Días
+                      {info?.diasTranscurridos} Días
                     </span>
                   </div>
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
@@ -495,7 +611,7 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
                       Estado Cobranza
                     </span>
                     <span className="px-3 py-1 bg-white text-primary text-[10px] sm:text-xs font-black rounded-full uppercase text-center w-fit">
-                      Activa
+                      {info?.estatus}
                     </span>
                   </div>
                   <button className="w-full bg-white text-primary font-bold py-3 sm:py-3.5 rounded-xl hover:bg-gray-100 transition-all duration-200 flex items-center justify-center gap-2 mt-4 text-sm sm:text-base active:scale-[0.98]">
@@ -507,6 +623,7 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </main>

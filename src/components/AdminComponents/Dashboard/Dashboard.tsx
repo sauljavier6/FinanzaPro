@@ -1,42 +1,106 @@
+import { useQuery } from "@tanstack/react-query";
+import { getdata } from "../../../api/AdminApis/homeApi";
+import { formatoMoneda } from "../../../utils/formatMoneda";
+import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getReporteG } from "../../../api/AdminApis/reportesApi";
+import { formatoCompacto } from "../../../utils/formatoCompacto";
+
+export interface Invoice {
+  entity: string;
+  currency: string;
+  trandate: string;
+  duedate: string;
+  id: number;
+  balance: number;
+  status: string;
+  amount: number;
+  tranid: string;
+}
+
 export default function Dashboar() {
-  const monthlyData = [
-    { label: "Ene", a: 110, b: 180 },
-    { label: "Feb", a: 100, b: 140 },
-    { label: "Mar", a: 160, b: 220 },
-    { label: "Abr", a: 140, b: 200 },
-    { label: "May", a: 180, b: 260 },
-    { label: "Jun", a: 90, b: 110 },
+  const navigate = useNavigate();
+
+  const { data } = useQuery({
+    queryKey: ["dashboarAdmin"],
+    queryFn: async () => {
+      const res = await getdata();
+      return res;
+    },
+  });
+
+  console.log(data)
+
+  const [dataGrafica, setDataGrafica] = useState({
+    meses: [],
+    ventas: [],
+    cobranzas: [],
+    total: 0,
+    porcentajes: [],
+    totalMesActual: 0,
+    totalMesAnterior: 0,
+    comparacion: {
+      porcentajeCambio: 0,
+      tendencia: "equal",
+      mesAnterior: 0
+    },
+    cobradoMesActual: 0,
+    cobradoMesAnterior: 0,
+    porcentajerecMesActual: 0,
+    porcentajerecMesAnterior: 0
+  });
+
+  
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await getReporteG();
+      console.log(res)
+
+      if (res.success) {
+        setDataGrafica(res.data);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const generarPath = (data: number[], height: number, width: number) => {
+    if (!data.length) return "";
+
+    const max = Math.max(...data, 1);
+    const stepX = width / (data.length - 1);
+
+    return data
+      .map((valor, i) => {
+        const x = i * stepX;
+        const y = height - (valor / max) * height;
+        return `${i === 0 ? "M" : "L"} ${x} ${y}`;
+      })
+      .join(" ");
+  };
+
+  const height = 300;
+  const width = 600;
+
+  const pathVentas = generarPath(dataGrafica.ventas, height, width);
+  const pathPagos = generarPath(dataGrafica.cobranzas, height, width);
+  const max = Math.max(...dataGrafica.ventas, 1);
+
+  const colores = [
+    "bg-blue-500",
+    "bg-green-500",
+    "bg-amber-500",
+    "bg-red-500",
+    "bg-purple-500",
+    "bg-pink-500"
   ];
 
-  const alertsData = [
-    {
-      id: 1,
-      company: "Corporativo Global S.A.",
-      invoice: "Factura #F-98234",
-      amount: "$45,200",
-      statusIcon: "priority_high",
-      statusText: "60 días vencido",
-      statusColor: "text-red-500",
-    },
-    {
-      id: 2,
-      company: "Logística Express MX",
-      invoice: "Factura #F-98211",
-      amount: "$12,800",
-      statusIcon: "priority_high",
-      statusText: "45 días vencido",
-      statusColor: "text-red-500",
-    },
-    {
-      id: 3,
-      company: "Distribuidora Norte",
-      invoice: "Factura #F-98305",
-      amount: "$8,900",
-      statusIcon: "warning",
-      statusText: "Pago rechazado",
-      statusColor: "text-orange-500",
-    },
-  ];
+  const totalPorcentaje = dataGrafica.porcentajes.reduce((a, b) => a + b, 0);
+
+  const porcentajesNormalizados = dataGrafica.porcentajes.map(p =>
+    (p / totalPorcentaje) * 100
+  );
 
   return (
     <div className="flex overflow-hidden">
@@ -59,14 +123,14 @@ export default function Dashboar() {
                   account_balance_wallet
                 </span>
                 <span className="text-[10px] sm:text-xs font-bold text-green-600 bg-green-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full dark:bg-green-900/20">
-                  +12%
+                  {data?.countPendientes} Facturas
                 </span>
               </div>
               <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-[#4c669a] mb-1 sm:mb-1.5">
                 Total por cobrar
               </p>
               <p className="text-md lg:2xl font-extrabold">
-                $1,250,000
+                {formatoMoneda.format(data?.totalPendiente || 0)}
               </p>
             </div>
             <div className="w-full bg-white dark:bg-[#161b2a] p-3 sm:p-4 lg:p-6 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
@@ -75,14 +139,14 @@ export default function Dashboar() {
                   event_busy
                 </span>
                 <span className="text-[10px] sm:text-xs font-bold text-red-600 bg-red-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full dark:bg-red-900/20">
-                  -5%
+                  {data?.countVencidas} Facturas
                 </span>
               </div>
               <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-[#4c669a] mb-1 sm:mb-1.5">
                 Cartera Vencida
               </p>
               <p className="text-md lg:2xl font-extrabold text-red-600">
-                $320,000
+                {formatoMoneda.format(data?.totalVencido || 0)}
               </p>
             </div>
             <div className="w-full bg-white dark:bg-[#161b2a] p-3 sm:p-4 lg:p-6 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
@@ -91,14 +155,14 @@ export default function Dashboar() {
                   check_circle
                 </span>
                 <span className="text-[10px] sm:text-xs font-bold text-green-600 bg-green-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full dark:bg-green-900/20">
-                  +18%
+                  {data?.porcentajeRecuperado}%
                 </span>
               </div>
               <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-[#4c669a] mb-1 sm:mb-1.5">
                 Recuperado (Mes)
               </p>
               <p className="text-md lg:2xl font-extrabold">
-                $845,000
+                {formatoMoneda.format(data?.recuperadoMes || 0)}
               </p>
             </div>
             <div className="w-full bg-white dark:bg-[#161b2a] p-3 sm:p-4 lg:p-6 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
@@ -107,134 +171,223 @@ export default function Dashboar() {
                   schedule
                 </span>
                 <span className="text-[10px] sm:text-xs font-bold text-green-600 bg-green-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full dark:bg-green-900/20">
-                  -2 d
+                  Actual
                 </span>
               </div>
               <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-[#4c669a] mb-1 sm:mb-1.5">
                 Promedio de pago
               </p>
               <p className="text-md lg:2xl font-extrabold">
-                24 días
+                {data?.promedioPago} días
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            {/* Cobranza Mensual */}
-            <div className="lg:col-span-2 bg-white dark:bg-[#161b2a] rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm p-4 sm:p-6">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
+          {/*  */}
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8 mb-8">
+            {/* =================== GRAFICA PRINCIPAL =================== */}
+            <div className="xl:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-card-border dark:border-slate-800 shadow-sm p-5 sm:p-6 lg:p-8">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
                 <div>
-                  <h3 className="text-sm sm:text-base font-bold">
-                    Cobranza Mensual
+                  <h3 className="text-base sm:text-lg font-bold">
+                    Ingresos vs. Ventas
                   </h3>
-                  <p className="text-xs sm:text-sm text-[#4c669a]">
-                    Desempeño de recuperación fiscal 2024
+                  <p className="text-xs sm:text-sm text-slate-500">
+                    Comparativa detallada
                   </p>
                 </div>
-                <div className="flex mt-3 sm:mt-0 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
-                  <button className="px-2 py-1 text-[10px] sm:text-xs font-bold bg-white dark:bg-gray-700 rounded-md shadow-sm">
-                    6 Meses
-                  </button>
-                  <button className="px-2 py-1 text-[10px] sm:text-xs font-bold text-[#4c669a]">
-                    12 Meses
-                  </button>
-                </div>
-              </div>
 
-              <div className="relative h-[220px] sm:h-[250px] md:h-[300px] flex items-end justify-around gap-1 sm:gap-2 pb-3 overflow-hidden border-b border-dashed border-gray-200 dark:border-gray-700">
-                {monthlyData.map((m) => (
-                  <div
-                    key={m.label}
-                    className="flex flex-col items-center w-full max-w-[40px] sm:max-w-[50px]"
-                  >
-                    <div className="flex flex-col justify-end gap-1 h-[180px] sm:h-[230px] w-full">
-                      <div
-                        className="w-full bg-primary/20 rounded-t-lg transition-all hover:bg-primary/40 cursor-pointer"
-                        style={{ height: `${m.a}px` }}
-                      />
-                      <div
-                        className="w-full bg-primary rounded-t-lg transition-all hover:opacity-90"
-                        style={{ height: `${m.b}px` }}
-                      />
-                    </div>
-                    <span className="mt-1 text-[9px] sm:text-xs font-bold text-[#4c669a]">
-                      {m.label}
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-primary"></div>
+                    <span className="text-xs font-medium text-slate-500">
+                      Ingresos
                     </span>
                   </div>
-                ))}
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    <span className="text-xs font-medium text-slate-500">
+                      Ventas
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              <div className="mt-4 sm:mt-6 flex items-center justify-center gap-4 sm:gap-8 text-[9px] sm:text-xs">
-                <div className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-primary"></span>
-                  <span className="font-medium text-[#4c669a]">
-                    Meta Cobrada
-                  </span>
+              {/* Área gráfica responsive */}
+              <div className="h-[260px] sm:h-[320px] lg:h-[350px] relative pb-5">
+
+                {/* Ejes Y */}
+                <div className="absolute left-0 top-0 h-full hidden sm:flex flex-col justify-between text-[10px] text-slate-400 font-bold">
+                  {[1, 0.75, 0.5, 0.25, 0].map((p, i) => (
+                    <span key={i}>
+                      ${(max * p / 1000000).toFixed(1)}M
+                    </span>
+                  ))}
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-primary/30"></span>
-                  <span className="font-medium text-[#4c669a]">Proyección</span>
+
+                {/* Área gráfica */}
+                <div className="sm:ml-10 h-full border-l border-b border-slate-100 dark:border-slate-800 relative overflow-x-auto">
+
+                  {/* líneas horizontales */}
+                  <div className="absolute w-full top-1/4 border-t border-dashed border-slate-100 dark:border-slate-800"></div>
+                  <div className="absolute w-full top-2/4 border-t border-dashed border-slate-100 dark:border-slate-800"></div>
+                  <div className="absolute w-full top-3/4 border-t border-dashed border-slate-100 dark:border-slate-800"></div>
+
+                  {/* ventas */}
+                  <svg
+                    className="absolute inset-0 w-full h-full"
+                    viewBox="0 0 600 260"
+                    preserveAspectRatio="none"
+                  >
+                    <path
+                      d={pathVentas}
+                      fill="none"
+                      stroke="#22c55e"
+                      strokeLinecap="round"
+                      strokeWidth="4"
+                    />
+                  </svg>
+
+                  {/* pagos */}
+                  <svg
+                    className="absolute inset-0 w-full h-full"
+                    viewBox="0 0 600 260"
+                    preserveAspectRatio="none"
+                  >
+                    <path
+                      d={pathPagos}
+                      fill="none"
+                      stroke="#135bec"
+                      strokeLinecap="round"
+                      strokeWidth="4"
+                    />
+                  </svg>
+
                 </div>
+
+                {/* Meses */}
+                <div className="sm:ml-10 mt-4 flex justify-between text-[10px] sm:text-[11px] text-slate-400 font-bold">
+                  {dataGrafica.meses.map((mes, i) => (
+                    <span key={i} className="min-w-[60px] text-center">
+                      {mes}
+                    </span>
+                  ))}
+                </div>
+
               </div>
+
             </div>
 
-            {/* Alertas Críticas */}
-            <div className="bg-white dark:bg-[#161b2a] rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm p-4 sm:p-6 flex flex-col">
-              <div className="flex items-center justify-between mb-4 sm:mb-6">
-                <h3 className="text-sm sm:text-base font-bold">
-                  Alertas Críticas
+            {/* =================== DONUT =================== */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-card-border dark:border-slate-800 shadow-sm p-5 sm:p-6 lg:p-8 flex flex-col">
+              <div className="mb-6">
+                <h3 className="text-base sm:text-lg font-bold">
+                  Composición de ventas
                 </h3>
-                <span className="bg-red-100 text-red-600 dark:bg-red-900/30 text-[10px] sm:text-xs font-bold px-2 py-1 rounded-lg">
-                  4 Pendientes
-                </span>
+                <p className="text-xs sm:text-sm text-slate-500">
+                  Distribución por mes
+                </p>
               </div>
 
-              <div className="flex-1 space-y-3 sm:space-y-4 overflow-y-auto max-h-[400px]">
-                {alertsData.map((alert) => (
-                  <div
-                    key={alert.id}
-                    className="p-3 sm:p-4 rounded-xl border border-[#e7ebf3] dark:border-gray-800 hover:border-red-200 dark:hover:border-red-900/50 transition-colors"
-                  >
-                    <div className="flex items-start justify-between mb-1 sm:mb-2">
-                      <div>
-                        <p className="text-[10px] sm:text-sm font-bold">
-                          {alert.company}
-                        </p>
-                        <p className="text-[8px] sm:text-xs text-[#4c669a]">
-                          {alert.invoice}
-                        </p>
+              <div className="flex-1 flex flex-col items-center justify-center">
+                <div className="relative w-40 h-40 sm:w-48 sm:h-48 mb-6 sm:mb-8">
+                  <svg className="w-full h-full" viewBox="0 0 42 42">
+                    <circle
+                      cx="21"
+                      cy="21"
+                      r="15.915"
+                      fill="transparent"
+                      stroke="#135bec"
+                      strokeDasharray={`${porcentajesNormalizados[0]} ${100 - porcentajesNormalizados[0]}`}
+                      strokeWidth="5"
+                    />
+
+                    <circle
+                      cx="21"
+                      cy="21"
+                      r="15.915"
+                      fill="transparent"
+                      stroke="#10b981"
+                      strokeDasharray={`${porcentajesNormalizados[1]} ${100 - porcentajesNormalizados[1]}`}
+                      strokeDashoffset={-porcentajesNormalizados[0]}
+                      strokeWidth="5"
+                    />
+
+                    <circle
+                      cx="21"
+                      cy="21"
+                      r="15.915"
+                      fill="transparent"
+                      stroke="#f59e0b"
+                      strokeDasharray={`${porcentajesNormalizados[2]} ${100 - porcentajesNormalizados[2]}`}
+                      strokeDashoffset={-(porcentajesNormalizados[0] + porcentajesNormalizados[1])}
+                      strokeWidth="5"
+                    />
+
+                    <circle
+                      cx="21"
+                      cy="21"
+                      r="15.915"
+                      fill="transparent"
+                      stroke="#ef4444"
+                      strokeDasharray={`${porcentajesNormalizados[3]} ${100 - porcentajesNormalizados[3]}`}
+                      strokeDashoffset={-(porcentajesNormalizados[0] + porcentajesNormalizados[1] + porcentajesNormalizados[2])}
+                      strokeWidth="5"
+                    />
+
+                    <circle
+                      cx="21"
+                      cy="21"
+                      r="15.915"
+                      fill="transparent"
+                      stroke="#8b5cf6"
+                      strokeDasharray={`${porcentajesNormalizados[4]} ${100 - porcentajesNormalizados[4]}`}
+                      strokeDashoffset={-(porcentajesNormalizados[0] + porcentajesNormalizados[1] + porcentajesNormalizados[2] + porcentajesNormalizados[3])}
+                      strokeWidth="5"
+                    />
+
+                    <circle
+                      cx="21"
+                      cy="21"
+                      r="15.915"
+                      fill="transparent"
+                      stroke="#ec4899"
+                      strokeDasharray={`${porcentajesNormalizados[5]} ${100 - porcentajesNormalizados[5]}`}
+                      strokeDashoffset={-(porcentajesNormalizados[0] + porcentajesNormalizados[1] + porcentajesNormalizados[2] + porcentajesNormalizados[3] + porcentajesNormalizados[4])}
+                      strokeWidth="5"
+                    />
+
+                  </svg>
+
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-2xl sm:text-3xl font-extrabold">
+                      {formatoCompacto.format(dataGrafica.total || 0)}
+                    </span>
+                    <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">
+                      Total
+                    </span>
+                  </div>
+                </div>
+
+                {/* Leyenda */}
+                <div className="w-full space-y-3 text-sm">
+                  {dataGrafica.meses.map((mes, i) => (
+                    <div key={i} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className={`w-2.5 h-2.5 rounded-full ${colores[i % colores.length]}`}
+                        ></div>
+                        <span className="text-slate-600 dark:text-slate-400">
+                          {mes}
+                        </span>
                       </div>
-                      <span className="text-[10px] sm:text-sm text-red-600 font-bold">
-                        {alert.amount}
+                      <span className="font-bold">
+                        {porcentajesNormalizados[i]?.toFixed(1)}%
                       </span>
                     </div>
-                    <div className="flex items-center justify-between mt-2 sm:mt-3">
-                      <div className="flex items-center gap-1">
-                        <span
-                          className={`material-symbols-outlined text-[12px] ${alert.statusColor}`}
-                        >
-                          {alert.statusIcon}
-                        </span>
-                        <span
-                          className={`text-[8px] sm:text-xs font-bold ${alert.statusColor}`}
-                        >
-                          {alert.statusText}
-                        </span>
-                      </div>
-                      <button className="text-[8px] sm:text-xs font-bold text-primary hover:underline">
-                        Gestionar
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-
-              <button className="w-full mt-4 sm:mt-6 border-t border-[#e7ebf3] dark:border-gray-800 pt-3 sm:pt-4 text-[10px] sm:text-xs font-bold text-[#4c669a] hover:text-primary transition-colors flex items-center justify-center gap-1 sm:gap-2">
-                Ver todas las alertas
-                <span className="material-symbols-outlined text-[14px] sm:text-[16px]">
-                  arrow_forward
-                </span>
-              </button>
             </div>
           </div>
 
@@ -243,82 +396,43 @@ export default function Dashboar() {
             <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-[#e7ebf3] dark:border-gray-800 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
               <h3 className="text-base sm:text-lg font-bold">
                 Pagos Recientes
-              </h3>
-              <button className="text-xs sm:text-sm font-bold text-primary hover:bg-primary/5 rounded-lg self-start sm:self-auto px-3 py-1.5">
-                Exportar a PDF
-              </button>
+              </h3>   
             </div>
 
             {/* ===================== */}
             {/* MÓVIL – CARDS */}
             {/* ===================== */}
             <div className="sm:hidden divide-y divide-[#e7ebf3] dark:divide-gray-800">
-              {[
-                {
-                  invoice: "#F-98552",
-                  date: "12 Oct, 2023",
-                  client: "Tech Cloud Solutions",
-                  initials: "TC",
-                  bg: "bg-blue-100",
-                  color: "text-primary",
-                  amount: "$15,400.00",
-                  status: "Completado",
-                  statusBg:
-                    "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-                },
-                {
-                  invoice: "#F-98549",
-                  date: "11 Oct, 2023",
-                  client: "BioMedics Lab",
-                  initials: "BM",
-                  bg: "bg-purple-100",
-                  color: "text-purple-600",
-                  amount: "$4,250.00",
-                  status: "Procesando",
-                  statusBg:
-                    "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-                },
-                {
-                  invoice: "#F-98533",
-                  date: "10 Oct, 2023",
-                  client: "Alpha Agency",
-                  initials: "AA",
-                  bg: "bg-gray-100",
-                  color: "text-gray-600",
-                  amount: "$22,100.00",
-                  status: "Completado",
-                  statusBg:
-                    "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-                },
-              ].map((p) => (
-                <div key={p.invoice} className="p-4 space-y-2">
+              {data?.data?.map((p: Invoice) => (
+                <div key={p.id} className="p-4 space-y-2">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
-                      <div
-                        className={`h-8 w-8 rounded-lg flex items-center justify-center ${p.bg} ${p.color} font-bold text-xs`}
-                      >
-                        {p.initials}
-                      </div>
-                      <p className="text-sm font-bold">{p.client}</p>
+
+                      <p className="text-sm font-bold">{p.entity}</p>
                     </div>
-                    <span className="font-bold">{p.amount}</span>
+                    <span className="font-bold">{formatoMoneda.format(p.amount || 0)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-xs text-[#4c669a]">Factura</span>
-                    <span className="font-bold">{p.invoice}</span>
+                    <span className="font-bold">{p.tranid}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-xs text-[#4c669a]">Fecha</span>
-                    <span>{p.date}</span>
+                    <span>{p.trandate}</span>
                   </div>
                   <div className="flex justify-between items-center mt-1">
                     <span
-                      className={`text-xs font-bold px-2 py-1 rounded-full ${p.statusBg}`}
+                      className={`text-xs font-bold px-2 py-1 rounded-full ${p.status}`}
                     >
                       {p.status}
                     </span>
-                    <button className="text-primary text-sm font-bold">
-                      Gestionar
+                    <button
+                      onClick={() => navigate(`/admin/facturas/${p.id}`)}
+                      className="p-2 rounded-lg bg-gray-100 dark:bg-gray-100 text-[#0d121b] dark:text-white hover:bg-[#cfd7e7] transition-all"
+                    >
+                      <span className="material-symbols-outlined text-[20px]">
+                        visibility
+                      </span>
                     </button>
                   </div>
                 </div>
@@ -353,81 +467,56 @@ export default function Dashboar() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#e7ebf3] dark:divide-gray-800">
-                  <tr>
-                    <td className="px-6 py-4 flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center text-primary font-bold text-xs">
-                        TC
-                      </div>
-                      <p className="text-sm font-bold">Tech Cloud Solutions</p>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium">#F-98552</td>
-                    <td className="px-6 py-4 text-sm text-[#4c669a]">
-                      12 Oct, 2023
-                    </td>
-                    <td className="px-6 py-4 text-sm font-bold">$15,400.00</td>
-                    <td className="px-6 py-4">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                        Completado
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <button className="text-gray-400 hover:text-primary transition-colors">
-                        <span className="material-symbols-outlined">
-                          more_vert
+                  {data?.data?.map((item: any) => (
+                    <tr key={item.id}>
+                      <td className="px-6 py-4 flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center text-primary font-bold text-xs">
+                          {item.customer?.companyname?.substring(0, 2).toUpperCase()}
+                        </div>
+                        <p className="text-sm font-bold">
+                          {item.customer?.companyname}
+                        </p>
+                      </td>
+
+                      <td
+                        className="px-6 py-4 text-sm font-medium cursor-pointer text-primary hover:underline"
+                        onClick={() => navigate(`/admin/facturas/${item.id}`)}
+                      >
+                        {item.tranid}
+                      </td>
+
+                      <td className="px-6 py-4 text-sm text-[#4c669a]">
+                        {new Date(item.duedate).toLocaleDateString()}
+                      </td>
+
+                      <td className="px-6 py-4 text-sm font-bold">
+                        {formatoMoneda.format(item.amount || 0)}
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold
+                          ${item.balance === 0
+                              ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                              : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                            }`}
+                        >
+                          {item.balance === 0 ? "Pagada" : "Pendiente"}
                         </span>
-                      </button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="px-6 py-4 flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-xs">
-                        BM
-                      </div>
-                      <p className="text-sm font-bold">BioMedics Lab</p>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium">#F-98549</td>
-                    <td className="px-6 py-4 text-sm text-[#4c669a]">
-                      11 Oct, 2023
-                    </td>
-                    <td className="px-6 py-4 text-sm font-bold">$4,250.00</td>
-                    <td className="px-6 py-4">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">
-                        Procesando
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <button className="text-gray-400 hover:text-primary transition-colors">
-                        <span className="material-symbols-outlined">
-                          more_vert
-                        </span>
-                      </button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="px-6 py-4 flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-xs">
-                        AA
-                      </div>
-                      <p className="text-sm font-bold">Alpha Agency</p>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium">#F-98533</td>
-                    <td className="px-6 py-4 text-sm text-[#4c669a]">
-                      10 Oct, 2023
-                    </td>
-                    <td className="px-6 py-4 text-sm font-bold">$22,100.00</td>
-                    <td className="px-6 py-4">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                        Completado
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <button className="text-gray-400 hover:text-primary transition-colors">
-                        <span className="material-symbols-outlined">
-                          more_vert
-                        </span>
-                      </button>
-                    </td>
-                  </tr>
+                      </td>
+
+                      <td className="px-6 py-4 text-right">
+                        <button
+                          onClick={() => navigate(`/admin/facturas/${item.id}`)}
+                          className="p-2 rounded-lg bg-gray-100 dark:bg-gray-100 text-[#0d121b] dark:text-white hover:bg-[#cfd7e7] transition-all"
+                        >
+                          <span className="material-symbols-outlined text-[20px]">
+                            visibility
+                          </span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>

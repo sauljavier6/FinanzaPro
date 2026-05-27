@@ -1,7 +1,8 @@
 import { apiRequest, setAccessToken } from "../api";
 
-export const getFacturaById = async (id: number) => {
-  const res = await apiRequest(`/customer/facturas/${id}`, {
+
+export const getdata = async () => {
+  const res = await apiRequest("/admin/home", {
     method: "GET",
   });
 

@@ -2,15 +2,13 @@
 export const setAccessToken = (token: string | null) => {
   if (token) {
     localStorage.setItem("accessToken", token);
-  } else {
-    localStorage.removeItem("accessToken");
   }
 };
 
 const refreshAccessToken = async () => {
   const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/refresh`, {
     method: "POST",
-    credentials: "include", // importante para que envíe la cookie
+    credentials: "include",
   });
 
   if (!res.ok) {
@@ -41,7 +39,7 @@ export const apiRequest = async (
   });
 
   // Si expiró el token, intentamos refresh
-  if (res.status === 401) {
+  if (res.status === 401 || res.status === 403){
     try {
       const newToken = await refreshAccessToken();
 

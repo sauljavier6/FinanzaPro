@@ -1,9 +1,37 @@
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { getFacturas } from "../../../api/customerApis/FacturaApi";
+import { useParams } from "react-router-dom";
 
 export default function Pagar() {
+  const { id } = useParams();
+
+  const ids = id
+    ? id
+      .split(",")
+      .map((i) => Number(i))
+      .filter((i) => !isNaN(i))
+    : [];
+
+  console.log('ids', ids)
+  console.log('id', id)
+
+  const { data } = useQuery({
+    queryKey: ["cuentasCliente", id] as const,
+    queryFn: () => getFacturas(ids),
+
+    refetchOnWindowFocus: false,
+  });
+
+  const totales = data?.total;
+  const facturas = Array.isArray(data?.data)
+  ? data.data
+  : [];
+
   const [metodo, setMetodo] = useState<"tarjeta" | "transferencia" | "pse">(
     "tarjeta",
   );
+
 
   return (
     <div className="flex overflow-hidden">
@@ -55,11 +83,10 @@ export default function Pagar() {
                       onClick={() => setMetodo(tab.key as typeof metodo)}
                       className={`
                       flex flex-col items-center justify-center border-b-4 gap-1 pb-3 pt-4 min-w-[80px] sm:min-w-[100px] transition-all
-                      ${
-                        metodo === tab.key
+                      ${metodo === tab.key
                           ? "border-primary text-primary"
                           : "border-transparent text-gray-500 hover:text-primary dark:hover:text-primary"
-                      }
+                        }
                     `}
                     >
                       <span className="material-symbols-outlined text-lg sm:text-xl">
@@ -353,24 +380,34 @@ export default function Pagar() {
                   Resumen de Pago
                 </h3>
                 <div className="space-y-3 mb-6">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-500">Factura #2023-045</span>
-                    <span className="font-medium">$ 1.250.000</span>
-                  </div>
+                  {facturas.map((factura: any) => (
+                    <div
+                      key={factura.id}
+                      className="flex justify-between items-center text-sm"
+                    >
+                      <span className="text-gray-500">
+                        Factura #{factura.tranid}
+                      </span>
+
+                      <span className="font-medium">
+                        {factura.balance.toFixed(2)}
+                      </span>
+                    </div>
+                  ))}
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-500">Mora e Intereses</span>
-                    <span className="font-medium">$ 25.000</span>
+                    <span className="font-medium">$0</span>
                   </div>
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-500">IVA (19%)</span>
-                    <span className="font-medium">$ 237.500</span>
+                    <span className="text-gray-500">IVA</span>
+                    <span className="font-medium">${totales?.tax.toFixed(2)}</span>
                   </div>
                 </div>
                 <div className="border-t border-dashed border-gray-200 dark:border-gray-700 pt-4 mb-6">
                   <div className="flex justify-between items-center">
                     <span className="text-base font-bold">Total a Pagar</span>
                     <span className="text-2xl font-black text-primary">
-                      $ 1.512.500
+                      ${totales?.balance.toFixed(2)}
                     </span>
                   </div>
                 </div>
