@@ -250,9 +250,10 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
                   <span className="material-symbols-outlined text-primary text-[20px]">
                     person
                   </span>
-                  Información del Cliente
+                  Información personal
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 min-w-0">
+                  {/* Cliente */}
                   <div className="min-w-0">
                     <p className="text-[11px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">
                       Cliente
@@ -264,23 +265,54 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
                       RFC: {customer?.rfc}
                     </p>
                   </div>
+                  {/* Contacto */}
                   <div className="min-w-0">
                     <p className="text-[11px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">
                       Contacto
                     </p>
                     <p className="text-gray-900 dark:text-white font-bold break-words">
-                      {customer?.fullname}
-                    </p>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm break-all">
                       {customer?.email}
                     </p>
                   </div>
+                  {/* Teléfono */}
                   <div className="sm:col-span-2 min-w-0">
                     <p className="text-[11px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">
-                      Telefono
+                      Teléfono
                     </p>
                     <p className="text-gray-500 dark:text-gray-400 text-sm break-all">
                       {customer?.phone}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">
+                      Saldo
+                    </p>
+                    <p className="text-gray-900 dark:text-white font-bold">
+                      {formatoMoneda.format(customer?.balance || 0)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">
+                      Límite de crédito
+                    </p>
+                    <p className="text-gray-900 dark:text-white font-bold">
+                      {formatoMoneda.format(customer?.creditlimit || 0)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">
+                      Crédito vencido
+                    </p>
+                    <p className="text-red-600 font-bold">
+                      {formatoMoneda.format(customer?.duebalance || 0)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">
+                      Términos
+                    </p>
+                    <p className="text-gray-900 dark:text-white font-bold">
+                      {customer?.terms?.replace("�", "í") || "N/A"}
                     </p>
                   </div>
                 </div>

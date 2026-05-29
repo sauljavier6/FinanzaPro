@@ -285,7 +285,6 @@ export default function Facturas({ onAbrirFactura }: CuentasProps) {
                     </th>
                   </tr>
                 </thead>
-
                 <tbody className="divide-y divide-[#cfd7e7] dark:divide-gray-800">
                   {invoices.map((f: Invoice) => (
                     <tr

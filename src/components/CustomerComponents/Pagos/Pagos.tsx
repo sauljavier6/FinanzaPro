@@ -4,6 +4,7 @@ import { getPayments } from "../../../api/customerApis/PagosApi";
 import { formatDate } from "../../../utils/formatDate";
 import { formatoMoneda } from "../../../utils/formatMoneda";
 import formatRelativeTime from "../../../utils/daytime";
+import { useNavigate } from "react-router-dom";
 
 interface CustomerPayments {
   id: number
@@ -23,6 +24,7 @@ interface CustomerPayments {
 
 
 export default function Pagos() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const pageSize = 10;
@@ -153,30 +155,41 @@ export default function Pagos() {
             </div>
 
             <div className="sm:hidden divide-y divide-[#cfd7e7] dark:divide-gray-800">
-              {/*facturas?.map((p) => (
-                <div key={p.factura} className="p-4 flex flex-col gap-2">
+              {tabla?.map((row: CustomerPayments) => (
+                <div key={row.id} className="p-4 flex flex-col gap-2">
+
                   <div className="flex justify-between items-center">
-                    <span className="font-bold text-sm">{p.factura}</span>
-                    <span
-                      className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${p.estadoColor}`}
-                    >
-                      {p.estado}
+                    <span className="font-bold text-sm">
+                      {row.tranid}
                     </span>
+
+                    <button className="p-2 text-primary hover:bg-primary/10 rounded-lg">
+                      <span className="material-symbols-outlined text-[20px]">
+                        receipt_long
+                      </span>
+                    </button>
                   </div>
 
-                  <div className="text-xs text-gray-500">Fecha: {p.fecha}</div>
                   <div className="text-xs text-gray-500">
-                    Método: {p.metodo}
+                    Fecha: {formatDate(row.trandate)}
+                  </div>
+
+                  <div className="text-xs text-gray-500">
+                    Método: {row.paymentmethod}
                   </div>
 
                   <div className="flex justify-between items-center mt-2">
-                    <span className="font-black">{p.monto}</span>
+                    <span className="font-black text-base">
+                      {row.total}
+                    </span>
+
                     <button className="text-primary font-bold text-sm">
                       Comprobante
                     </button>
                   </div>
+
                 </div>
-              ))*/}
+              ))}
             </div>
 
             <div className="hidden sm:block overflow-x-auto">
@@ -184,35 +197,69 @@ export default function Pagos() {
                 <thead>
                   <tr className="bg-background-light/50 dark:bg-gray-800/50">
                     <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">
-                      Fecha de Pago
+                      Fecha
                     </th>
+
                     <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">
-                      #Pago
+                      Referencia
                     </th>
+
                     <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">
                       Método
                     </th>
-                    <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">
+
+                    <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase text-right">
                       Monto
                     </th>
-                    <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase text-center">
-                      Comprobante
+
+                    <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">
+                      Estado
+                    </th>
+
+                    <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">
                     </th>
                   </tr>
                 </thead>
+
                 <tbody className="divide-y divide-[#cfd7e7] dark:divide-gray-800">
                   {tabla?.map((row: CustomerPayments) => (
-                    <tr key={row.id}>
-                      <td className="px-6 py-4">{formatDate(row?.trandate)}</td>
-                      <td className="px-6 py-4 font-bold">{row.tranid}</td>
-                      <td className="px-6 py-4">{row.paymentmethod}</td>
-                      <td className="px-6 py-4 font-black">{row.total}</td>
-                      <td className="px-6 py-4 text-center">
-                        <button className="p-2 text-primary hover:bg-primary/10 rounded-lg">
-                          <span className="material-symbols-outlined">
-                            receipt_long
-                          </span>
-                        </button>
+                    <tr
+                      key={row.id}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                    >
+                      <td className="px-6 py-4 text-sm text-gray-500">
+                        {formatDate(row.trandate)}
+                      </td>
+
+                      <td className="px-6 py-4 text-sm font-bold">
+                        {row.tranid}
+                      </td>
+
+                      <td className="px-6 py-4 text-sm text-gray-500">
+                        {row.paymentmethod}
+                      </td>
+
+                      <td className="px-6 py-4 text-sm font-black text-right">
+                        {row.total}
+                      </td>
+
+                      <td className="px-6 py-4 text-sm">
+                        <span className="px-2 py-1 rounded-full text-[10px] font-bold uppercase bg-green-100 text-green-700">
+                          Pago
+                        </span>
+                      </td>
+
+                      <td className="px-3 py-3 text-right">
+                        <div className="flex justify-end gap-1">
+                          <button
+                            onClick={() => navigate(`/clientes/pagos/${row.id}`)}
+                            className="p-2 rounded-md bg-[#e7ebf3] dark:bg-gray-800 text-[#0d121b] dark:text-white hover:bg-[#cfd7e7] transition-all"
+                          >
+                            <span className="material-symbols-outlined text-[18px]">
+                              visibility
+                            </span>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

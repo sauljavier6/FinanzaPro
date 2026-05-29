@@ -82,15 +82,6 @@ export default function PagoDetails({ paymentId, onBack }: FacturaProps) {
                                 </span>
                             </p>
                         </div>
-
-                        <div className="w-full lg:w-fit">
-                            <button className="w-full md:w-auto shrink-0 flex items-center justify-center rounded-lg h-10 bg-primary text-white gap-2 text-sm font-bold px-4 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors">
-                                <span className="material-symbols-outlined text-[20px]">
-                                    account_balance_wallet
-                                </span>
-                                <span className="whitespace-nowrap">Gestionar Cobro</span>
-                            </button>
-                        </div>
                     </div>
 
                     {/*  */}
@@ -133,7 +124,7 @@ export default function PagoDetails({ paymentId, onBack }: FacturaProps) {
                             <span className="material-symbols-outlined text-[20px]">
                                 download
                             </span>
-                            <span className="whitespace-nowrap">Descargar PDF</span>
+                            <span className="whitespace-nowrap">Descargar</span>
                         </button>
                     </div>
 
@@ -184,7 +175,7 @@ export default function PagoDetails({ paymentId, onBack }: FacturaProps) {
                                     <span className="material-symbols-outlined text-primary text-[20px]">
                                         person
                                     </span>
-                                    Información del Cliente
+                                    Información personal
                                 </h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 min-w-0">
                                     {/* Cliente */}

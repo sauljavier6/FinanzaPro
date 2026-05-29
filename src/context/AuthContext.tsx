@@ -19,6 +19,8 @@ interface AuthType {
   login: (data: any) => Promise<void>;
   logout: () => void;
   loading: boolean;
+  updateUserImage: (imagen: string) => void;
+  updateUserData: (data: { name?: string; }) => void;
 }
 
 const AuthContext = createContext<AuthType | undefined>(undefined);
@@ -74,8 +76,34 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.removeItem("accessToken");
   };
 
+  const updateUserImage = (imagen: string) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+
+      return {
+        ...prev,
+        imagen,
+      };
+    });
+  };
+
+  const updateUserData = (data: {name?: string;}) => {
+    setUser((prev) => {
+
+      if (!prev) return prev;
+
+      return {
+        ...prev,
+
+        ...(data.name && {
+          name: data.name
+        }),
+      };
+    });
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, updateUserImage, updateUserData}}>
       {children}
     </AuthContext.Provider>
   );

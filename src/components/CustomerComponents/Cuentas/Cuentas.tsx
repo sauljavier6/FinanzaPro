@@ -8,9 +8,10 @@ import { getMesActual } from "../../../utils/mesActual";
 
 type CuentasProps = {
   onAbrirFactura: (id: number) => void;
+  onAbrirPago: (id: number) => void;
 };
 
-export default function Cuentas({ onAbrirFactura }: CuentasProps) {
+export default function Cuentas({ onAbrirFactura, onAbrirPago }: CuentasProps) {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -312,7 +313,13 @@ export default function Cuentas({ onAbrirFactura }: CuentasProps) {
                       <td className="px-3 py-3 text-right">
                         <div className="flex justify-end gap-1">
                           <button
-                            onClick={() => onAbrirFactura(m.idinterno)}
+                            onClick={() => {
+                              if (m.tipo === "PAGO") {
+                                onAbrirPago(m.idinterno);
+                              } else {
+                                onAbrirFactura(m.idinterno);
+                              }
+                            }}
                             className="p-2 rounded-md bg-[#e7ebf3] dark:bg-gray-800 text-[#0d121b] dark:text-white hover:bg-[#cfd7e7] transition-all"
                           >
                             <span className="material-symbols-outlined text-[18px]">

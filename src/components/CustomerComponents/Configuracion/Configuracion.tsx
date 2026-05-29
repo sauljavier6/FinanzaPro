@@ -1,8 +1,160 @@
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { deleteContact, getDataProfile, updateImageProfile, updateProfile } from "../../../api/customerApis/ProfileApi";
+import { useEffect, useState } from "react";
+import { useAuth } from "../../../context/AuthContext";
+
 interface ConfiguracionProps {
-  onAbrirContacto: (id: string) => void;
+  onAbrirContacto: (id?: string) => void;
 }
 
 export default function Configuracion({ onAbrirContacto }: ConfiguracionProps) {
+  const { updateUserImage, updateUserData } = useAuth();
+  const [saving, setSaving] = useState(false);
+  const queryClient = useQueryClient();
+  const [disable, setDisable] = useState(true);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [user, setUser] = useState({
+    nombre: "",
+    correo: "",
+    telefono: "",
+    rfc: "",
+    imagen: "",
+  });
+
+  const [customer, setCustomer] = useState({
+    nombre: "",
+    correo: "",
+    telefono: "",
+    rfc: "",
+  });
+
+  const { data } = useQuery({
+    queryKey: ["profiledata"],
+    queryFn: () => getDataProfile(),
+    refetchOnWindowFocus: false,
+    placeholderData: (prev) => prev,
+  });
+
+  console.log('data', data)
+
+  const datacustomer = data?.data?.customer;
+  const datauser = data?.data?.user;
+  const datcontacts = data?.data?.contacts;
+
+  useEffect(() => {
+    if (!datauser) return;
+
+    setUser({
+      nombre: datauser.name ?? "",
+      correo: datauser.email?.Description ?? "",
+      telefono: datauser.phone?.Description ?? "",
+      imagen: datauser.imagen ?? "",
+      rfc: datauser.rfc ?? "",
+    });
+
+    setCustomer({
+      nombre: datacustomer?.companyname ?? "",
+      correo: datacustomer?.email ?? "",
+      telefono: datacustomer?.phone ?? "",
+      rfc: datacustomer?.rfc ?? "",
+    });
+  }, [datauser, datacustomer]);
+
+  const handleUserChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDisable(false);
+
+    const { name, value } = e.target;
+
+    setUser((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleCustomerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDisable(false);
+
+    const { name, value } = e.target;
+
+    setCustomer((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleDeleteContact = async (id: number) => {
+    try {
+      console.log("id contacto", id);
+
+      const response = await deleteContact(id);
+
+      if (response) {
+
+        await queryClient.invalidateQueries({
+          queryKey: ["profiledata"],
+        });
+
+      }
+    } catch (error) {
+      console.error("Error eliminando contacto:", error);
+    }
+  };
+
+  const handleUpdateProfile = async () => {
+    try {
+      setSaving(true);
+
+      const response = await updateProfile(user);
+
+      if (response) {
+
+        updateUserData({
+          name: user.nombre
+        });
+
+        await queryClient.invalidateQueries({
+          queryKey: ["profiledata"],
+        });
+
+        setDisable(true);
+      }
+
+    } catch (error) {
+
+      console.error("Error actualizando perfil:", error);
+
+    } finally {
+
+      setSaving(false);
+
+    }
+  };
+
+  const handleImageChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    setPreview(URL.createObjectURL(file));
+
+    try {
+      const response = await updateImageProfile(file);
+
+      if (response?.image) {
+        updateUserImage(response.image);
+      }
+
+      await queryClient.invalidateQueries({
+        queryKey: ["profiledata"],
+      });
+
+    } catch (error) {
+      console.error("Error actualizando imagen:", error);
+    }
+  };
+
   return (
     <div className="flex flex-col md:flex-row overflow-hidden min-h-screen">
       <main className="flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark">
@@ -28,19 +180,57 @@ export default function Configuracion({ onAbrirContacto }: ConfiguracionProps) {
               {/* Avatar */}
               <div className="flex flex-col items-center gap-4 w-full md:w-auto">
                 <div className="relative group">
-                  <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-slate-100 dark:border-slate-800">
-                    <div
-                      className="w-full h-full bg-center bg-cover"
-                      style={{ backgroundImage: `url("https://lh3.googleusercontent.com/aida-public/AB6AXuDtIjU9RrKPoEXcvGwrRGvkRfe8nrZXvAccg9KsLlT14mbb1aw-ygpvO44vvwTyLqy31qaiKJ4BgHAY1Xc7g95CJ87a8642-L3VWC-9BbQ8XxlWAm2sOXjQrXBTnYIgr7WBPLlWIOqAdXLD3GGOtCDCaOdLQ4LdBl3fRRngx2aMe3uyUgIaqHqceE20ibym094qppUrfkwZP8OoJmcC_EkRl708_NOkVLvzjbCyhZIgrggAhk_jdqCYP3TmB4-Xj9DpAwwtmXc35YDw")` }}
-                    ></div>
+                  <div className="
+                    w-32 h-32 rounded-full overflow-hidden
+                    border-4 border-slate-100 dark:border-slate-800
+                    border-dashed transition-all
+                    group-hover:border-primary
+                  ">
+                    {preview ? (
+                      <img
+                        src={preview}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : user?.imagen ? (
+                      <img
+                        src={`${import.meta.env.VITE_API_URL_IMAGES}/profiles/${user.imagen}`}
+                        alt="Perfil"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-slate-100 dark:bg-slate-800">
+                        <span className="material-symbols-outlined text-5xl text-slate-400">
+                          person
+                        </span>
+                      </div>
+                    )}
                   </div>
-                  <button className="absolute bottom-1 right-1 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900 hover:scale-110 transition-transform">
-                    <span className="material-symbols-outlined text-sm">photo_camera</span>
-                  </button>
+                  <label className="
+                    absolute bottom-1 right-1
+                    w-9 h-9 rounded-full
+                    bg-primary text-white
+                    flex items-center justify-center
+                    border-2 border-white dark:border-slate-900
+                    shadow-sm cursor-pointer
+                    hover:scale-110 transition-transform
+                  ">
+                    <span className="material-symbols-outlined text-sm">
+                      photo_camera
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                    />
+                  </label>
                 </div>
+
                 <div className="text-center">
-                  <button className="text-primary text-xs font-bold hover:underline">Cambiar foto</button>
-                  <p className="text-[10px] text-slate-400 mt-1">JPG, PNG o GIF. Máx 5MB.</p>
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    JPG, PNG o GIF · Máx 5MB
+                  </p>
                 </div>
               </div>
 
@@ -48,19 +238,99 @@ export default function Configuracion({ onAbrirContacto }: ConfiguracionProps) {
               <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-bold text-slate-600 dark:text-slate-400 ml-1">Nombre Completo</label>
-                  <input className="w-full rounded-lg border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm focus:border-primary focus:ring-primary dark:text-white" type="text" value="Juan Pérez" />
+                  <input
+                    name="nombre"
+                    className="w-full rounded-lg border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm focus:border-primary focus:ring-primary dark:text-white"
+                    type="text"
+                    value={user.nombre}
+                    onChange={handleUserChange}
+                  />
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-bold text-slate-600 dark:text-slate-400 ml-1">Correo Electrónico</label>
-                  <input className="w-full rounded-lg border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm focus:border-primary focus:ring-primary dark:text-white" type="email" value="juan.perez@ejemplo.com" />
+                  <input
+                    name="correo"
+                    className="w-full rounded-lg border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm focus:border-primary focus:ring-primary dark:text-white"
+                    type="email"
+                    value={user.correo}
+                    onChange={handleUserChange}
+                  />
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-bold text-slate-600 dark:text-slate-400 ml-1">Teléfono Principal</label>
-                  <input className="w-full rounded-lg border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm focus:border-primary focus:ring-primary dark:text-white" type="tel" value="+54 9 11 1234 5678" />
+                  <input
+                    name="telefono"
+                    className="w-full rounded-lg border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm focus:border-primary focus:ring-primary dark:text-white"
+                    type="tel"
+                    value={user.telefono}
+                    onChange={handleUserChange}
+                  />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-600 dark:text-slate-400 ml-1">Dirección (Opcional)</label>
-                  <input className="w-full rounded-lg border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm focus:border-primary focus:ring-primary dark:text-white" placeholder="Calle, Número, Ciudad" type="text" />
+                  <label className="text-xs font-bold text-slate-600 dark:text-slate-400 ml-1">RFC</label>
+                  <input
+                    name="rfc"
+                    className="w-full rounded-lg border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm focus:border-primary focus:ring-primary dark:text-white"
+                    placeholder="XXXXXXXXXXXXX"
+                    type="text"
+                    value={user.rfc}
+                    onChange={handleUserChange}
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Perfil Customer Netsuite */}
+          <section className="bg-white dark:bg-slate-900 rounded-xl p-4 sm:p-6 shadow-sm border border-slate-200 dark:border-slate-800 mb-6">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="material-symbols-outlined text-primary">person</span>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Empresa</h3>
+            </div>
+            <div className="flex flex-col md:flex-row gap-6 items-start">
+
+              {/* Campos */}
+              <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-slate-600 dark:text-slate-400 ml-1">Nombre Completo</label>
+                  <input
+                    name="nombre"
+                    className="w-full rounded-lg border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm focus:border-primary focus:ring-primary dark:text-white"
+                    type="text"
+                    value={customer.nombre}
+                    onChange={handleCustomerChange}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-slate-600 dark:text-slate-400 ml-1">Correo Electrónico</label>
+                  <input
+                    name="correo"
+                    className="w-full rounded-lg border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm focus:border-primary focus:ring-primary dark:text-white"
+                    type="email"
+                    value={customer.correo}
+                    onChange={handleCustomerChange}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-slate-600 dark:text-slate-400 ml-1">Teléfono Principal</label>
+                  <input
+                    name="telefono"
+                    className="w-full rounded-lg border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm focus:border-primary focus:ring-primary dark:text-white"
+                    type="tel"
+                    value={customer.telefono}
+                    onChange={handleCustomerChange}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-slate-600 dark:text-slate-400 ml-1">RFC</label>
+                  <input
+                    name="rfc"
+                    className="w-full rounded-lg border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm focus:border-primary focus:ring-primary dark:text-white"
+                    placeholder="XXXXXXXXXXXXX"
+                    type="text"
+                    value={customer.rfc}
+                    onChange={handleCustomerChange}
+                  />
                 </div>
               </div>
             </div>
@@ -71,68 +341,94 @@ export default function Configuracion({ onAbrirContacto }: ConfiguracionProps) {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <span className="material-symbols-outlined text-primary">group</span>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Contactos de Referencia</h3>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                  Contactos de Referencia
+                </h3>
               </div>
-              <button className="text-primary text-sm font-bold flex items-center gap-1 hover:bg-primary/5 px-3 py-1.5 rounded-lg transition-colors">
+
+              <button onClick={() => onAbrirContacto()} className="text-primary text-sm font-bold flex items-center gap-1 hover:bg-primary/5 px-3 py-1.5 rounded-lg transition-colors">
                 <span className="material-symbols-outlined text-lg">add_circle</span>
                 <span>Agregar</span>
               </button>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* Contacto individual */}
-              {["María García", "María García", "María García", "Roberto Gómez"].map((nombre, idx) => (
-                <div key={idx} className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500">
-                      <span className="material-symbols-outlined">person</span>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">{nombre}</h4>
-                      <p className="text-xs text-slate-500">+54 9 11 8765 4321</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-1">
-                    <button onClick={() => onAbrirContacto("Prueba")} className="p-2 text-slate-400 hover:text-primary transition-colors">
-                      <span className="material-symbols-outlined text-xl">edit</span>
-                    </button>
-                    <button className="p-2 text-slate-400 hover:text-red-500 transition-colors">
-                      <span className="material-symbols-outlined text-xl">delete</span>
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
 
-          {/* Seguridad */}
-          <section className="bg-white dark:bg-slate-900 rounded-xl p-4 sm:p-6 shadow-sm border border-slate-200 dark:border-slate-800 mb-6">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="material-symbols-outlined text-primary">security</span>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Seguridad</h3>
-            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-600 dark:text-slate-400 ml-1">Contraseña Actual</label>
-                <input className="w-full rounded-lg border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm focus:border-primary focus:ring-primary dark:text-white" placeholder="••••••••" type="password" />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-600 dark:text-slate-400 ml-1">Nueva Contraseña</label>
-                <input className="w-full rounded-lg border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm focus:border-primary focus:ring-primary dark:text-white" placeholder="Mínimo 8 caracteres" type="password" />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-600 dark:text-slate-400 ml-1">Confirmar Nueva Contraseña</label>
-                <input className="w-full rounded-lg border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm focus:border-primary focus:ring-primary dark:text-white" placeholder="Repite la contraseña" type="password" />
-              </div>
+              {datcontacts?.length > 0 ? (
+                datcontacts.map((contact: any) => (
+                  <div
+                    key={contact.id}
+                    className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500">
+                        <span className="material-symbols-outlined">person</span>
+                      </div>
+
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                          {contact.entityid || `${contact.entityid ?? ""}`}
+                        </h4>
+
+                        <p className="text-xs text-slate-500">
+                          {contact.mobilephone || contact.homephone || "Sin teléfono"}
+                        </p>
+
+                        <p className="text-xs text-slate-400">
+                          {contact.email || "Sin correo"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => onAbrirContacto(String(contact.id))}
+                        className="p-2 text-slate-400 hover:text-primary transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-xl">edit</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleDeleteContact(contact.id)}
+                        className="p-2 text-slate-400 hover:text-red-500 transition-colors">
+                        <span className="material-symbols-outlined text-xl">delete</span>
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-8 text-sm text-slate-400">
+                  No hay contactos registrados.
+                </div>
+              )}
             </div>
           </section>
 
           {/* Botones */}
           <div className="flex flex-col sm:flex-row items-center justify-end gap-3 mt-4">
-            <button className="w-full sm:w-auto px-6 py-3 rounded-lg text-sm font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600 transition-colors">
-              Cancelar
-            </button>
-            <button className="w-full sm:w-auto px-8 py-3 bg-primary text-white rounded-lg text-sm font-bold shadow-lg shadow-primary/20 hover:brightness-110 transition-all">
-              Guardar Cambios
+            <button
+              disabled={disable || saving}
+              onClick={handleUpdateProfile}
+              className={`
+                w-full sm:w-auto px-8 py-3 rounded-lg text-sm font-bold 
+                transition-all duration-200
+                flex items-center justify-center gap-2
+
+                ${disable || saving
+                  ? "bg-slate-300 dark:bg-slate-700 text-slate-500 cursor-not-allowed shadow-none opacity-70"
+                  : "bg-primary text-white shadow-lg shadow-primary/20 hover:brightness-110 hover:scale-[1.02] active:scale-[0.98]"
+                }
+              `}
+            >
+
+              {saving ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Guardando...
+                </>
+              ) : (
+                "Guardar Cambios"
+              )}
+
             </button>
           </div>
 
