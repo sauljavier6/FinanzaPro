@@ -58,6 +58,7 @@ export default function Facturas({ onAbrirFactura }: CuentasProps) {
   });
 
   const totalPages = data?.totalPages ?? 1;
+  const currentPage = data?.page || 1;
   const invoices = data?.invoices ?? [];
   const dataInfo = data?.resumen;
 
@@ -80,7 +81,7 @@ export default function Facturas({ onAbrirFactura }: CuentasProps) {
     navigate(`/clientes/pagar/${ids}`);
   };
 
-  const getPages = () => {  
+  const getPages = () => {
     const pages = [];
     const delta = 2;
 
@@ -101,6 +102,7 @@ export default function Facturas({ onAbrirFactura }: CuentasProps) {
 
     return pages;
   };
+
 
   return (
     <div className="flex overflow-hidden">
@@ -229,7 +231,12 @@ export default function Facturas({ onAbrirFactura }: CuentasProps) {
                         aria-label={`Seleccionar factura ${f.id}`}
                         className="h-3.5 w-3.5 accent-primary cursor-pointer"
                       />
-                      <span className="font-bold text-sm">{f.id}</span>
+                      <span
+                        className="font-bold text-sm truncate block min-w-0 max-w-[150px]"
+                        title={f.tranid}
+                      >
+                        {f.tranid}
+                      </span>
                     </div>
                     <span
                       className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${f.statusColor}`}
@@ -246,7 +253,7 @@ export default function Facturas({ onAbrirFactura }: CuentasProps) {
                   </div>
 
                   <div className="flex justify-between items-center mt-2">
-                    <span className="font-black">{f.amount}</span>
+                    <span className="font-black">{formatoMoneda.format(f.amount || 0)}</span>
                     <button
                       onClick={() => onAbrirFactura?.(f.id)}
                       className="text-primary font-bold text-sm"
@@ -318,7 +325,7 @@ export default function Facturas({ onAbrirFactura }: CuentasProps) {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm font-black">
-                        {f.amount}
+                        {formatoMoneda.format(f.amount || 0)}
                       </td>
                       <td className="px-6 py-4 text-right">
                         <button
@@ -334,53 +341,42 @@ export default function Facturas({ onAbrirFactura }: CuentasProps) {
               </table>
             </div>
 
-            <div className="px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-800/30 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-gray-400">
-                Mostrando {invoices.length} de {data?.total} factura(s)
-                pendientes
+            <div className="px-3 sm:px-6 py-4 bg-gray-50 dark:bg-gray-800/30 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between overflow-hidden">
+              <p className="text-sm text-gray-400 break-words">
+                Mostrando {data?.pageSize} de {data?.totalRecords} factura(s)
               </p>
 
-              <div className="flex gap-2 justify-end">
+              <div className="flex flex-wrap gap-1.5 justify-end max-w-full overflow-hidden">
                 <button
-                  disabled={page === 1}
+                  disabled={currentPage === 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className={`size-8 flex items-center justify-center rounded border
-                  ${page === 1
-                      ? "text-gray-300 cursor-not-allowed"
-                      : "text-gray-400 hover:bg-gray-100"
-                    }
-                `}
+                  className="h-8 min-w-8 px-2 flex items-center justify-center rounded border shrink-0 text-gray-400 disabled:text-gray-300 disabled:cursor-not-allowed hover:bg-gray-100"
                 >
                   <span className="material-symbols-outlined text-sm">
                     chevron_left
                   </span>
                 </button>
-                {getPages().map((p, i) => (
+
+                {getPages().map((p: number | string, i) => (
                   <button
                     key={i}
                     disabled={p === "..."}
                     onClick={() => typeof p === "number" && setPage(p)}
-                    className={`size-8 flex items-center justify-center rounded border text-xs font-bold
-                        ${p === page
-                        ? "border-primary bg-primary text-white"
-                        : p === "..."
-                          ? "border-transparent text-gray-400 cursor-default"
-                          : "border-[#cfd7e7] text-gray-500 hover:bg-gray-100"
-                      }
-                      `}
+                    className={`size-8 flex items-center justify-center rounded border text-xs font-bold ${p === page
+                      ? "border-primary bg-primary text-white"
+                      : p === "..."
+                        ? "border-transparent text-gray-400 cursor-default"
+                        : "border-[#cfd7e7] text-gray-500 hover:bg-gray-100"
+                      }`}
                   >
                     {p}
                   </button>
                 ))}
+
                 <button
-                  disabled={page === totalPages}
+                  disabled={currentPage === totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className={`size-8 flex items-center justify-center rounded border
-                  ${page === totalPages
-                      ? "text-gray-300 cursor-not-allowed"
-                      : "text-gray-400 hover:bg-gray-100"
-                    }
-                `}
+                  className="h-8 min-w-8 px-2 flex items-center justify-center rounded border shrink-0 text-gray-400 disabled:text-gray-300 disabled:cursor-not-allowed hover:bg-gray-100"
                 >
                   <span className="material-symbols-outlined text-sm">
                     chevron_right

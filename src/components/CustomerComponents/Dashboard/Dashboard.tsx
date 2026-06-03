@@ -124,53 +124,74 @@ export default function DashboardCliente() {
           </div>
 
           {/* ================= RESUMEN ================= */}
-          <div className="grid grid-cols-1 gap-3 mb-10 sm:grid-cols-3 sm:gap-6">
-            {/* Saldo actual */}
-            <div className="bg-white dark:bg-[#161b2a] p-7 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
-              <div className="flex items-center justify-between mb-2">
-                <span className="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-xl material-symbols-outlined text-2xl">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-6 mb-8 sm:mb-10 sm:gap-4">
+            <div className="bg-white dark:bg-background-dark p-4 sm:p-6 rounded-xl border border-[#cfd7e7] dark:border-gray-800 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                <span className="material-symbols-outlined text-5xl sm:text-6xl">
                   account_balance_wallet
                 </span>
               </div>
-              <p className="text-sm font-medium text-[#4c669a] mb-1">
-                Saldo pendiente
+
+              <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">
+                Facturas pendientes
               </p>
-              <p className="text-md lg:2xls font-extrabold">
+
+              <p className="text-2xl sm:text-3xl font-black text-primary break-words">
                 {formatoMoneda.format(dataInfo?.totalPendiente || 0)}
               </p>
+
+              <div className="mt-3 sm:mt-4 flex items-center gap-1 text-gray-400 text-xs sm:text-sm font-bold">
+                <span className="material-symbols-outlined text-sm">
+                  receipt_long
+                </span>
+                <span>{dataInfo?.countPendientes || 0} factura(s)</span>
+              </div>
             </div>
 
-            {/* Próximo vencimiento */}
-            <div className="bg-white dark:bg-[#161b2a] p-7 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
-              <div className="flex items-center justify-between mb-2">
-                <span className="p-3 bg-orange-50 dark:bg-orange-900/20 text-orange-600 rounded-xl material-symbols-outlined text-2xl">
+            <div className="bg-white dark:bg-background-dark p-4 sm:p-6 rounded-xl border border-[#cfd7e7] dark:border-gray-800 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                <span className="material-symbols-outlined text-5xl sm:text-6xl">
                   schedule
                 </span>
-                <p className="text-md lg:2xls font-extrabold">
-                  {formatoMoneda.format(dataInfo?.totalVencido || 0)}
-                </p>
               </div>
-              <p className="text-sm font-medium text-[#4c669a] mb-1">
+
+              <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">
                 Facturas vencidas
               </p>
-              <p className="text-md lg:2xls font-extrabold">
-                {dataInfo?.totalVencido}
+
+              <p className="text-2xl sm:text-3xl font-black text-red-500 break-words">
+                {formatoMoneda.format(dataInfo?.totalVencido || 0)}
               </p>
+
+              <div className="mt-3 sm:mt-4 flex items-center gap-1 text-gray-400 text-xs sm:text-sm font-bold">
+                <span className="material-symbols-outlined text-sm">
+                  warning
+                </span>
+                <span>{dataInfo?.countVencidas || 0} factura(s)</span>
+              </div>
             </div>
 
-            {/* Pagado este mes */}
-            <div className="bg-white dark:bg-[#161b2a] p-7 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
-              <div className="flex items-center justify-between mb-2">
-                <span className="p-3 bg-green-50 dark:bg-green-900/20 text-green-600 rounded-xl material-symbols-outlined text-2xl">
+            <div className="bg-white dark:bg-background-dark p-4 sm:p-6 rounded-xl border border-[#cfd7e7] dark:border-gray-800 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                <span className="material-symbols-outlined text-5xl sm:text-6xl">
                   check_circle
                 </span>
               </div>
-              <p className="text-sm font-medium text-[#4c669a] mb-1">
+
+              <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">
                 Pagado este mes
               </p>
-              <p className="text-md lg:2xls font-extrabold">
+
+              <p className="text-2xl sm:text-3xl font-black text-green-600 break-words">
                 {formatoMoneda.format(dataInfo?.recuperadoMes || 0)}
               </p>
+
+              <div className="mt-3 sm:mt-4 flex items-center gap-1 text-green-600 text-xs sm:text-sm font-bold">
+                <span className="material-symbols-outlined text-sm">
+                  verified_user
+                </span>
+                <span>Pagos recuperados</span>
+              </div>
             </div>
           </div>
 
@@ -206,7 +227,6 @@ export default function DashboardCliente() {
 
               {/* Área gráfica responsive */}
               <div className="h-[260px] sm:h-[320px] lg:h-[350px] relative pb-5">
-
                 {/* Ejes Y */}
                 <div className="absolute left-0 top-0 h-full hidden sm:flex flex-col justify-between text-[10px] text-slate-400 font-bold">
                   {[1, 0.75, 0.5, 0.25, 0].map((p, i) => (
@@ -215,10 +235,8 @@ export default function DashboardCliente() {
                     </span>
                   ))}
                 </div>
-
                 {/* Área gráfica */}
                 <div className="sm:ml-10 h-full border-l border-b border-slate-100 dark:border-slate-800 relative overflow-x-auto">
-
                   {/* líneas horizontales */}
                   <div className="absolute w-full top-1/4 border-t border-dashed border-slate-100 dark:border-slate-800"></div>
                   <div className="absolute w-full top-2/4 border-t border-dashed border-slate-100 dark:border-slate-800"></div>
@@ -253,20 +271,16 @@ export default function DashboardCliente() {
                       strokeWidth="4"
                     />
                   </svg>
-
                 </div>
-
                 {/* Meses */}
                 <div className="sm:ml-10 mt-4 flex justify-between text-[10px] sm:text-[11px] text-slate-400 font-bold">
                   {dataGrafica.meses.map((mes, i) => (
-                    <span key={i} className="min-w-[60px] text-center">
+                    <span key={i} className="grid grid-cols-5 text-center">
                       {mes}
                     </span>
                   ))}
                 </div>
-
               </div>
-
             </div>
 
             {/* =================== DONUT =================== */}
@@ -397,7 +411,12 @@ export default function DashboardCliente() {
                   <div key={inv.id} className="p-4 space-y-2">
                     <div className="flex justify-between">
                       <span className="text-xs text-[#4c669a]">Factura</span>
-                      <span className="font-bold">{inv.tranid}</span>
+                      <span
+                        className="font-bold truncate block min-w-0 max-w-[140px] sm:max-w-none"
+                        title={inv.tranid}
+                      >
+                        {inv.tranid}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-xs text-[#4c669a]">Fecha</span>
@@ -482,7 +501,6 @@ export default function DashboardCliente() {
                 </tbody>
               </table>
             </div>
-
           </div>
         </div>
       </main>

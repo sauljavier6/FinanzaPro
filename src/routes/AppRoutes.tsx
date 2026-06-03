@@ -24,9 +24,10 @@ import FacturasPageC from "../pages/Customer/FacturasPage";
 import NotificacionesPageC from "../pages/Customer/NotificacionesPage";
 import PagarPage from "../pages/Customer/PagarPage";
 import PagosPageC from "../pages/Customer/PagosPage";
-import ConfiguracionPage from "../pages/Customer/ConfiguracionPage";
+import ConfiguracionPageC from "../pages/Customer/ConfiguracionPage";
 import ResetPassword from "../components/AuthComponents/ResetPassword";
 import SearchPageC from "../pages/Customer/SearchPage";
+import ConfiguracionPage from "../pages/Admin/ConfiguracionPage";
 
 
 const AppRoutes = () => {
@@ -50,8 +51,9 @@ const AppRoutes = () => {
           <Route path="notificaciones" element={<NotificacionesPage />} />
           <Route path="reportes" element={<ReportesPage />} />
           <Route path="Campana" element={<CampañaPage />} />
+          <Route path="reportes/:type" element={<ReportesPage />} />   
+          <Route path="configuracion" element={<ConfiguracionPage />} />
           <Route path=":type/:id" element={<SearchPage />} />
-          <Route path="reportes/:type" element={<ReportesPage />} />
         </Route>
       </Route>
 
@@ -64,7 +66,7 @@ const AppRoutes = () => {
           <Route path="facturas" element={<FacturasPageC />} />
           <Route path="notificaciones" element={<NotificacionesPageC />} />
           <Route path="pagos" element={<PagosPageC />} />
-          <Route path="configuracion" element={<ConfiguracionPage />} />
+          <Route path="configuracion" element={<ConfiguracionPageC />} />
           <Route path="pagar/:id" element={<PagarPage />} />
           <Route path=":type/:id" element={<SearchPageC />} />
         </Route>

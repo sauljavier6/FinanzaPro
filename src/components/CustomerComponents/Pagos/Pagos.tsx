@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getPayments } from "../../../api/customerApis/PagosApi";
 import { formatDate } from "../../../utils/formatDate";
 import { formatoMoneda } from "../../../utils/formatMoneda";
@@ -26,12 +26,25 @@ interface CustomerPayments {
 export default function Pagos() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [search]);
+
   const { data } = useQuery({
-    queryKey: ["pagosbycliente", page, pageSize, search],
-    queryFn: () => getPayments(page, pageSize, search),
+    queryKey: ["pagosbycliente", page, pageSize, debouncedSearch],
+    queryFn: () => getPayments(page, pageSize, debouncedSearch),
     refetchOnWindowFocus: false,
     placeholderData: (prev) => prev,
   });
@@ -62,6 +75,7 @@ export default function Pagos() {
 
     return pages;
   };
+
 
   return (
     <div className="flex overflow-hiddenq">
@@ -163,9 +177,9 @@ export default function Pagos() {
                       {row.tranid}
                     </span>
 
-                    <button className="p-2 text-primary hover:bg-primary/10 rounded-lg">
-                      <span className="material-symbols-outlined text-[20px]">
-                        receipt_long
+                    <button onClick={() => navigate(`/clientes/pagos/${row.id}`)} className="p-2 text-primary hover:bg-primary/10 rounded-lg">
+                      <span className="material-symbols-outlined text-[18px]">
+                        visibility
                       </span>
                     </button>
                   </div>
@@ -180,10 +194,10 @@ export default function Pagos() {
 
                   <div className="flex justify-between items-center mt-2">
                     <span className="font-black text-base">
-                      {row.total}
+                      {formatoMoneda.format(row.total || 0)}
                     </span>
 
-                    <button className="text-primary font-bold text-sm">
+                    <button onClick={() => navigate(`/clientes/pagos/${row.id}`)} className="text-primary font-bold text-sm">
                       Comprobante
                     </button>
                   </div>
@@ -240,7 +254,7 @@ export default function Pagos() {
                       </td>
 
                       <td className="px-6 py-4 text-sm font-black text-right">
-                        {row.total}
+                        {formatoMoneda.format(row.total || 0)}
                       </td>
 
                       <td className="px-6 py-4 text-sm">
@@ -267,76 +281,48 @@ export default function Pagos() {
               </table>
             </div>
 
-            <div className="px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-800/30 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-xs text-[#4c669a]">
-                Mostrando{" "}
-                <span className="font-bold text-[#0d121b] dark:text-white">
-                  {pageSize}
-                </span>{" "}
-                de{" "}
-                <span className="font-bold text-[#0d121b] dark:text-white">
-                  {data?.total}
-                </span>{" "}
-                facturas
+            <div className="px-3 sm:px-6 py-4 bg-gray-50 dark:bg-gray-800/30 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between overflow-hidden">
+              <p className="text-sm text-gray-400 break-words">
+                Mostrando {data?.pageSize} de {data?.totalRecords} pago(s)
               </p>
 
-              {/* BOTONES */}
-              <div className="flex gap-2 items-center overflow-x-auto">
-                {/* Anterior */}
+              <div className="flex flex-wrap gap-1.5 justify-end max-w-full overflow-hidden">
                 <button
-                  onClick={() => setPage((p) => Math.max(p - 1, 1))}
                   disabled={currentPage === 1}
-                  className={`size-8 flex items-center justify-center rounded border ${currentPage === 1
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-[#e7ebf3]"
-                    }`}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className="h-8 min-w-8 px-2 flex items-center justify-center rounded border shrink-0 text-gray-400 disabled:text-gray-300 disabled:cursor-not-allowed hover:bg-gray-100"
                 >
-                  <span className="material-symbols-outlined text-[18px]">
+                  <span className="material-symbols-outlined text-sm">
                     chevron_left
                   </span>
                 </button>
 
-                {/* Números */}
-                <div className="hidden sm:flex gap-2">
-                  {getPages().map((p) => (
-                    <button
-                      key={p}
-                      onClick={() => setPage(p)}
-                      className={`size-8 flex items-center justify-center rounded text-xs font-bold transition-colors
-                        ${p === currentPage
-                          ? "bg-primary text-white"
-                          : "bg-white dark:bg-gray-800 border border-[#cfd7e7] dark:border-gray-700 text-[#4c669a] hover:bg-[#e7ebf3]"
-                        }`}
-                    >
-                      {p}
-                    </button>
-                  ))}
-                </div>
+                {getPages().map((p: number | string, i) => (
+                  <button
+                    key={i}
+                    disabled={p === "..."}
+                    onClick={() => typeof p === "number" && setPage(p)}
+                    className={`size-8 flex items-center justify-center rounded border text-xs font-bold ${p === page
+                      ? "border-primary bg-primary text-white"
+                      : p === "..."
+                        ? "border-transparent text-gray-400 cursor-default"
+                        : "border-[#cfd7e7] text-gray-500 hover:bg-gray-100"
+                      }`}
+                  >
+                    {p}
+                  </button>
+                ))}
 
-                {/* Mobile */}
-                <div className="flex sm:hidden gap-1">
-                  <span className="size-8 flex items-center justify-center rounded bg-primary text-white font-bold text-xs px-2">
-                    {currentPage}
-                  </span>
-                </div>
-
-                {/* Siguiente */}
                 <button
-                  onClick={() =>
-                    setPage((p) => Math.min(p + 1, totalPages))
-                  }
                   disabled={currentPage === totalPages}
-                  className={`size-8 flex items-center justify-center rounded border ${currentPage === totalPages
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-[#e7ebf3]"
-                    }`}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  className="h-8 min-w-8 px-2 flex items-center justify-center rounded border shrink-0 text-gray-400 disabled:text-gray-300 disabled:cursor-not-allowed hover:bg-gray-100"
                 >
-                  <span className="material-symbols-outlined text-[18px]">
+                  <span className="material-symbols-outlined text-sm">
                     chevron_right
                   </span>
                 </button>
               </div>
-
             </div>
           </div>
 

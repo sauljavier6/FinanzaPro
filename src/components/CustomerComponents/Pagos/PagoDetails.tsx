@@ -129,39 +129,64 @@ export default function PagoDetails({ paymentId, onBack }: FacturaProps) {
                     </div>
 
                     {/*  */}
-                    <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-4">
-                        <div className="flex w-full flex-1 flex-col gap-2 rounded-xl p-6 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
-                            <p className="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wider">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-8 sm:mb-10">
+                        <div className="bg-white dark:bg-background-dark p-4 sm:p-6 rounded-xl border border-[#cfd7e7] dark:border-gray-800 shadow-sm relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-4 opacity-10">
+                                <span className="material-symbols-outlined text-5xl sm:text-6xl">
+                                    receipt_long
+                                </span>
+                            </div>
+
+                            <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1 uppercase tracking-wider">
                                 Total Facturado
                             </p>
-                            <p className="text-gray-900 dark:text-white tracking-tight text-3xl font-black">
-                                ${cabecera?.total}
+
+                            <p className="text-2xl sm:text-3xl font-black text-[#0d121b] dark:text-white break-words">
+                                {formatoMoneda.format(cabecera?.total || 0)}
                             </p>
                         </div>
-                        <div className="flex w-full flex-1 flex-col gap-2 rounded-xl p-6 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
-                            <p className="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wider">
+
+                        <div className="bg-white dark:bg-background-dark p-4 sm:p-6 rounded-xl border border-[#cfd7e7] dark:border-gray-800 shadow-sm relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-4 opacity-10">
+                                <span className="material-symbols-outlined text-5xl sm:text-6xl">
+                                    payments
+                                </span>
+                            </div>
+
+                            <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1 uppercase tracking-wider">
                                 Monto Pagado
                             </p>
-                            <p className="text-gray-900 dark:text-white tracking-tight text-3xl font-black">
-                                ${cabecera?.foreignpaymentamountused}
+
+                            <p className="text-2xl sm:text-3xl font-black text-green-600 break-words">
+                                {formatoMoneda.format(cabecera?.foreignpaymentamountused || 0)}
                             </p>
                         </div>
-                        <div className="flex w-full flex-1 flex-col gap-2 rounded-xl p-6 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
-                            <p className="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wider">
+
+                        <div className="bg-white dark:bg-background-dark p-4 sm:p-6 rounded-xl border border-[#cfd7e7] dark:border-gray-800 shadow-sm relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-4 opacity-10">
+                                <span className="material-symbols-outlined text-5xl sm:text-6xl">
+                                    account_balance_wallet
+                                </span>
+                            </div>
+
+                            <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1 uppercase tracking-wider">
                                 Saldo Pendiente
                             </p>
-                            <p className="text-primary tracking-tight text-3xl font-black">
-                                ${cabecera?.foreignpaymentamountunused > 0.9
-                                    ? cabecera?.foreignpaymentamountunused
-                                    : 0}
+
+                            <p className="text-2xl sm:text-3xl font-black text-primary break-words">
+                                {formatoMoneda.format(
+                                    cabecera?.foreignpaymentamountunused > 0.9
+                                        ? cabecera?.foreignpaymentamountunused
+                                        : 0
+                                )}
                             </p>
+
                             <div
-                                className={`flex items-center gap-1 text-xs font-bold px-2 py-1 rounded w-fit ${data?.data?.estatusColor} dark:bg-opacity-20`}
+                                className={`mt-3 sm:mt-4 flex items-center gap-1 text-xs sm:text-sm font-bold px-2 py-1 rounded w-fit ${data?.data?.estatusColor} dark:bg-opacity-20`}
                             >
                                 <span className="material-symbols-outlined text-sm">
                                     {data?.data?.estatusIcon}
                                 </span>
-
                                 <span>{data?.data?.estatus}</span>
                             </div>
                         </div>

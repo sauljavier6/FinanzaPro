@@ -58,8 +58,6 @@ export default function Facturas({ onSuccess }: CarteraProps) {
 
   const infodata = info?.data;
 
-  console.log('info', info)
-
   const { data } = useQuery({
     queryKey: ["Invoiocesadmin", page, pageSize, search, estado],
     queryFn: () => getInvoices(page, pageSize, search, estado),
@@ -67,18 +65,21 @@ export default function Facturas({ onSuccess }: CarteraProps) {
     placeholderData: (prev) => prev,
   });
 
+  console.log('info', data)
+
   const totalPages = data?.totalPages || 1;
+  const currentPage = data?.page || 1;
 
   const getPages = () => {
-    const total = totalPages;
-    const current = page;
+    const pages = [];
+    const maxVisible = 5;
 
-    const delta = 2;
+    let start = Math.max(currentPage - 2, 1);
+    let end = Math.min(start + maxVisible - 1, totalPages);
 
-    const start = Math.max(1, current - delta);
-    const end = Math.min(total, current + delta);
-
-    const pages: number[] = [];
+    if (end - start < maxVisible) {
+      start = Math.max(end - maxVisible + 1, 1);
+    }
 
     for (let i = start; i <= end; i++) {
       pages.push(i);
@@ -151,7 +152,6 @@ export default function Facturas({ onSuccess }: CarteraProps) {
           {/* */}
           <div className="bg-white dark:bg-[#161b2a] rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm p-4 sm:p-6 mb-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* Cliente */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-bold text-[#4c669a] uppercase">
                   Nombre del Cliente
@@ -191,8 +191,9 @@ export default function Facturas({ onSuccess }: CarteraProps) {
             </div>
           </div>
 
-          {/* */}
+          {/**/}
           <div className="bg-white dark:bg-[#161b2a] rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm overflow-hidden">
+            {/**/}
             <div className="lg:hidden divide-y divide-[#e7ebf3] dark:divide-gray-800">
               {data?.invoices?.map((row: CustomerInvoice) => {
 
@@ -219,7 +220,7 @@ export default function Facturas({ onSuccess }: CarteraProps) {
 
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="text-sm font-bold text-primary">
+                        <p className="text-sm font-bold text-primary max-w-full break-all leading-snug" >
                           #{row.tranid}
                         </p>
                         <p className="text-xs text-[#4c669a]">
@@ -347,42 +348,45 @@ export default function Facturas({ onSuccess }: CarteraProps) {
               </table>
             </div>
 
-            <div className="px-4 md:px-6 py-4 border-t border-[#e7ebf3] dark:border-gray-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <p className="text-sm text-[#4c669a] text-center md:text-left">
-                Mostrando{" "}
-                <span className="font-bold">
-                  {(data?.page - 1) * data?.pageSize + 1}-
-                  {Math.min(data?.page * data?.pageSize, data?.totalRecords)}
-                </span>{" "}
-                de <span className="font-bold">{data?.totalRecords}</span> facturas
+            {/**/}
+            <div className="px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-800/30 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between overflow-hidden">
+              <p className="text-sm text-gray-400 break-words">
+                Mostrando {data?.pageSize} de {data?.totalRecords} cliente(s)
               </p>
 
-              <div className="flex items-center justify-center gap-2">
+              <div className="flex flex-wrap gap-1.5 justify-end max-w-full overflow-hidden">
                 <button
-                  onClick={() => setPage((p) => Math.max(p - 1, 1))}
                   disabled={page === 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className="h-8 min-w-8 px-2 flex items-center justify-center rounded border shrink-0 text-gray-400 disabled:text-gray-300 disabled:cursor-not-allowed hover:bg-gray-100"
                 >
-                  <span className="material-symbols-outlined text-[20px]">
+                  <span className="material-symbols-outlined text-sm">
                     chevron_left
                   </span>
                 </button>
-                {getPages().map((p) => (
+
+                {getPages().map((p: number | string, i) => (
                   <button
-                    key={p}
-                    onClick={() => setPage(p)}
-                    className={`h-8 w-8 rounded text-sm font-bold ${p === page
-                      ? "bg-primary text-white"
-                      : "text-[#4c669a] hover:bg-gray-100 dark:hover:bg-gray-800"
+                    key={i}
+                    disabled={p === "..."}
+                    onClick={() => typeof p === "number" && setPage(p)}
+                    className={`h-8 min-w-8 px-2 flex items-center justify-center rounded border text-xs font-bold shrink-0 ${p === page
+                        ? "border-primary bg-primary text-white"
+                        : p === "..."
+                          ? "border-transparent text-gray-400 cursor-default"
+                          : "border-[#cfd7e7] text-gray-500 hover:bg-gray-100"
                       }`}
                   >
                     {p}
                   </button>
                 ))}
+
                 <button
-                  onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
                   disabled={page === totalPages}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  className="h-8 min-w-8 px-2 flex items-center justify-center rounded border shrink-0 text-gray-400 disabled:text-gray-300 disabled:cursor-not-allowed hover:bg-gray-100"
                 >
-                  <span className="material-symbols-outlined text-[20px]">
+                  <span className="material-symbols-outlined text-sm">
                     chevron_right
                   </span>
                 </button>

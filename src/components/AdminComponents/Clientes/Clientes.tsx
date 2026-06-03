@@ -49,8 +49,9 @@ export default function Clientes({ onSelectCliente }: ClientProps) {
     placeholderData: (prev) => prev,
   });
 
-  const dataTabla = data?.clients
+  console.log('data', data)
 
+  const dataTabla = data?.clients
   const currentPage = data?.page || 1;
   const totalPages = data?.totalPages || 0;
 
@@ -89,52 +90,60 @@ export default function Clientes({ onSelectCliente }: ClientProps) {
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
-            <div className="bg-white dark:bg-[#161b2a] p-6 rounded-2xl border border-border-color dark:border-gray-800 shadow-sm">
-              <div className="flex items-center justify-between mb-3 sm:mb-4">
-                <div className="p-2.5 bg-blue-50 dark:bg-blue-900/20 text-primary rounded-xl">
-                  <span className="material-symbols-outlined block">group</span>
-                </div>
-                <span className="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full dark:bg-green-900/20">
-                  +4 este mes
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 mb-8">
+            {/* Total Clientes */}
+            <div className="bg-white dark:bg-[#161b2a] p-5 sm:p-6 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm min-w-0">
+              <div className="flex justify-between items-start gap-3">
+                <p className="text-[#4c669a] dark:text-gray-400 text-xs sm:text-sm font-medium uppercase tracking-wider break-words">
+                  Total Clientes
+                </p>
+
+                <span className="material-symbols-outlined text-primary text-xl shrink-0">
+                  group
                 </span>
               </div>
-              <p className="text-sm font-semibold text-[#64748b] mb-1">
-                Total Clientes
+
+              <p className="text-primary text-xl sm:text-2xl font-bold tracking-tight mt-4 break-words">
+                {info?.data?.totalClientes ?? 0}
               </p>
-              <p className="text-md lg:2xl font-extrabold">{info?.data?.totalClientes}</p>
             </div>
 
-            <div className="bg-white dark:bg-[#161b2a] p-6 rounded-2xl border border-border-color dark:border-gray-800 shadow-sm">
-              <div className="flex items-center justify-between mb-3 sm:mb-4">
-                <div className="p-2.5 bg-orange-50 dark:bg-orange-900/20 text-orange-600 rounded-xl">
-                  <span className="material-symbols-outlined block">
-                    warning
-                  </span>
-                </div>
+            {/* Clientes con Deuda */}
+            <div className="bg-white dark:bg-[#161b2a] p-5 sm:p-6 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm min-w-0">
+              <div className="flex justify-between items-start gap-3">
+                <p className="text-[#4c669a] dark:text-gray-400 text-xs sm:text-sm font-medium uppercase tracking-wider break-words">
+                  Clientes con Deuda
+                </p>
+
+                <span className="material-symbols-outlined text-orange-500 text-xl shrink-0">
+                  warning
+                </span>
               </div>
-              <p className="text-sm font-semibold text-[#64748b] mb-1">
-                Clientes con Deuda
+
+              <p className="text-orange-500 text-xl sm:text-2xl font-bold tracking-tight mt-4 break-words">
+                {info?.data?.clientesConDeuda ?? 0}
               </p>
-              <p className="text-lg lg:2xl font-extrabold text-orange-600">{info?.data?.clientesConDeuda}</p>
             </div>
 
-            <div className="bg-white dark:bg-[#161b2a] p-6 rounded-2xl border border-border-color dark:border-gray-800 shadow-sm">
-              <div className="flex items-center justify-between mb-3 sm:mb-4">
-                <div className="p-2.5 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-xl">
-                  <span className="material-symbols-outlined block">
-                    trending_up
-                  </span>
-                </div>
+            {/* Tasa Mora */}
+            <div className="bg-white dark:bg-[#161b2a] p-5 sm:p-6 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm min-w-0">
+              <div className="flex justify-between items-start gap-3">
+                <p className="text-[#4c669a] dark:text-gray-400 text-xs sm:text-sm font-medium uppercase tracking-wider break-words">
+                  Tasa de Mora (%)
+                </p>
+
+                <span className="material-symbols-outlined text-red-600 text-xl shrink-0">
+                  trending_up
+                </span>
               </div>
-              <p className="text-sm font-semibold text-[#64748b] mb-1">
-                Tasa de Mora (%)
+
+              <p className="text-red-500 text-xl sm:text-2xl font-bold tracking-tight mt-4 break-words">
+                {(info?.data?.tasaMora ?? 0).toFixed(2)}%
               </p>
-              <p className="text-lg lg:2xl font-extrabold text-red-600">{info?.data?.tasaMora.toFixed(2)}%</p>
             </div>
+
           </div>
 
-          {/* Clients Table */}
           <div className="bg-white dark:bg-[#161b2a] p-5 rounded-xl border border-border-color dark:border-gray-800 shadow-sm mb-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
@@ -238,7 +247,7 @@ export default function Clientes({ onSelectCliente }: ClientProps) {
                         mail
                       </span>
                     </button>
-                    <button className="p-2 text-slate-400 hover:text-primary">
+                    <button onClick={() => onSelectCliente(row.id)} className="p-2 text-slate-400 hover:text-primary">
                       <span className="material-symbols-outlined text-[20px]">
                         visibility
                       </span>
@@ -347,83 +356,55 @@ export default function Clientes({ onSelectCliente }: ClientProps) {
                   ))}
                 </tbody>
               </table>
+            </div>
 
-              {/*  */}
-              <div className="p-4 border-t border-[#cfd7e7] dark:border-gray-800 bg-[#f8f9fc] dark:bg-gray-800/30 flex flex-col sm:flex-row items-center justify-between gap-2">
-                <p className="text-xs text-[#4c669a]">
-                  Mostrando{" "}
-                  <span className="font-bold text-[#0d121b] dark:text-white">
-                    {pageSize}
-                  </span>{" "}
-                  de{" "}
-                  <span className="font-bold text-[#0d121b] dark:text-white">
-                    {data?.pagination?.total}
-                  </span>{" "}
-                  facturas
-                </p>
+            <div className="px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-800/30 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between overflow-hidden">
+              <p className="text-sm text-gray-400 break-words">
+                Mostrando {dataTabla?.length} de {data?.totalRecords} cliente(s)
+              </p>
 
-                {/* BOTONES */}
-                <div className="flex gap-2 items-center overflow-x-auto">
+              <div className="flex flex-wrap gap-1.5 justify-end max-w-full overflow-hidden">
 
-                  {/* Anterior */}
+                <button
+                  disabled={page === 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className="h-8 min-w-8 px-2 flex items-center justify-center rounded border shrink-0 text-gray-400 disabled:text-gray-300 disabled:cursor-not-allowed hover:bg-gray-100 ">
+                  <span className="material-symbols-outlined text-sm">
+                    chevron_left
+                  </span>
+                </button>
+
+                {getPages().map((p: number | string, i) => (
                   <button
-                    onClick={() => setPage((p) => Math.max(p - 1, 1))}
-                    disabled={currentPage === 1}
-                    className={`size-8 flex items-center justify-center rounded border ${currentPage === 1
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-[#e7ebf3]"
-                      }`}
+                    key={i}
+                    disabled={p === "..."}
+                    onClick={() => typeof p === "number" && setPage(p)}
+                    className={`h-8 min-w-8 px-2 flex items-center justify-center rounded border text-xs font-bold shrink-0
+                    ${p === page
+                        ? "border-primary bg-primary text-white"
+                        : p === "..."
+                          ? "border-transparent text-gray-400 cursor-default"
+                          : "border-[#cfd7e7] text-gray-500 hover:bg-gray-100"
+                      }
+                    `}
                   >
-                    <span className="material-symbols-outlined text-[18px]">
-                      chevron_left
-                    </span>
+                    {p}
                   </button>
+                ))}
 
-                  {/* Números */}
-                  <div className="hidden sm:flex gap-2">
-                    {getPages().map((p) => (
-                      <button
-                        key={p}
-                        onClick={() => setPage(p)}
-                        className={`size-8 flex items-center justify-center rounded text-xs font-bold transition-colors
-                        ${p === currentPage
-                            ? "bg-primary text-white"
-                            : "bg-white dark:bg-gray-800 border border-[#cfd7e7] dark:border-gray-700 text-[#4c669a] hover:bg-[#e7ebf3]"
-                          }`}
-                      >
-                        {p}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Mobile */}
-                  <div className="flex sm:hidden gap-1">
-                    <span className="size-8 flex items-center justify-center rounded bg-primary text-white font-bold text-xs px-2">
-                      {currentPage}
-                    </span>
-                  </div>
-
-                  {/* Siguiente */}
-                  <button
-                    onClick={() =>
-                      setPage((p) => Math.min(p + 1, totalPages))
-                    }
-                    disabled={currentPage === totalPages}
-                    className={`size-8 flex items-center justify-center rounded border ${currentPage === totalPages
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-[#e7ebf3]"
-                      }`}
-                  >
-                    <span className="material-symbols-outlined text-[18px]">
-                      chevron_right
-                    </span>
-                  </button>
-
-                </div>
+                <button
+                  disabled={page === totalPages}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  className="h-8 min-w-8 px-2 flex items-center justify-center rounded border shrink-0 text-gray-400 disabled:text-gray-300 disabled:cursor-not-allowed hover:bg-gray-100"
+                >
+                  <span className="material-symbols-outlined text-sm">
+                    chevron_right
+                  </span>
+                </button>
 
               </div>
-
             </div>
+
           </div>
 
         </div>

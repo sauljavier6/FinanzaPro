@@ -8,7 +8,7 @@ import { getNotificaciones, ReadAllNotificaciones, ReadNotificacionById } from "
 interface NotificationStyles {
   icon: string;
   color: string;
-  bg: string; 
+  bg: string;
   tag: string;
 }
 
@@ -92,54 +92,92 @@ export default function Notificaciones() {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 xl:gap-6 mb-8">
-            <div className="bg-white dark:bg-background-dark p-6 rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
-              <p className="text-[#4c669a] dark:text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-8 sm:mb-10">
+
+            {/* Éxito */}
+            <div className="bg-white dark:bg-background-dark p-4 sm:p-6 rounded-xl border border-[#cfd7e7] dark:border-gray-800 shadow-sm relative overflow-hidden">
+
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                <span className="material-symbols-outlined text-5xl sm:text-6xl text-green-500">
+                  task_alt
+                </span>
+              </div>
+
+              <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1 uppercase tracking-wider">
                 Éxito
               </p>
 
-              <div className="flex items-end justify-between">
-                <h4 className="text-3xl sm:text-2xl font-black text-green-600 dark:text-green-400">
-                  {counts.success}
-                </h4>
+              <p className="text-2xl sm:text-3xl font-black text-green-600 dark:text-green-400 break-words">
+                {counts.success}
+              </p>
 
-                <span className="text-xs text-green-600 font-bold bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded">
+              <div className="mt-3 sm:mt-4 flex items-center gap-1 text-xs sm:text-sm font-bold text-green-600">
+                <span className="material-symbols-outlined text-sm">
+                  verified
+                </span>
+
+                <span className="px-2 py-1 rounded-full bg-green-50 dark:bg-green-900/30">
                   OK
                 </span>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-background-dark p-6 rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
-              <p className="text-[#4c669a] dark:text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">
+            {/* Alertas */}
+            <div className="bg-white dark:bg-background-dark p-4 sm:p-6 rounded-xl border border-[#cfd7e7] dark:border-gray-800 shadow-sm relative overflow-hidden">
+
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                <span className="material-symbols-outlined text-5xl sm:text-6xl text-amber-500">
+                  warning
+                </span>
+              </div>
+
+              <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1 uppercase tracking-wider">
                 Alertas
               </p>
 
-              <div className="flex items-end justify-between">
-                <h4 className="text-3xl sm:text-2xl font-black text-amber-600 dark:text-amber-400">
-                  {counts.warning}
-                </h4>
+              <p className="text-2xl sm:text-3xl font-black text-amber-600 dark:text-amber-400 break-words">
+                {counts.warning}
+              </p>
 
-                <span className="text-xs text-amber-600 font-bold bg-amber-50 dark:bg-amber-900/30 px-2 py-1 rounded">
+              <div className="mt-3 sm:mt-4 flex items-center gap-1 text-xs sm:text-sm font-bold text-amber-600">
+                <span className="material-symbols-outlined text-sm">
+                  pending
+                </span>
+
+                <span className="px-2 py-1 rounded-full bg-amber-50 dark:bg-amber-900/30">
                   Pendientes
                 </span>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-background-dark p-6 rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
-              <p className="text-[#4c669a] dark:text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">
+            {/* Errores */}
+            <div className="bg-white dark:bg-background-dark p-4 sm:p-6 rounded-xl border border-[#cfd7e7] dark:border-gray-800 shadow-sm relative overflow-hidden">
+
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                <span className="material-symbols-outlined text-5xl sm:text-6xl text-red-500">
+                  error
+                </span>
+              </div>
+
+              <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1 uppercase tracking-wider">
                 Errores
               </p>
 
-              <div className="flex items-end justify-between">
-                <h4 className="text-3xl sm:text-2xl font-black text-red-600 dark:text-red-400">
-                  {counts.danger}
-                </h4>
+              <p className="text-2xl sm:text-3xl font-black text-red-600 dark:text-red-400 break-words">
+                {counts.danger}
+              </p>
 
-                <button className="text-xs text-red-600 dark:text-red-400 font-bold hover:underline">
+              <div className="mt-3 sm:mt-4 flex items-center gap-1 text-xs sm:text-sm font-bold text-red-600">
+                <span className="material-symbols-outlined text-sm">
+                  report
+                </span>
+
+                <button className="hover:underline">
                   Ir a tareas
                 </button>
               </div>
             </div>
+
           </div>
 
           <div className="mb-6 bg-white dark:bg-background-dark rounded-xl shadow-sm border border-[#e7ebf3] dark:border-gray-800 overflow-hidden">

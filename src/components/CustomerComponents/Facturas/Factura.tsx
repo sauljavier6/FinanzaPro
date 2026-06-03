@@ -99,6 +99,7 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
     <div className="flex overflow-hidden">
       <main className="flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark">
         <div className="p-3 sm:p-8">
+
           <div className="flex flex-wrap items-center gap-2 pb-2 text-sm">
             <button
               onClick={onBack}
@@ -108,7 +109,10 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
               Facturas
             </button>
             <span className="text-gray-400 font-medium">/</span>
-            <span className="text-gray-900 dark:text-white font-bold truncate">
+            <span
+              className="text-gray-900 dark:text-white font-bold block max-w-[180px] sm:max-w-full truncate"
+              title={`Factura #${cabecera?.tranid}`}
+            >
               Factura #{cabecera?.tranid}
             </span>
           </div>
@@ -116,17 +120,21 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
           <div className="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-4">
             <div className="flex flex-col gap-2 w-full">
               <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3 gap-2 min-w-0">
-                <h1 className="text-gray-900 dark:text-white text-2xl sm:text-3xl lg:text-4xl font-black leading-tight tracking-[-0.02em] truncate">
+                <h1 className="text-gray-900 dark:text-white text-2xl sm:text-3xl lg:text-4xl font-black leading-tight tracking-[-0.02em] max-w-[280px] sm:max-w-full truncate">
                   Factura #{cabecera?.tranid}
                 </h1>
-
+                {/*  */}
                 <span className={`font-semibold rounded-full px-5 ${data?.data?.estatusColor}`}>
                   {data?.data?.estatus}
                 </span>
               </div>
 
-              <p>
-                Emitida el {formatDate(cabecera?.trandate)} • {`UUID: ${cabecera?.uuid} `}
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 max-w-[280px] sm:max-w-full break-words overflow-hidden">
+                Emitida el {formatDate(cabecera?.trandate)}
+                <br className="sm:hidden" />
+                <span className="break-all">
+                  UUID: {cabecera?.uuid}
+                </span>
               </p>
             </div>
 
@@ -199,45 +207,70 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
           </div>
 
           {/*  */}
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-4">
-            <div className="flex w-full flex-1 flex-col gap-2 rounded-xl p-6 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
-              <p className="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wider">
-                Total Facturado
-              </p>
-              <p className="text-gray-900 dark:text-white tracking-tight text-3xl font-black">
-                {formatoMoneda.format(cabecera?.amount || 0)}
-              </p>
-              <div className="flex items-center gap-1 text-green-600 text-xs font-bold bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded w-fit">
-                <span className="material-symbols-outlined text-sm">
-                  trending_up
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-8 sm:mb-10">
+            <div className="bg-white dark:bg-background-dark p-4 sm:p-6 rounded-xl border border-[#cfd7e7] dark:border-gray-800 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                <span className="material-symbols-outlined text-5xl sm:text-6xl">
+                  receipt_long
                 </span>
               </div>
+
+              <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1 uppercase tracking-wider">
+                Total Facturado
+              </p>
+
+              <p className="text-2xl sm:text-3xl font-black text-[#0d121b] dark:text-white break-words">
+                {formatoMoneda.format(cabecera?.amount || 0)}
+              </p>
+
+              <div className="mt-3 sm:mt-4 flex items-center gap-1 text-green-600 text-xs sm:text-sm font-bold">
+                <span className="material-symbols-outlined text-sm">trending_up</span>
+                <span>Importe generado</span>
+              </div>
             </div>
-            <div className="flex w-full flex-1 flex-col gap-2 rounded-xl p-6 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
-              <p className="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wider">
+
+            <div className="bg-white dark:bg-background-dark p-4 sm:p-6 rounded-xl border border-[#cfd7e7] dark:border-gray-800 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                <span className="material-symbols-outlined text-5xl sm:text-6xl">
+                  payments
+                </span>
+              </div>
+
+              <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1 uppercase tracking-wider">
                 Monto Pagado
               </p>
-              <p className="text-gray-900 dark:text-white tracking-tight text-3xl font-black">
+
+              <p className="text-2xl sm:text-3xl font-black text-[#0d121b] dark:text-white break-words">
                 {formatoMoneda.format(cabecera?.amountpaid || 0)}
               </p>
-              <p className="text-primary text-sm font-bold leading-normal">
-                {formatoMoneda.format(porcentajePagado || 0)}% Cubierto
-              </p>
+
+              <div className="mt-3 sm:mt-4 flex items-center gap-1 text-primary text-xs sm:text-sm font-bold">
+                <span className="material-symbols-outlined text-sm">percent</span>
+                <span>{formatoMoneda.format(porcentajePagado || 0)}% Cubierto</span>
+              </div>
             </div>
-            <div className="flex w-full flex-1 flex-col gap-2 rounded-xl p-6 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
-              <p className="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wider">
+
+            <div className="bg-white dark:bg-background-dark p-4 sm:p-6 rounded-xl border border-[#cfd7e7] dark:border-gray-800 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                <span className="material-symbols-outlined text-5xl sm:text-6xl">
+                  account_balance_wallet
+                </span>
+              </div>
+
+              <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1 uppercase tracking-wider">
                 Saldo Pendiente
               </p>
-              <p className="text-primary tracking-tight text-3xl font-black">
+
+              <p className="text-2xl sm:text-3xl font-black text-primary break-words">
                 {formatoMoneda.format(cabecera?.balance || 0)}
               </p>
+
               <div
-                className={`flex items-center gap-1 text-xs font-bold px-2 py-1 rounded w-fit ${data?.data?.estatusColor} dark:bg-opacity-20`}
+                className={`mt-3 sm:mt-4 flex items-center gap-1 text-xs sm:text-sm font-bold px-2 py-1 rounded w-fit ${data?.data?.estatusColor} dark:bg-opacity-20`}
               >
                 <span className="material-symbols-outlined text-sm">
                   {data?.data?.estatusIcon}
                 </span>
-
                 <span>{data?.data?.estatus}</span>
               </div>
             </div>
@@ -617,8 +650,8 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
                 </div>
               </div>
             </div>
-
           </div>
+
         </div>
       </main>
     </div>

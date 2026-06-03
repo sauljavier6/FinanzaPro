@@ -1,13 +1,9 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { deleteContact, getDataProfile, updateImageProfile, updateProfile } from "../../../api/customerApis/ProfileApi";
+import { getDataProfile, updateImageProfile, updateProfile } from "../../../api/AdminApis/ProfileApi";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 
-interface ConfiguracionProps {
-  onAbrirContacto: (id?: string) => void;
-}
-
-export default function Configuracion({ onAbrirContacto }: ConfiguracionProps) {
+export default function Configuracion() {
   const { updateUserImage, updateUserData } = useAuth();
   const [saving, setSaving] = useState(false);
   const queryClient = useQueryClient();
@@ -21,13 +17,6 @@ export default function Configuracion({ onAbrirContacto }: ConfiguracionProps) {
     imagen: "",
   });
 
-  const [customer, setCustomer] = useState({
-    nombre: "",
-    correo: "",
-    telefono: "",
-    rfc: "",
-  });
-
   const { data } = useQuery({
     queryKey: ["profiledata"],
     queryFn: () => getDataProfile(),
@@ -39,7 +28,6 @@ export default function Configuracion({ onAbrirContacto }: ConfiguracionProps) {
 
   const datacustomer = data?.data?.customer;
   const datauser = data?.data?.user;
-  const datcontacts = data?.data?.contacts;
 
   useEffect(() => {
     if (!datauser) return;
@@ -50,13 +38,6 @@ export default function Configuracion({ onAbrirContacto }: ConfiguracionProps) {
       telefono: datauser.phone?.Description ?? "",
       imagen: datauser.imagen ?? "",
       rfc: datauser.rfc ?? "",
-    });
-
-    setCustomer({
-      nombre: datacustomer?.companyname ?? "",
-      correo: datacustomer?.email ?? "",
-      telefono: datacustomer?.phone ?? "",
-      rfc: datacustomer?.rfc ?? "",
     });
   }, [datauser, datacustomer]);
 
@@ -71,40 +52,14 @@ export default function Configuracion({ onAbrirContacto }: ConfiguracionProps) {
     }));
   };
 
-  const handleCustomerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDisable(false);
-
-    const { name, value } = e.target;
-
-    setCustomer((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleDeleteContact = async (id: number) => {
-    try {
-      console.log("id contacto", id);
-
-      const response = await deleteContact(id);
-
-      if (response) {
-
-        await queryClient.invalidateQueries({
-          queryKey: ["profiledata"],
-        });
-
-      }
-    } catch (error) {
-      console.error("Error eliminando contacto:", error);
-    }
-  };
-
   const handleUpdateProfile = async () => {
     try {
       setSaving(true);
+
       const response = await updateProfile(user);
+
       if (response) {
+
         updateUserData({
           name: user.nombre
         });
@@ -115,10 +70,15 @@ export default function Configuracion({ onAbrirContacto }: ConfiguracionProps) {
 
         setDisable(true);
       }
+
     } catch (error) {
+
       console.error("Error actualizando perfil:", error);
+
     } finally {
+
       setSaving(false);
+
     }
   };
 
@@ -151,6 +111,7 @@ export default function Configuracion({ onAbrirContacto }: ConfiguracionProps) {
     <div className="flex flex-col md:flex-row overflow-hidden min-h-screen">
       <main className="flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark">
         <div className="p-3 sm:p-8">
+
           {/* Encabezado */}
           <div className="mb-6 sm:mb-8">
             <h1 className="text-xl sm:text-2xl font-extrabold mb-1 sm:mb-2">
@@ -269,130 +230,6 @@ export default function Configuracion({ onAbrirContacto }: ConfiguracionProps) {
                   />
                 </div>
               </div>
-            </div>
-          </section>
-
-          {/* Perfil Customer Netsuite */}
-          <section className="bg-white dark:bg-slate-900 rounded-xl p-4 sm:p-6 shadow-sm border border-slate-200 dark:border-slate-800 mb-6">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="material-symbols-outlined text-primary">person</span>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Empresa</h3>
-            </div>
-            <div className="flex flex-col md:flex-row gap-6 items-start">
-
-              {/* Campos */}
-              <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-600 dark:text-slate-400 ml-1">Nombre Completo</label>
-                  <input
-                    name="nombre"
-                    className="w-full rounded-lg border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm focus:border-primary focus:ring-primary dark:text-white"
-                    type="text"
-                    value={customer.nombre}
-                    onChange={handleCustomerChange}
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-600 dark:text-slate-400 ml-1">Correo Electrónico</label>
-                  <input
-                    name="correo"
-                    className="w-full rounded-lg border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm focus:border-primary focus:ring-primary dark:text-white"
-                    type="email"
-                    value={customer.correo}
-                    onChange={handleCustomerChange}
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-600 dark:text-slate-400 ml-1">Teléfono Principal</label>
-                  <input
-                    name="telefono"
-                    className="w-full rounded-lg border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm focus:border-primary focus:ring-primary dark:text-white"
-                    type="tel"
-                    value={customer.telefono}
-                    onChange={handleCustomerChange}
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-600 dark:text-slate-400 ml-1">RFC</label>
-                  <input
-                    name="rfc"
-                    className="w-full rounded-lg border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm focus:border-primary focus:ring-primary dark:text-white"
-                    placeholder="XXXXXXXXXXXXX"
-                    type="text"
-                    value={customer.rfc}
-                    onChange={handleCustomerChange}
-                  />
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Contactos */}
-          <section className="bg-white dark:bg-slate-900 rounded-xl p-4 sm:p-6 shadow-sm border border-slate-200 dark:border-slate-800 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary">group</span>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                  Contactos de Referencia
-                </h3>
-              </div>
-
-              <button onClick={() => onAbrirContacto()} className="text-primary text-sm font-bold flex items-center gap-1 hover:bg-primary/5 px-3 py-1.5 rounded-lg transition-colors">
-                <span className="material-symbols-outlined text-lg">add_circle</span>
-                <span>Agregar</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {datcontacts?.length > 0 ? (
-                datcontacts.map((contact: any) => (
-                  <div
-  key={contact.id}
-  className="flex items-start justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20"
->
-  <div className="flex items-start gap-3 min-w-0">
-    
-    <div className="w-10 h-10 shrink-0 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500">
-      <span className="material-symbols-outlined">person</span>
-    </div>
-
-    <div className="min-w-0">
-      <h4 className="text-sm font-bold text-slate-900 dark:text-white break-words">
-        {contact.entityid || `${contact.entityid ?? ""}`}
-      </h4>
-
-      <p className="text-xs text-slate-500 break-all mt-1">
-        {contact.mobilephone || contact.homephone || "Sin teléfono"}
-      </p>
-
-      <p className="text-xs text-slate-400 break-all">
-        {contact.email || "Sin correo"}
-      </p>
-    </div>
-  </div>
-
-  <div className="flex gap-1 shrink-0">
-    <button
-      onClick={() => onAbrirContacto(String(contact.id))}
-      className="p-2 text-slate-400 hover:text-primary transition-colors"
-    >
-      <span className="material-symbols-outlined text-xl">edit</span>
-    </button>
-
-    <button
-      onClick={() => handleDeleteContact(contact.id)}
-      className="p-2 text-slate-400 hover:text-red-500 transition-colors"
-    >
-      <span className="material-symbols-outlined text-xl">delete</span>
-    </button>
-  </div>
-</div>
-                ))
-              ) : (
-                <div className="col-span-full text-center py-8 text-sm text-slate-400">
-                  No hay contactos registrados.
-                </div>
-              )}
             </div>
           </section>
 

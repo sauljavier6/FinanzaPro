@@ -73,7 +73,7 @@ export default function ClienteDetail({ clienteId, onClose }: ClientDetailsProps
         placeholderData: (prev) => prev,
     });
 
-    console.log('dataaaaaaaaaaaaa',data)
+    console.log('dataaaaaaaaaaaaa', data)
 
     const info = data?.info
     const customer = data?.customer
@@ -127,7 +127,7 @@ export default function ClienteDetail({ clienteId, onClose }: ClientDetailsProps
                             className="text-primary font-medium hover:underline truncate"
                             type="button"
                         >
-                            Facturas
+                            Clientes
                         </button>
                         <span className="text-gray-400 font-medium">/</span>
                         <span className="text-gray-900 dark:text-white font-bold truncate">
@@ -135,10 +135,13 @@ export default function ClienteDetail({ clienteId, onClose }: ClientDetailsProps
                         </span>
                     </div>
 
-                    <div className="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-4">
-                        <div className="flex flex-col gap-2 w-full">
+                    <div className="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-4 min-w-0">
+                        <div className="flex flex-col gap-2 w-full min-w-0">
                             <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3 gap-2 min-w-0">
-                                <h1 className="text-gray-900 dark:text-white text-2xl sm:text-3xl lg:text-4xl font-black leading-tight tracking-[-0.02em] truncate">
+                                <h1
+                                    className="text-gray-900 dark:text-white text-2xl sm:text-3xl lg:text-4xl font-black leading-tight tracking-[-0.02em] break-words overflow-hidden max-w-full "
+                                    title={customer?.companyname}
+                                >
                                     {customer?.companyname}
                                 </h1>
                             </div>
@@ -191,8 +194,6 @@ export default function ClienteDetail({ clienteId, onClose }: ClientDetailsProps
                         </div>
                     </div>
 
-
-                    {/*  */}
                     <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-4">
                         <div className="flex w-full flex-1 flex-col gap-2 rounded-xl p-6 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
                             <p className="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wider">
@@ -643,6 +644,7 @@ export default function ClienteDetail({ clienteId, onClose }: ClientDetailsProps
                         </div>
 
                     </div>
+
                 </div>
             </main>
         </div>

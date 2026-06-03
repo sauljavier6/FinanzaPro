@@ -25,7 +25,7 @@ export default function Cuentas({ onAbrirFactura, onAbrirPago }: CuentasProps) {
 
   useEffect(() => {
     setPage(1);
-  }, [debouncedSearch]);
+  }, [debouncedSearch, fechaInicio, fechaFin]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -91,10 +91,6 @@ export default function Cuentas({ onAbrirFactura, onAbrirPago }: CuentasProps) {
     }
   };
 
-  useEffect(() => {
-    setPage(1);
-  }, [debouncedSearch, fechaInicio, fechaFin]);
-
   return (
     <div className="flex overflow-hidden">
       <main className="flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark">
@@ -117,43 +113,48 @@ export default function Cuentas({ onAbrirFactura, onAbrirPago }: CuentasProps) {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 sm:gap-6 mb-8">
-            <div className="bg-white dark:bg-background-dark p-5 rounded-xl border border-[#cfd7e7] dark:border-gray-800 shadow-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 sm:gap-4 mb-8 sm:mb-10">
+
+            <div className="bg-white dark:bg-background-dark p-4 sm:p-6 rounded-xl border border-[#cfd7e7] dark:border-gray-800 shadow-sm">
               <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">
                 Total pendiente
               </p>
-              <p className="text-2xl sm:text-3xl font-black text-[#0d121b] dark:text-white">
+
+              <p className="text-2xl sm:text-3xl font-black text-[#0d121b] dark:text-white break-words">
                 {formatoMoneda.format(resumen?.balance || 0)}
               </p>
             </div>
 
-            <div className="bg-white dark:bg-background-dark p-5 rounded-xl border border-[#cfd7e7] dark:border-gray-800 shadow-sm">
+            <div className="bg-white dark:bg-background-dark p-4 sm:p-6 rounded-xl border border-[#cfd7e7] dark:border-gray-800 shadow-sm">
               <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">
                 Total vencido
               </p>
-              <p className="text-2xl sm:text-3xl font-black text-green-600">
+
+              <p className="text-2xl sm:text-3xl font-black text-green-600 break-words">
                 {formatoMoneda.format(resumen?.duebalance || 0)}
               </p>
             </div>
 
-            <div className="bg-white dark:bg-background-dark p-5 rounded-xl border border-[#cfd7e7] dark:border-gray-800 shadow-sm">
+            <div className="bg-white dark:bg-background-dark p-4 sm:p-6 rounded-xl border border-[#cfd7e7] dark:border-gray-800 shadow-sm">
               <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">
-                Credito
+                Limite de Crédito
               </p>
-              <p className="text-2xl sm:text-3xl font-black text-primary">
+
+              <p className="text-2xl sm:text-3xl font-black text-primary break-words">
                 {formatoMoneda.format(resumen?.creditlimit || 0)}
               </p>
             </div>
 
-            <div className="bg-white dark:bg-background-dark p-5 rounded-xl border border-yellow-200 dark:border-yellow-800 shadow-sm">
+            <div className="bg-white dark:bg-background-dark p-4 sm:p-6 rounded-xl border border-[#cfd7e7] dark:border-gray-800 shadow-sm">
               <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">
-                Crédito
+                Días de Crédito
               </p>
 
-              <p className="text-2xl sm:text-3xl font-black text-yellow-500 dark:text-yellow-400">
+              <p className="text-2xl sm:text-3xl font-black text-yellow-500 break-words">
                 {String(resumen?.terms || "-").replace(/d.as/i, "días")}
               </p>
             </div>
+
           </div>
 
           <div className="bg-white dark:bg-background-dark rounded-xl border border-[#cfd7e7] dark:border-gray-800 shadow-sm overflow-hidden">
@@ -204,7 +205,12 @@ export default function Cuentas({ onAbrirFactura, onAbrirPago }: CuentasProps) {
                 <div key={m.id} className="p-4 space-y-2">
                   <div className="flex justify-between items-start gap-3">
                     <div>
-                      <p className="font-bold text-sm">{m.referencia}</p>
+                      <p
+                        className="font-bold text-sm truncate block min-w-0 max-w-[150px] sm:max-w-none"
+                        title={m.referencia}
+                      >
+                        {m.referencia}
+                      </p>
                       <p className="text-xs text-gray-500">{m.concepto}</p>
                     </div>
 

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getReporteG } from "../../../api/AdminApis/reportesApi";
 import { formatoCompacto } from "../../../utils/formatoCompacto";
+import { formatDate } from "../../../utils/formatDate";
 
 export interface Invoice {
   entity: string;
@@ -30,6 +31,7 @@ export default function Dashboar() {
   });
 
   console.log(data)
+  const invoices = data?.data ?? [];
 
   const [dataGrafica, setDataGrafica] = useState({
     meses: [],
@@ -50,7 +52,7 @@ export default function Dashboar() {
     porcentajerecMesAnterior: 0
   });
 
-  
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -268,7 +270,7 @@ export default function Dashboar() {
                 {/* Meses */}
                 <div className="sm:ml-10 mt-4 flex justify-between text-[10px] sm:text-[11px] text-slate-400 font-bold">
                   {dataGrafica.meses.map((mes, i) => (
-                    <span key={i} className="min-w-[60px] text-center">
+                    <span key={i} className="grid grid-cols-5 text-center">
                       {mes}
                     </span>
                   ))}
@@ -391,137 +393,112 @@ export default function Dashboar() {
             </div>
           </div>
 
+          {/* ================= FACTURAS ================= */}
           <div className="bg-white dark:bg-[#161b2a] rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm overflow-hidden">
             {/* Header */}
             <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-[#e7ebf3] dark:border-gray-800 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-              <h3 className="text-base sm:text-lg font-bold">
-                Pagos Recientes
-              </h3>   
+              <h3 className="text-base sm:text-lg font-bold">Tus facturas</h3>
             </div>
 
-            {/* ===================== */}
-            {/* MÓVIL – CARDS */}
-            {/* ===================== */}
-            <div className="sm:hidden divide-y divide-[#e7ebf3] dark:divide-gray-800">
-              {data?.data?.map((p: Invoice) => (
-                <div key={p.id} className="p-4 space-y-2">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-
-                      <p className="text-sm font-bold">{p.entity}</p>
-                    </div>
-                    <span className="font-bold">{formatoMoneda.format(p.amount || 0)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-xs text-[#4c669a]">Factura</span>
-                    <span className="font-bold">{p.tranid}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-xs text-[#4c669a]">Fecha</span>
-                    <span>{p.trandate}</span>
-                  </div>
-                  <div className="flex justify-between items-center mt-1">
-                    <span
-                      className={`text-xs font-bold px-2 py-1 rounded-full ${p.status}`}
-                    >
-                      {p.status}
-                    </span>
-                    <button
-                      onClick={() => navigate(`/admin/facturas/${p.id}`)}
-                      className="p-2 rounded-lg bg-gray-100 dark:bg-gray-100 text-[#0d121b] dark:text-white hover:bg-[#cfd7e7] transition-all"
-                    >
-                      <span className="material-symbols-outlined text-[20px]">
-                        visibility
+            {/* Móvil – Cards */}
+            <div className="sm:hidden divide-y">
+              {invoices?.map((inv: Invoice) => {
+                const isPending = inv.balance > 0;
+                return (
+                  <div key={inv.id} className="p-4 space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-xs text-[#4c669a]">Factura</span>
+                      <span
+                        className="font-bold truncate block min-w-0 max-w-[140px] sm:max-w-none"
+                        title={inv.tranid}
+                      >
+                        {inv.tranid}
                       </span>
-                    </button>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-xs text-[#4c669a]">Fecha</span>
+                      <span>
+                        {formatDate(inv.trandate)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-xs text-[#4c669a]">Monto</span>
+                      <span className="font-bold">{formatoMoneda.format(inv.amount || 0)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span
+                        className={`text-xs font-bold px-2 py-1 rounded-full ${isPending
+                          ? "bg-yellow-100 text-yellow-700"
+                          : "bg-green-100 text-green-700"
+                          }`}
+                      >
+                        {isPending ? "Pendiente" : "Pagada"}
+                      </span>
+                      <button
+                        onClick={() => navigate(`/clientes/facturas/${inv.id}`)}
+                        className="p-2 rounded-lg bg-gray-100 dark:bg-gray-100 text-[#0d121b] dark:text-white hover:bg-[#cfd7e7] transition-all"
+                      >
+                        <span className="material-symbols-outlined text-[20px]">
+                          visibility
+                        </span>
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
-            {/* ===================== */}
-            {/* DESKTOP – TABLA */}
-            {/* ===================== */}
+            {/* Desktop – Tabla */}
             <div className="hidden sm:block overflow-x-auto">
-              <table className="w-full text-left min-w-[600px]">
+              <table className="w-full text-left">
                 <thead className="bg-gray-50 dark:bg-gray-800/50">
                   <tr>
-                    <th className="px-6 py-4 text-xs font-bold text-[#4c669a] uppercase tracking-wider">
-                      Cliente
-                    </th>
-                    <th className="px-6 py-4 text-xs font-bold text-[#4c669a] uppercase tracking-wider">
-                      Factura
-                    </th>
-                    <th className="px-6 py-4 text-xs font-bold text-[#4c669a] uppercase tracking-wider">
-                      Fecha
-                    </th>
-                    <th className="px-6 py-4 text-xs font-bold text-[#4c669a] uppercase tracking-wider">
-                      Monto
-                    </th>
-                    <th className="px-6 py-4 text-xs font-bold text-[#4c669a] uppercase tracking-wider">
-                      Estado
-                    </th>
-                    <th className="px-6 py-4 text-xs font-bold text-[#4c669a] uppercase tracking-wider text-right">
+                    <th className="px-6 py-4 text-xs font-bold">Factura</th>
+                    <th className="px-6 py-4 text-xs font-bold">Fecha</th>
+                    <th className="px-6 py-4 text-xs font-bold">Monto</th>
+                    <th className="px-6 py-4 text-xs font-bold">Estado</th>
+                    <th className="px-6 py-4 text-xs font-bold text-right">
                       Acción
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#e7ebf3] dark:divide-gray-800">
-                  {data?.data?.map((item: any) => (
-                    <tr key={item.id}>
-                      <td className="px-6 py-4 flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center text-primary font-bold text-xs">
-                          {item.customer?.companyname?.substring(0, 2).toUpperCase()}
-                        </div>
-                        <p className="text-sm font-bold">
-                          {item.customer?.companyname}
-                        </p>
-                      </td>
-
-                      <td
-                        className="px-6 py-4 text-sm font-medium cursor-pointer text-primary hover:underline"
-                        onClick={() => navigate(`/admin/facturas/${item.id}`)}
-                      >
-                        {item.tranid}
-                      </td>
-
-                      <td className="px-6 py-4 text-sm text-[#4c669a]">
-                        {new Date(item.duedate).toLocaleDateString()}
-                      </td>
-
-                      <td className="px-6 py-4 text-sm font-bold">
-                        {formatoMoneda.format(item.amount || 0)}
-                      </td>
-
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold
-                          ${item.balance === 0
-                              ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                              : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                            }`}
-                        >
-                          {item.balance === 0 ? "Pagada" : "Pendiente"}
-                        </span>
-                      </td>
-
-                      <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={() => navigate(`/admin/facturas/${item.id}`)}
-                          className="p-2 rounded-lg bg-gray-100 dark:bg-gray-100 text-[#0d121b] dark:text-white hover:bg-[#cfd7e7] transition-all"
-                        >
-                          <span className="material-symbols-outlined text-[20px]">
-                            visibility
+                <tbody>
+                  {invoices?.map((inv: Invoice) => {
+                    const isPending = inv.balance > 0;
+                    return (
+                      <tr key={inv.id} className="border-t">
+                        <td className="px-6 py-4 font-bold">{inv.tranid}</td>
+                        <td className="px-6 py-4">
+                          {formatDate(inv.trandate)}
+                        </td>
+                        <td className="px-6 py-4 font-bold">{formatoMoneda.format(inv.amount || 0)}</td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`text-xs font-bold px-2 py-1 rounded-full ${isPending
+                              ? "bg-yellow-100 text-yellow-700"
+                              : "bg-green-100 text-green-700"
+                              }`}
+                          >
+                            {isPending ? "Pendiente" : "Pagada"}
                           </span>
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <button
+                            onClick={() => navigate(`/clientes/facturas/${inv.id}`)}
+                            className="p-2 rounded-lg bg-gray-100 dark:bg-gray-100 text-[#0d121b] dark:text-white hover:bg-[#cfd7e7] transition-all"
+                          >
+                            <span className="material-symbols-outlined text-[20px]">
+                              visibility
+                            </span>
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           </div>
-
         </div>
       </main>
     </div>

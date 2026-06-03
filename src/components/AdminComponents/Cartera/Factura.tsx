@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getInvoiceById, getPdfById } from "../../../api/AdminApis/facturaApi";
 import { formatDate } from "../../../utils/formatDate";
 import { formatoMoneda } from "../../../utils/formatMoneda";
+import { useNavigate } from "react-router-dom";
 
 interface FacturaProps {
   facturaId: number;
@@ -54,6 +55,7 @@ interface PaymentApplication {
 }
 
 export default function Factura({ facturaId, onBack }: FacturaProps) {
+  const navigate = useNavigate();
 
   const { data } = useQuery({
     queryKey: ["dashboarAdminClientes", facturaId],
@@ -138,6 +140,7 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
     <div className="flex overflow-hidden">
       <main className="flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark">
         <div className="p-3 sm:p-8">
+
           <div className="flex flex-wrap items-center gap-2 pb-2 text-sm">
             <button
               onClick={onBack}
@@ -147,7 +150,10 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
               Facturas
             </button>
             <span className="text-gray-400 font-medium">/</span>
-            <span className="text-gray-900 dark:text-white font-bold truncate">
+            <span
+              className="text-gray-900 dark:text-white font-bold block max-w-[180px] sm:max-w-full truncate"
+              title={`Factura #${cabecera?.tranid}`}
+            >
               Factura #{cabecera?.tranid}
             </span>
           </div>
@@ -155,19 +161,38 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
           <div className="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-4">
             <div className="flex flex-col gap-2 w-full">
               <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3 gap-2 min-w-0">
-                <h1 className="text-gray-900 dark:text-white text-2xl sm:text-3xl lg:text-4xl font-black leading-tight tracking-[-0.02em] truncate">
+                <h1 className="text-gray-900 dark:text-white text-2xl sm:text-3xl lg:text-4xl font-black leading-tight tracking-[-0.02em] max-w-[280px] sm:max-w-full truncate">
                   Factura #{cabecera?.tranid}
                 </h1>
-
+                {/*  */}
                 <span className={`font-semibold rounded-full px-5 ${data?.data?.estatusColor}`}>
                   {data?.data?.estatus}
                 </span>
               </div>
 
-              <p>
-                Emitida el {formatDate(cabecera?.trandate)} • {`UUID: ${cabecera?.uuid} `}
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 max-w-[280px] sm:max-w-full break-words overflow-hidden">
+                Emitida el {formatDate(cabecera?.trandate)}
+
+                <span className="block mt-2 break-all">
+                  UUID: {cabecera?.uuid}
+                </span>
               </p>
             </div>
+
+            {Number(cabecera?.balance || 0) > 0 && (
+              <div className="w-full lg:w-fit">
+                <button onClick={() => { navigate(`/clientes/pagar/${facturaId}`) }}
+
+                  className="w-full md:w-auto shrink-0 flex items-center justify-center rounded-lg h-10 bg-primary text-white gap-2 text-sm font-bold px-4 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors">
+                  <span className="material-symbols-outlined text-[20px]">
+                    account_balance_wallet
+                  </span>
+                  <span className="whitespace-nowrap">
+                    Ir a Pagar
+                  </span>
+                </button>
+              </div>
+            )}
           </div>
 
           {/*  */}

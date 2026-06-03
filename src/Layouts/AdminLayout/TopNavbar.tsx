@@ -145,7 +145,7 @@ export default function TopNavbar({ onMenuClick }: TopNavbarProps) {
             </span>
           </button>
           <button
-            //onClick={() => navigate("/admin/configuracion")}
+            onClick={() => navigate("/admin/configuracion")}
             className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-gray-800"
           >
             <span className="material-symbols-outlined text-slate-400">
@@ -157,7 +157,10 @@ export default function TopNavbar({ onMenuClick }: TopNavbarProps) {
 
       {/* Search overlay mobile */}
       {mobileSearch && (
-        <div className="fixed inset-0 z-40 bg-white dark:bg-background-dark p-4 md:hidden">
+        <div
+          className="fixed inset-0 z-40 bg-white dark:bg-background-dark p-4 md:hidden"
+          onMouseDown={(e) => e.stopPropagation()}
+        >
 
           {/* WRAPPER RELATIVE */}
           <div className="relative">
@@ -190,24 +193,28 @@ export default function TopNavbar({ onMenuClick }: TopNavbarProps) {
               <div className="absolute left-0 right-0 mt-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-50 max-h-[60vh] overflow-auto">
 
                 {open && data.data.map((item: any) => (
-                  <div
+                  <button
+                    type="button"
                     key={`${item.type}-${item.id}`}
-                    onClick={() => {
-                      if (item.type === "invoice") {
-                        navigate(`/admin/facturas/${item.id}`);
-                      }
-                      if (item.type === "payment") {
-                        navigate(`/admin/pagos/${item.id}`);
-                      }
-                      if (item.type === "customer") {
-                        navigate(`/admin/clientes/${item.id}`);
-                      }
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+
+                      let path = "";
+
+                      if (item.type === "invoice") path = `/admin/facturas/${item.id}`;
+                      if (item.type === "payment") path = `/admin/pagos/${item.id}`;
+                      if (item.type === "customer") path = `/admin/clientes/${item.id}`;
+
+                      if (!path) return;
 
                       setSearch("");
                       setOpen(false);
                       setMobileSearch(false);
+
+                      navigate(path);
                     }}
-                    className="px-4 py-3 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                    className="w-full text-left px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
                   >
                     <span className="font-bold mr-2">
                       {item.type === "invoice" && "F"}
@@ -215,7 +222,7 @@ export default function TopNavbar({ onMenuClick }: TopNavbarProps) {
                       {item.type === "customer" && "C"}
                     </span>
                     {item.label}
-                  </div>
+                  </button>
                 ))}
               </div>
             )}

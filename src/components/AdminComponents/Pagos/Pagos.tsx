@@ -198,7 +198,9 @@ export default function Pagos({ onSuccess }: PagosProps) {
                       {getInitials(pago.customer?.companyname)}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-bold truncate">
+                      <p
+                        className="text-sm font-bold overflow-hidden text-ellipsis line-clamp-2 leading-snug break-words"
+                      >
                         {pago.customer?.companyname}
                       </p>
                       <div className="text-xs text-[#4c669a]">
@@ -325,8 +327,8 @@ export default function Pagos({ onSuccess }: PagosProps) {
             </div>
 
             {/* FOOTER */}
-            <div className="px-4 md:px-6 py-4 border-t border-[#e7ebf3] dark:border-gray-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <p className="text-sm text-[#4c669a] text-center md:text-left">
+            <div className="px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-800/30 border-t border-[#e7ebf3] dark:border-gray-800 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between overflow-hidden">
+              <p className="text-sm text-gray-400 break-words text-center sm:text-left">
                 Mostrando{" "}
                 <span className="font-bold">
                   {(data?.page - 1) * data?.pageSize + 1}-
@@ -335,24 +337,27 @@ export default function Pagos({ onSuccess }: PagosProps) {
                 de <span className="font-bold">{data?.totalRecords}</span> pago(s)
               </p>
 
-              <div className="flex items-center justify-center gap-2 flex-wrap">
+              <div className="flex flex-wrap gap-1.5 justify-center sm:justify-end max-w-full overflow-hidden">
                 <button
-                  className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-30"
-                  onClick={() => setPage((p) => Math.max(p - 1, 1))}
                   disabled={page === 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className="h-8 min-w-8 px-2 flex items-center justify-center rounded border shrink-0 text-gray-400 disabled:text-gray-300 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-800"
                 >
-                  <span className="material-symbols-outlined text-[20px]">
+                  <span className="material-symbols-outlined text-sm">
                     chevron_left
                   </span>
                 </button>
 
-                {getPages().map((p) => (
+                {getPages().map((p: number | string, i: number) => (
                   <button
-                    key={p}
-                    onClick={() => setPage(p)}
-                    className={`h-8 w-8 rounded text-sm font-bold ${p === page
-                      ? "bg-primary text-white"
-                      : "text-[#4c669a] hover:bg-gray-100 dark:hover:bg-gray-800"
+                    key={i}
+                    disabled={p === "..."}
+                    onClick={() => typeof p === "number" && setPage(p)}
+                    className={`h-8 min-w-8 px-2 flex items-center justify-center rounded border text-xs font-bold shrink-0 ${p === page
+                      ? "border-primary bg-primary text-white"
+                      : p === "..."
+                        ? "border-transparent text-gray-400 cursor-default"
+                        : "border-[#cfd7e7] text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
                       }`}
                   >
                     {p}
@@ -360,17 +365,16 @@ export default function Pagos({ onSuccess }: PagosProps) {
                 ))}
 
                 <button
-                  className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
-                  onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
                   disabled={page === totalPages}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  className="h-8 min-w-8 px-2 flex items-center justify-center rounded border shrink-0 text-gray-400 disabled:text-gray-300 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-800"
                 >
-                  <span className="material-symbols-outlined text-[20px]">
+                  <span className="material-symbols-outlined text-sm">
                     chevron_right
                   </span>
                 </button>
               </div>
             </div>
-
           </div>
         </div>
       </main>

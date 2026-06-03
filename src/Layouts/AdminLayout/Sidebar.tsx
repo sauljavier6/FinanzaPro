@@ -53,6 +53,9 @@ export default function Sidebar() {
         setActiveItem("Campana");
         localStorage.setItem("activeSidebarItem", "Campana");
         break;
+      case "/admin/configuracion":
+        setActiveItem("configuracion");
+        break;
       default:
         setActiveItem("Home");
         localStorage.setItem("activeSidebarItem", "Home");
@@ -69,7 +72,7 @@ export default function Sidebar() {
           </span>
         </div>
         <div>
-          <h1 className="text-lg font-bold">FinanzaPro</h1>
+          <h1 className="text-lg font-bold">CobranzaPro</h1>
           <p className="text-xs text-[#4c669a] uppercase">Sistema Cobranza</p>
         </div>
       </div>
@@ -133,6 +136,13 @@ export default function Sidebar() {
           label="Campañas de cobranza"
           active={activeItem === "Campana"}
           onClick={() => goTo("Campana", "/admin/Campana")}
+        />
+
+        <SidebarItem
+          icon="settings"
+          label="configuracion"
+          active={activeItem === "configuracion"}
+          onClick={() => goTo("configuracion", "/admin/configuracion")}
         />
       </nav>
 

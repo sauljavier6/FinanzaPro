@@ -33,8 +33,6 @@ export default function Cartera({ onSuccess }: CarteraProps) {
   const pageSize = 10;
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
-  console.log(search)
-
   useEffect(() => {
     setPage(1);
   }, [search]);
@@ -153,57 +151,56 @@ export default function Cartera({ onSuccess }: CarteraProps) {
           </div>
 
           {/* Summary Cards */}
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-8">
-            {/* Card 1: Cartera Total */}
-            <div className="w-full sm:w-1/3 bg-white dark:bg-[#161b2a] p-6 sm:p-8 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm flex flex-col justify-between">
-              <div className="flex justify-between items-start">
-                <p className="text-[#4c669a] dark:text-gray-400 text-xs sm:text-sm font-medium uppercase tracking-wider">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 mb-8">
+            {/* Card 1 */}
+            <div className="bg-white dark:bg-[#161b2a] p-5 sm:p-6 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm min-w-0">
+              <div className="flex justify-between items-start gap-3">
+                <p className="text-[#4c669a] dark:text-gray-400 text-xs sm:text-sm font-medium uppercase tracking-wider break-words">
                   Cartera Total
                 </p>
-                <span className="material-symbols-outlined text-primary text-lg sm:text-xl">
+
+                <span className="material-symbols-outlined text-primary text-xl shrink-0">
                   account_balance
                 </span>
               </div>
-              <p className="text-red-500 dark:text-red-400 text-lg font-bold tracking-tight mt-3 sm:mt-4">
+
+              <p className="text-red-500 dark:text-red-400 text-xl sm:text-2xl font-bold tracking-tight mt-4 break-words">
                 {formatoMoneda.format(data?.totalPendiente || 0)}
               </p>
-              <div className="flex items-center gap-1 mt-2">
-
-              </div>
             </div>
-            {/* Card 2: Monto Vencido */}
-            <div className="w-full sm:w-1/3 bg-white dark:bg-[#161b2a] p-6 sm:p-8 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm flex flex-col justify-between">
-              <div className="flex justify-between items-start">
-                <p className="text-[#4c669a] dark:text-gray-400 text-xs sm:text-sm font-medium uppercase tracking-wider">
+
+            {/* Card 2 */}
+            <div className="bg-white dark:bg-[#161b2a] p-5 sm:p-6 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm min-w-0">
+              <div className="flex justify-between items-start gap-3">
+                <p className="text-[#4c669a] dark:text-gray-400 text-xs sm:text-sm font-medium uppercase tracking-wider break-words">
                   Monto Vencido
                 </p>
-                <span className="material-symbols-outlined text-orange-500 text-lg sm:text-xl">
+
+                <span className="material-symbols-outlined text-orange-500 text-xl shrink-0">
                   warning
                 </span>
               </div>
-              <p className="text-red-500 dark:text-red-400 text-lg font-bold tracking-tight mt-3 sm:mt-4">
+
+              <p className="text-red-500 dark:text-red-400 text-xl sm:text-2xl font-bold tracking-tight mt-4 break-words">
                 {formatoMoneda.format(data?.totalVencido || 0)}
               </p>
-              <div className="flex items-center gap-1 mt-2">
-
-              </div>
             </div>
-            {/* Card 3: Casos Críticos */}
-            <div className="w-full sm:w-1/3 bg-white dark:bg-[#161b2a] p-6 sm:p-8 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm flex flex-col justify-between">
-              <div className="flex justify-between items-start">
-                <p className="text-[#4c669a] dark:text-gray-400 text-xs sm:text-sm font-medium uppercase tracking-wider">
+
+            {/* Card 3 */}
+            <div className="bg-white dark:bg-[#161b2a] p-5 sm:p-6 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm min-w-0">
+              <div className="flex justify-between items-start gap-3">
+                <p className="text-[#4c669a] dark:text-gray-400 text-xs sm:text-sm font-medium uppercase tracking-wider break-words">
                   Casos Críticos
                 </p>
-                <span className="material-symbols-outlined text-red-600 text-lg sm:text-xl">
+
+                <span className="material-symbols-outlined text-red-600 text-xl shrink-0">
                   error
                 </span>
               </div>
-              <p className="text-red-500 dark:text-red-400 text-lg font-bold tracking-tight mt-3 sm:mt-4">
-                {data?.countVencidas}
-              </p>
-              <div className="flex items-center gap-1 mt-2">
 
-              </div>
+              <p className="text-red-500 dark:text-red-400 text-xl sm:text-2xl font-bold tracking-tight mt-4 break-words">
+                {data?.countVencidas || 0}
+              </p>
             </div>
           </div>
 
@@ -265,14 +262,6 @@ export default function Cartera({ onSuccess }: CarteraProps) {
           <div className="bg-white dark:bg-[#161b2a] border border-[#cfd7e7] dark:border-gray-800 rounded-xl overflow-hidden shadow-sm mb-10">
             <div className="sm:hidden divide-y divide-[#cfd7e7] dark:divide-gray-800">
               {dataTable?.data?.map((m: DataTable) => {
-
-                const initials = m.customer?.companyname
-                  ?.split(" ")
-                  .map((w) => w[0])
-                  .join("")
-                  .slice(0, 2)
-                  .toUpperCase();
-
                 return (
                   <div
                     key={m.id}
@@ -297,16 +286,12 @@ export default function Cartera({ onSuccess }: CarteraProps) {
 
                         {/* avatar + name */}
                         <div className="flex items-center gap-3">
-                          <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-                            {initials}
-                          </div>
-
                           <div className="flex flex-col leading-tight">
                             <span className="font-semibold text-sm text-[#0d121b] dark:text-white">
                               {m.customer?.companyname}
                             </span>
-                            <span className="text-xs text-[#6b7a99]">
-                              ID: {m.tranid}
+                            <span className="block text-xs text-[#6b7a99] break-all leading-snug max-w-full">
+                              {m.tranid}
                             </span>
                           </div>
                         </div>
@@ -511,79 +496,50 @@ export default function Cartera({ onSuccess }: CarteraProps) {
             </div>
 
             {/*  */}
-            <div className="p-4 border-t border-[#cfd7e7] dark:border-gray-800 bg-[#f8f9fc] dark:bg-gray-800/30 flex flex-col sm:flex-row items-center justify-between gap-2">
-              <p className="text-xs text-[#4c669a]">
-                Mostrando{" "}
-                <span className="font-bold text-[#0d121b] dark:text-white">
-                  {pageSize}
-                </span>{" "}
-                de{" "}
-                <span className="font-bold text-[#0d121b] dark:text-white">
-                  {dataTable?.pagination?.total}
-                </span>{" "}
-                facturas
+            <div className="px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-800/30 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between overflow-hidden">
+              <p className="text-sm text-gray-400 break-words">
+                Mostrando {dataTable?.pagination?.pageSize} de {dataTable?.pagination?.total} cliente(s)
               </p>
 
-              {/* BOTONES */}
-              <div className="flex gap-2 items-center overflow-x-auto">
-                {/* Anterior */}
+              <div className="flex flex-wrap gap-1.5 justify-end max-w-full overflow-hidden">
                 <button
-                  onClick={() => setPage((p) => Math.max(p - 1, 1))}
-                  disabled={currentPage === 1}
-                  className={`size-8 flex items-center justify-center rounded border ${currentPage === 1
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-[#e7ebf3]"
-                    }`}
+                  disabled={page === 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className="h-8 min-w-8 px-2 flex items-center justify-center rounded border shrink-0 text-gray-400 disabled:text-gray-300 disabled:cursor-not-allowed hover:bg-gray-100"
                 >
-                  <span className="material-symbols-outlined text-[18px]">
+                  <span className="material-symbols-outlined text-sm">
                     chevron_left
                   </span>
                 </button>
 
-                {/* Números */}
-                <div className="hidden sm:flex gap-2">
-                  {getPages().map((p) => (
-                    <button
-                      key={p}
-                      onClick={() => setPage(p)}
-                      className={`size-8 flex items-center justify-center rounded text-xs font-bold transition-colors
-                        ${p === currentPage
-                          ? "bg-primary text-white"
-                          : "bg-white dark:bg-gray-800 border border-[#cfd7e7] dark:border-gray-700 text-[#4c669a] hover:bg-[#e7ebf3]"
-                        }`}
-                    >
-                      {p}
-                    </button>
-                  ))}
-                </div>
+                {getPages().map((p: number | string, i) => (
+                  <button
+                    key={i}
+                    disabled={p === "..."}
+                    onClick={() => typeof p === "number" && setPage(p)}
+                    className={`h-8 min-w-8 px-2 flex items-center justify-center rounded border text-xs font-bold shrink-0 ${p === page
+                        ? "border-primary bg-primary text-white"
+                        : p === "..."
+                          ? "border-transparent text-gray-400 cursor-default"
+                          : "border-[#cfd7e7] text-gray-500 hover:bg-gray-100"
+                      }`}
+                  >
+                    {p}
+                  </button>
+                ))}
 
-                {/* Mobile */}
-                <div className="flex sm:hidden gap-1">
-                  <span className="size-8 flex items-center justify-center rounded bg-primary text-white font-bold text-xs px-2">
-                    {currentPage}
-                  </span>
-                </div>
-
-                {/* Siguiente */}
                 <button
-                  onClick={() =>
-                    setPage((p) => Math.min(p + 1, totalPages))
-                  }
-                  disabled={currentPage === totalPages}
-                  className={`size-8 flex items-center justify-center rounded border ${currentPage === totalPages
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-[#e7ebf3]"
-                    }`}
+                  disabled={page === totalPages}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  className="h-8 min-w-8 px-2 flex items-center justify-center rounded border shrink-0 text-gray-400 disabled:text-gray-300 disabled:cursor-not-allowed hover:bg-gray-100"
                 >
-                  <span className="material-symbols-outlined text-[18px]">
+                  <span className="material-symbols-outlined text-sm">
                     chevron_right
                   </span>
                 </button>
               </div>
-
             </div>
           </div>
-
         </div>
       </main>
     </div>

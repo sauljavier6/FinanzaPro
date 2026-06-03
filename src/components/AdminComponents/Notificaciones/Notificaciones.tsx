@@ -3,7 +3,7 @@ import { getNotificaciones, ReadAllNotificaciones, ReadNotificacionById } from "
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import dayjs from "../../../utils/dayjs";
-
+import { useQueryClient } from "@tanstack/react-query";
 
 interface NotificationStyles {
   icon: string;
@@ -29,6 +29,7 @@ export default function Notificaciones() {
   const [estado, setEstado] = useState<"" | "success" | "warning" | "danger" | "info">("");
   const [page] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const queryClient = useQueryClient();
 
   const { data, isFetching } = useQuery({
     queryKey: ["notificacionesadmin", page, pageSize, estado],
@@ -36,6 +37,8 @@ export default function Notificaciones() {
     refetchOnWindowFocus: false,
     placeholderData: (prev) => prev,
   });
+
+  console.log(data)
 
   const counts = (data?.countsByType || []).reduce(
     (acc: any, item: any) => {
@@ -50,17 +53,38 @@ export default function Notificaciones() {
   );
 
   const handleReadNotificationsById = async (id: number) => {
-    await ReadNotificacionById(id)
-  }
+    const data = await ReadNotificacionById(id);
+
+    if (data?.success) {
+      queryClient.invalidateQueries({
+        queryKey: ["notificacionesadmin"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["notificacionesadmincount"],
+      });
+    }
+  };
 
   const handleReadAllNotifications = async () => {
-    await ReadAllNotificaciones()
-  }
+    const data = await ReadAllNotificaciones();
+
+    if (data?.success) {
+      queryClient.invalidateQueries({
+        queryKey: ["notificacionesadmin"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["notificacionesadmincount"],
+      });
+    }
+
+    console.log(data);
+  };
 
   const formatRelativeTime = (date: string) => {
     return dayjs.utc(date).local().fromNow();
   };
-
 
   return (
     <div className="flex overflow-hidden">
@@ -252,13 +276,16 @@ export default function Notificaciones() {
                   {/* BUTTON */}
                   <div className="flex items-center w-full md:w-auto">
                     <button
-                      disabled={!(n.tipotransaccion === 1 || n.tipotransaccion === 2)}
+                      disabled={!(n.tipotransaccion === 1 || n.tipotransaccion === 2 || n.tipotransaccion === 4)}
                       onClick={() => {
                         if (n.tipotransaccion === 2) {
                           navigate(`/admin/facturas/${n.transaction}`);
                         }
                         if (n.tipotransaccion === 1) {
                           navigate(`/admin/pagos/${n.transaction}`);
+                        }
+                        if (n.tipotransaccion === 4) {
+                          navigate(`/admin/Campana`);
                         }
                         handleReadNotificationsById(n.id)
                       }}

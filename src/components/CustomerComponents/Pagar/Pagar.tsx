@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { getFacturas } from "../../../api/customerApis/FacturaApi";
 import { useParams } from "react-router-dom";
+import { formatoMoneda } from "../../../utils/formatMoneda";
 
 export default function Pagar() {
   const { id } = useParams();
@@ -25,8 +26,8 @@ export default function Pagar() {
 
   const totales = data?.total;
   const facturas = Array.isArray(data?.data)
-  ? data.data
-  : [];
+    ? data.data
+    : [];
 
   const [metodo, setMetodo] = useState<"tarjeta" | "transferencia" | "pse">(
     "tarjeta",
@@ -375,49 +376,61 @@ export default function Pagar() {
 
             {/* */}
             <div className="lg:col-span-1 space-y-6">
-              <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800 p-6 sticky top-24">
+              <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800 p-4 sm:p-6 sticky top-24 overflow-hidden">
                 <h3 className="text-lg font-bold mb-4 border-b border-gray-50 dark:border-gray-800 pb-2">
                   Resumen de Pago
                 </h3>
+
                 <div className="space-y-3 mb-6">
                   {facturas.map((factura: any) => (
                     <div
                       key={factura.id}
-                      className="flex justify-between items-center text-sm"
+                      className="flex justify-between items-start gap-3 text-sm min-w-0"
                     >
-                      <span className="text-gray-500">
+                      <span
+                        className="text-gray-500 min-w-0 flex-1 break-all"
+                        title={`Factura #${factura.tranid}`}
+                      >
                         Factura #{factura.tranid}
                       </span>
 
-                      <span className="font-medium">
-                        {factura.balance.toFixed(2)}
+                      <span className="font-medium shrink-0">
+                        {formatoMoneda.format(factura.balance || 0)}
                       </span>
                     </div>
                   ))}
-                  <div className="flex justify-between items-center text-sm">
+
+                  <div className="flex justify-between items-center gap-3 text-sm">
                     <span className="text-gray-500">Mora e Intereses</span>
-                    <span className="font-medium">$0</span>
+                    <span className="font-medium shrink-0">$0</span>
                   </div>
-                  <div className="flex justify-between items-center text-sm">
+
+                  <div className="flex justify-between items-center gap-3 text-sm">
                     <span className="text-gray-500">IVA</span>
-                    <span className="font-medium">${totales?.tax.toFixed(2)}</span>
-                  </div>
-                </div>
-                <div className="border-t border-dashed border-gray-200 dark:border-gray-700 pt-4 mb-6">
-                  <div className="flex justify-between items-center">
-                    <span className="text-base font-bold">Total a Pagar</span>
-                    <span className="text-2xl font-black text-primary">
-                      ${totales?.balance.toFixed(2)}
+                    <span className="font-medium shrink-0">
+                      {formatoMoneda.format(totales?.tax || 0)}
                     </span>
                   </div>
                 </div>
+
+                <div className="border-t border-dashed border-gray-200 dark:border-gray-700 pt-4 mb-6">
+                  <div className="flex justify-between items-center gap-3 min-w-0">
+                    <span className="text-base font-bold shrink-0">Total a Pagar</span>
+
+                    <span className="text-xl sm:text-2xl font-black text-primary break-all text-right">
+                      {formatoMoneda.format(totales?.balance || 0)}
+                    </span>
+                  </div>
+                </div>
+
                 <button className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2">
                   <span className="material-symbols-outlined">payments</span>
                   Confirmar y Pagar
                 </button>
+
                 <p className="text-center text-[10px] text-gray-400 mt-4 leading-relaxed">
-                  Al hacer clic en "Confirmar y Pagar", aceptas nuestros
-                  términos y condiciones y autorizas el débito de los fondos.
+                  Al hacer clic en "Confirmar y Pagar", aceptas nuestros términos y condiciones
+                  y autorizas el débito de los fondos.
                 </p>
               </div>
 
@@ -438,6 +451,7 @@ export default function Pagar() {
               </div>
             </div>
           </div>
+
         </div>
       </main>
     </div>
