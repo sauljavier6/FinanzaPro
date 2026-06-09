@@ -3,6 +3,7 @@ import { formatDate } from "../../../utils/formatDate";
 import { formatoMoneda } from "../../../utils/formatMoneda";
 import { getPaymentById } from "../../../api/AdminApis/pagosApi";
 import { Link, useNavigate } from "react-router-dom";
+import { useRoles } from "../../../hooks/useRoles";
 
 interface FacturaProps {
     paymentId: number;
@@ -30,6 +31,7 @@ interface PaymentApplication {
 }
 
 export default function PagoDetails({ paymentId, onBack }: FacturaProps) {
+    const { hasRole } = useRoles();
     const navigate = useNavigate();
 
     const { data } = useQuery({
@@ -411,12 +413,14 @@ export default function PagoDetails({ paymentId, onBack }: FacturaProps) {
                                             {info?.estatus}
                                         </span>
                                     </div>
-                                    <button className="w-full bg-white text-primary font-bold py-3 sm:py-3.5 rounded-xl hover:bg-gray-100 transition-all duration-200 flex items-center justify-center gap-2 mt-4 text-sm sm:text-base active:scale-[0.98]">
-                                        <span className="material-symbols-outlined text-lg">
-                                            send
-                                        </span>
-                                        Enviar Estado de Cuenta
-                                    </button>
+                                    {hasRole(1, 2) && (
+                                        <button className="w-full bg-white text-primary font-bold py-3 sm:py-3.5 rounded-xl hover:bg-gray-100 transition-all duration-200 flex items-center justify-center gap-2 mt-4 text-sm sm:text-base active:scale-[0.98]">
+                                            <span className="material-symbols-outlined text-lg">
+                                                send
+                                            </span>
+                                            Enviar Comprobante
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>

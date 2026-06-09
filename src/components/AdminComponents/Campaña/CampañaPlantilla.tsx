@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { createCampana, getCampanaById, sendNotificacionTest, updateCampana } from "../../../api/AdminApis/campanaApi";
+import { useRoles } from "../../../hooks/useRoles";
 
 interface CampaignProps {
   campanaId?: number | null;
@@ -7,6 +8,7 @@ interface CampaignProps {
 }
 
 export default function CampañaPlantilla({ onBack, campanaId }: CampaignProps) {
+  const { hasRole } = useRoles();
   const [canalPreview, setCanalPreview] = useState("whatsapp");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -163,6 +165,7 @@ export default function CampañaPlantilla({ onBack, campanaId }: CampaignProps) 
   return (
     <div className="flex overflow-hiddenq">
       <main className="flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark">
+        {hasRole(1, 2) && (
         <div className="p-3 sm:p-8">
 
           <div className="flex flex-wrap gap-2 mb-2">
@@ -495,7 +498,9 @@ export default function CampañaPlantilla({ onBack, campanaId }: CampaignProps) 
             </div>
 
           </div>
+
         </div>
+        )}
       </main>
     </div>
   );

@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getdatacartera, getdatacarteraTable } from "../../../api/AdminApis/carteraApi";
 import { useEffect, useState } from "react";
 import { formatoMoneda } from "../../../utils/formatMoneda";
+import { useRoles } from "../../../hooks/useRoles";
 
 interface Customer {
   id: string;
@@ -27,6 +28,7 @@ interface CarteraProps {
 }
 
 export default function Cartera({ onSuccess }: CarteraProps) {
+  const { hasRole } = useRoles();
   const [search, setSearch] = useState("");
   const [estado, setEstado] = useState<"Todos" | "Pagado" | "Vigente" | "Critico">("Todos");
   const [page, setPage] = useState(1);
@@ -141,12 +143,14 @@ export default function Cartera({ onSuccess }: CarteraProps) {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-              <button className="flex items-center justify-center gap-2 rounded-lg h-11 px-6 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all w-full sm:w-auto">
-                <span className="material-symbols-outlined text-[20px]">
-                  campaign
-                </span>
-                <span>Enviar recordatorio masivo</span>
-              </button>
+              {hasRole(1, 2) && (
+                <button className="flex items-center justify-center gap-2 rounded-lg h-11 px-6 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all w-full sm:w-auto">
+                  <span className="material-symbols-outlined text-[20px]">
+                    campaign
+                  </span>
+                  <span>Enviar recordatorio masivo</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -270,19 +274,18 @@ export default function Cartera({ onSuccess }: CarteraProps) {
                       : "bg-white dark:bg-[#161b2a]"
                       }`}
                   >
-
                     {/* HEADER */}
                     <div className="flex justify-between items-start mb-3">
-
                       <div className="flex items-start gap-3">
-
                         {/* checkbox */}
-                        <input
-                          type="checkbox"
-                          checked={selectedIds.includes(m.id)}
-                          onChange={() => handleSelect(m.id)}
-                          className="mt-1 w-4 h-4 accent-primary cursor-pointer"
-                        />
+                        {hasRole(1, 2) && (
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.includes(m.id)}
+                            onChange={() => handleSelect(m.id)}
+                            className="mt-1 w-4 h-4 accent-primary cursor-pointer"
+                          />
+                        )}
 
                         {/* avatar + name */}
                         <div className="flex items-center gap-3">
@@ -300,11 +303,13 @@ export default function Cartera({ onSuccess }: CarteraProps) {
 
                       {/* acciones */}
                       <div className="flex gap-1">
-                        <button className="p-2 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all">
-                          <span className="material-symbols-outlined text-[18px]">
-                            send
-                          </span>
-                        </button>
+                        {hasRole(1, 2) && (
+                          <button className="p-2 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all">
+                            <span className="material-symbols-outlined text-[18px]">
+                              send
+                            </span>
+                          </button>
+                        )}
 
                         <button
                           onClick={() => onSuccess(m.id)}
@@ -320,7 +325,6 @@ export default function Cartera({ onSuccess }: CarteraProps) {
 
                     {/* DATA */}
                     <div className="space-y-1 text-sm">
-
                       <div className="flex justify-between">
                         <span className="text-[#4c669a]">Monto Total</span>
                         <span className="font-semibold">
@@ -409,12 +413,14 @@ export default function Cartera({ onSuccess }: CarteraProps) {
 
                         {/* checkbox */}
                         <td className="px-2 py-3 text-center">
-                          <input
-                            type="checkbox"
-                            checked={selectedIds.includes(m.id)}
-                            onChange={() => handleSelect(m.id)}
-                            className="w-4 h-4 accent-primary cursor-pointer"
-                          />
+                          {hasRole(1, 2) && (
+                            <input
+                              type="checkbox"
+                              checked={selectedIds.includes(m.id)}
+                              onChange={() => handleSelect(m.id)}
+                              className="w-4 h-4 accent-primary cursor-pointer"
+                            />
+                          )}
                         </td>
 
                         {/* Cliente */}
@@ -470,11 +476,13 @@ export default function Cartera({ onSuccess }: CarteraProps) {
                         <td className="px-3 py-3 text-right">
                           <div className="flex justify-end gap-1">
 
-                            <button className="p-2 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all">
-                              <span className="material-symbols-outlined text-[18px]">
-                                send
-                              </span>
-                            </button>
+                            {hasRole(1, 2) && (
+                              <button className="p-2 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all">
+                                <span className="material-symbols-outlined text-[18px]">
+                                  send
+                                </span>
+                              </button>
+                            )}
 
                             <button
                               onClick={() => onSuccess(m.id)}
@@ -518,10 +526,10 @@ export default function Cartera({ onSuccess }: CarteraProps) {
                     disabled={p === "..."}
                     onClick={() => typeof p === "number" && setPage(p)}
                     className={`h-8 min-w-8 px-2 flex items-center justify-center rounded border text-xs font-bold shrink-0 ${p === page
-                        ? "border-primary bg-primary text-white"
-                        : p === "..."
-                          ? "border-transparent text-gray-400 cursor-default"
-                          : "border-[#cfd7e7] text-gray-500 hover:bg-gray-100"
+                      ? "border-primary bg-primary text-white"
+                      : p === "..."
+                        ? "border-transparent text-gray-400 cursor-default"
+                        : "border-[#cfd7e7] text-gray-500 hover:bg-gray-100"
                       }`}
                   >
                     {p}

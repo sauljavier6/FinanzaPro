@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import SidebarItem from "./SidebarItem";
 import UserProfile from "./UserProfile";
+import { useRoles } from "../../hooks/useRoles";
 
 export default function Sidebar() {
+  const { hasRole } = useRoles();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -78,6 +80,7 @@ export default function Sidebar() {
       </div>
 
       {/* Menu */}
+      {hasRole(1, 2, 3 ) && (
       <nav className="flex-1 px-4 py-4 space-y-1">
         <SidebarItem
           icon="dashboard"
@@ -131,12 +134,14 @@ export default function Sidebar() {
           onClick={() => goTo("Notificaciones", "/admin/notificaciones")}
         />
 
-        <SidebarItem
-          icon="campaign"
-          label="Campañas de cobranza"
-          active={activeItem === "Campana"}
-          onClick={() => goTo("Campana", "/admin/Campana")}
-        />
+        {hasRole(1, 2 ) && (
+          <SidebarItem
+            icon="campaign"
+            label="Campañas de cobranza"
+            active={activeItem === "Campana"}
+            onClick={() => goTo("Campana", "/admin/Campana")}
+          />
+        )}
 
         <SidebarItem
           icon="settings"
@@ -145,6 +150,7 @@ export default function Sidebar() {
           onClick={() => goTo("configuracion", "/admin/configuracion")}
         />
       </nav>
+      )}
 
       <UserProfile />
     </aside>

@@ -49,8 +49,6 @@ export default function Clientes({ onSelectCliente }: ClientProps) {
     placeholderData: (prev) => prev,
   });
 
-  console.log('data', data)
-
   const dataTabla = data?.clients
   const currentPage = data?.page || 1;
   const totalPages = data?.totalPages || 0;
@@ -340,11 +338,6 @@ export default function Clientes({ onSelectCliente }: ClientProps) {
 
                       <td className="px-4 lg:px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <button className="p-2 text-slate-400 hover:text-primary transition-colors">
-                            <span className="material-symbols-outlined text-[20px]">
-                              mail
-                            </span>
-                          </button>
                           <button onClick={() => onSelectCliente(row.id)} className="p-2 text-slate-400 hover:text-primary transition-colors">
                             <span className="material-symbols-outlined text-[20px]">
                               visibility

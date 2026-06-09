@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getInvoiceById, getPdfById } from "../../../api/AdminApis/facturaApi";
 import { formatDate } from "../../../utils/formatDate";
 import { formatoMoneda } from "../../../utils/formatMoneda";
-import { useNavigate } from "react-router-dom";
+//import { useNavigate } from "react-router-dom";
+import { useRoles } from "../../../hooks/useRoles";
 
 interface FacturaProps {
   facturaId: number;
@@ -55,7 +56,8 @@ interface PaymentApplication {
 }
 
 export default function Factura({ facturaId, onBack }: FacturaProps) {
-  const navigate = useNavigate();
+  const { hasRole } = useRoles();
+  //const navigate = useNavigate();
 
   const { data } = useQuery({
     queryKey: ["dashboarAdminClientes", facturaId],
@@ -178,21 +180,6 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
                 </span>
               </p>
             </div>
-
-            {Number(cabecera?.balance || 0) > 0 && (
-              <div className="w-full lg:w-fit">
-                <button onClick={() => { navigate(`/clientes/pagar/${facturaId}`) }}
-
-                  className="w-full md:w-auto shrink-0 flex items-center justify-center rounded-lg h-10 bg-primary text-white gap-2 text-sm font-bold px-4 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors">
-                  <span className="material-symbols-outlined text-[20px]">
-                    account_balance_wallet
-                  </span>
-                  <span className="whitespace-nowrap">
-                    Ir a Pagar
-                  </span>
-                </button>
-              </div>
-            )}
           </div>
 
           {/*  */}
@@ -671,12 +658,14 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
                       {info?.estatus}
                     </span>
                   </div>
-                  <button className="w-full bg-white text-primary font-bold py-3 sm:py-3.5 rounded-xl hover:bg-gray-100 transition-all duration-200 flex items-center justify-center gap-2 mt-4 text-sm sm:text-base active:scale-[0.98]">
-                    <span className="material-symbols-outlined text-lg">
-                      send
-                    </span>
-                    Enviar Estado de Cuenta
-                  </button>
+                  {hasRole(1, 2) && (
+                    <button className="w-full bg-white text-primary font-bold py-3 sm:py-3.5 rounded-xl hover:bg-gray-100 transition-all duration-200 flex items-center justify-center gap-2 mt-4 text-sm sm:text-base active:scale-[0.98]">
+                      <span className="material-symbols-outlined text-lg">
+                        send
+                      </span>
+                      Enviar Factura
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

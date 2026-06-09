@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { getCampanas, updateEstado } from "../../../api/AdminApis/campanaApi";
 import { useQueryClient } from "@tanstack/react-query";
+import { useRoles } from "../../../hooks/useRoles";
 
 export interface Campaign {
   ID_Campaign: number;
@@ -23,6 +24,7 @@ interface CampaignProps {
 }
 
 export default function CampañaList({ onCreate, onUpdate }: CampaignProps) {
+  const { hasRole } = useRoles();
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const pageSize = 10;
@@ -68,6 +70,7 @@ export default function CampañaList({ onCreate, onUpdate }: CampaignProps) {
   return (
     <div className="flex overflow-hiddenq">
       <main className="flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark">
+        {hasRole(1, 2) && (
         <div className="p-3 sm:p-8">
           {/* Page Title and Actions */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
@@ -79,6 +82,7 @@ export default function CampañaList({ onCreate, onUpdate }: CampaignProps) {
                 Defina el flujo de comunicación automático para contactar a sus clientes según su estado de deuda.
               </p>
             </div>
+            
             <button onClick={() => onCreate(true)} className="bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-lg flex items-center gap-2 transition-transform active:scale-95 shadow-lg shadow-primary/20">
               <span className="material-symbols-outlined">add_circle</span>
               <span>Crear Nueva Regla</span>
@@ -235,6 +239,7 @@ export default function CampañaList({ onCreate, onUpdate }: CampaignProps) {
 
           </div>
         </div>
+        )}
       </main>
     </div>
   );

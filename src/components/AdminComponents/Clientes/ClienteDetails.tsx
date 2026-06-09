@@ -3,6 +3,7 @@ import { getdataCustomersInfoById, getinvoicesInfoById } from "../../../api/Admi
 import { useState } from "react";
 import { formatoMoneda } from "../../../utils/formatMoneda";
 import { useNavigate } from "react-router-dom";
+import { useRoles } from "../../../hooks/useRoles";
 
 interface CustomerInvoice {
     id: string;
@@ -55,6 +56,7 @@ interface ClientDetailsProps {
 
 
 export default function ClienteDetail({ clienteId, onClose }: ClientDetailsProps) {
+    const { hasRole } = useRoles();
     const navigate = useNavigate();
     const [page, setPage] = useState(1);
     const pageSize = 10;
@@ -72,8 +74,6 @@ export default function ClienteDetail({ clienteId, onClose }: ClientDetailsProps
         refetchOnWindowFocus: false,
         placeholderData: (prev) => prev,
     });
-
-    console.log('dataaaaaaaaaaaaa', data)
 
     const info = data?.info
     const customer = data?.customer
@@ -633,12 +633,14 @@ export default function ClienteDetail({ clienteId, onClose }: ClientDetailsProps
 
                                         </span>
                                     </div>
-                                    <button className="w-full bg-white text-primary font-bold py-3 sm:py-3.5 rounded-xl hover:bg-gray-100 transition-all duration-200 flex items-center justify-center gap-2 mt-4 text-sm sm:text-base active:scale-[0.98]">
-                                        <span className="material-symbols-outlined text-lg">
-                                            send
-                                        </span>
-                                        Enviar Estado de Cuenta
-                                    </button>
+                                    {hasRole(1, 2) && (
+                                        <button className="w-full bg-white text-primary font-bold py-3 sm:py-3.5 rounded-xl hover:bg-gray-100 transition-all duration-200 flex items-center justify-center gap-2 mt-4 text-sm sm:text-base active:scale-[0.98]">
+                                            <span className="material-symbols-outlined text-lg">
+                                                send
+                                            </span>
+                                            Enviar Estado de Cuenta
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>
