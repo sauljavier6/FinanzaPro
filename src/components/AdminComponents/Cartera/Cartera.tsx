@@ -3,6 +3,8 @@ import { getdatacartera, getdatacarteraTable } from "../../../api/AdminApis/cart
 import { useEffect, useState } from "react";
 import { formatoMoneda } from "../../../utils/formatMoneda";
 import { useRoles } from "../../../hooks/useRoles";
+import Swal from "sweetalert2";
+import { sendNotificacion, sendNotificaciones } from "../../../api/AdminApis/NotificacionesApi";
 
 interface Customer {
   id: string;
@@ -52,6 +54,8 @@ export default function Cartera({ onSuccess }: CarteraProps) {
     },
   });
 
+  console.log('data', data)
+
   const { data: dataTable } = useQuery({
     queryKey: ["dashboarAdminClientes", page, pageSize, estado, search],
     queryFn: () => getdatacarteraTable(page, pageSize, estado, search),
@@ -80,18 +84,7 @@ export default function Cartera({ onSuccess }: CarteraProps) {
     return pages;
   };
 
-  const getDiasAtraso = (fecha?: string) => {
-    if (!fecha) return 0;
-
-    const hoy = new Date().getTime();
-    const vencimiento = new Date(fecha).getTime();
-
-    return Math.max(0, Math.floor((hoy - vencimiento) / (1000 * 60 * 60 * 24)));
-  };
-
   const getPaymentStatus = (balance: number, duedate?: string) => {
-    const dias = getDiasAtraso(duedate);
-
     if (balance === 0) {
       return {
         label: "Pagado",
@@ -99,23 +92,22 @@ export default function Cartera({ onSuccess }: CarteraProps) {
       };
     }
 
-    if (dias >= 0 && dias <= 30) {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    const fechaVencimiento = new Date(duedate || "");
+    fechaVencimiento.setHours(0, 0, 0, 0);
+
+    if (fechaVencimiento >= hoy) {
       return {
         label: "Vigente",
         className: "bg-orange-50 text-orange-600 border-orange-200",
       };
     }
 
-    if (dias > 30) {
-      return {
-        label: "Crítico",
-        className: "bg-red-50 text-red-600 border-red-200",
-      };
-    }
-
     return {
-      label: "Vigente",
-      className: "bg-orange-50 text-orange-600 border-orange-200",
+      label: "Crítico",
+      className: "bg-red-50 text-red-600 border-red-200",
     };
   };
 
@@ -125,6 +117,96 @@ export default function Cartera({ onSuccess }: CarteraProps) {
         ? prev.filter((i) => i !== id) // quitar
         : [...prev, id] // agregar
     );
+  };
+
+  const handleSendRecordatorio = async (id: number) => {
+    try {
+      Swal.fire({
+        title: "Enviando recordatorio...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      const send = await sendNotificacion(id);
+
+      Swal.close();
+
+      if (send?.success) {
+        Swal.fire({
+          icon: "success",
+          title: "Correo enviado",
+          text: send.message || "Recordatorio enviado correctamente",
+        });
+      } else {
+        Swal.fire({
+          icon: "warning",
+          title: "Atención",
+          text: send?.message || "No fue posible enviar el recordatorio",
+        });
+      }
+    } catch (error: any) {
+      Swal.close();
+
+      console.error(error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text:
+          error?.response?.data?.message ||
+          error?.message ||
+          "Error al enviar recordatorio",
+      });
+    }
+  };
+
+  const handleSendRecordatoriosMasivo = async () => {
+    try {
+      if (!selectedIds.length) {
+        return Swal.fire({
+          icon: "warning",
+          title: "Selecciona facturas",
+          text: "Debes seleccionar al menos una factura",
+        });
+      }
+
+      Swal.fire({
+        title: "Enviando recordatorios...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      const send = await sendNotificaciones(selectedIds);
+
+      Swal.close();
+
+      if (send?.success) {
+        Swal.fire({
+          icon: "success",
+          title: "Recordatorios enviados",
+          text: send.message || "Recordatorios enviados correctamente",
+        });
+      } else {
+        Swal.fire({
+          icon: "warning",
+          title: "Atención",
+          text: send?.message || "No fue posible enviar los recordatorios",
+        });
+      }
+    } catch (error: any) {
+      Swal.close();
+
+      console.error(error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text:
+          error?.response?.data?.message ||
+          error?.message ||
+          "Error al enviar recordatorios",
+      });
+    }
   };
 
   return (
@@ -144,7 +226,7 @@ export default function Cartera({ onSuccess }: CarteraProps) {
 
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               {hasRole(1, 2) && (
-                <button className="flex items-center justify-center gap-2 rounded-lg h-11 px-6 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all w-full sm:w-auto">
+                <button onClick={handleSendRecordatoriosMasivo} className="flex items-center justify-center gap-2 rounded-lg h-11 px-6 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all w-full sm:w-auto">
                   <span className="material-symbols-outlined text-[20px]">
                     campaign
                   </span>
@@ -304,7 +386,7 @@ export default function Cartera({ onSuccess }: CarteraProps) {
                       {/* acciones */}
                       <div className="flex gap-1">
                         {hasRole(1, 2) && (
-                          <button className="p-2 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all">
+                          <button onClick={() => handleSendRecordatorio(m.id)} className="p-2 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all">
                             <span className="material-symbols-outlined text-[18px]">
                               send
                             </span>
@@ -477,7 +559,7 @@ export default function Cartera({ onSuccess }: CarteraProps) {
                           <div className="flex justify-end gap-1">
 
                             {hasRole(1, 2) && (
-                              <button className="p-2 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all">
+                              <button onClick={() => handleSendRecordatorio(m.id)} className="p-2 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all">
                                 <span className="material-symbols-outlined text-[18px]">
                                   send
                                 </span>

@@ -4,6 +4,8 @@ import { formatDate } from "../../../utils/formatDate";
 import { formatoMoneda } from "../../../utils/formatMoneda";
 //import { useNavigate } from "react-router-dom";
 import { useRoles } from "../../../hooks/useRoles";
+import Swal from "sweetalert2";
+import { sendFactura } from "../../../api/AdminApis/NotificacionesApi";
 
 interface FacturaProps {
   facturaId: number;
@@ -136,6 +138,47 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
     link.remove();
 
     window.URL.revokeObjectURL(url);
+  };
+
+  const handleSendFactura = async () => {
+    try {
+      Swal.fire({
+        title: "Enviando recordatorio...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      const send = await sendFactura(facturaId);
+
+      Swal.close();
+
+      if (send?.success) {
+        Swal.fire({
+          icon: "success",
+          title: "Correo enviado",
+          text: send.message || "Recordatorio enviado correctamente",
+        });
+      } else {
+        Swal.fire({
+          icon: "warning",
+          title: "Atención",
+          text: send?.message || "No fue posible enviar el recordatorio",
+        });
+      }
+    } catch (error: any) {
+      Swal.close();
+
+      console.error(error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text:
+          error?.response?.data?.message ||
+          error?.message ||
+          "Error al enviar recordatorio",
+      });
+    }
   };
 
   return (
@@ -659,7 +702,7 @@ export default function Factura({ facturaId, onBack }: FacturaProps) {
                     </span>
                   </div>
                   {hasRole(1, 2) && (
-                    <button className="w-full bg-white text-primary font-bold py-3 sm:py-3.5 rounded-xl hover:bg-gray-100 transition-all duration-200 flex items-center justify-center gap-2 mt-4 text-sm sm:text-base active:scale-[0.98]">
+                    <button onClick={handleSendFactura} className="w-full bg-white text-primary font-bold py-3 sm:py-3.5 rounded-xl hover:bg-gray-100 transition-all duration-200 flex items-center justify-center gap-2 mt-4 text-sm sm:text-base active:scale-[0.98]">
                       <span className="material-symbols-outlined text-lg">
                         send
                       </span>

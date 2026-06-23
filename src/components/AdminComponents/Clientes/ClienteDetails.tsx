@@ -4,6 +4,8 @@ import { useState } from "react";
 import { formatoMoneda } from "../../../utils/formatMoneda";
 import { useNavigate } from "react-router-dom";
 import { useRoles } from "../../../hooks/useRoles";
+import Swal from "sweetalert2";
+import { sendEstadocuentas } from "../../../api/AdminApis/NotificacionesApi";
 
 interface CustomerInvoice {
     id: string;
@@ -115,6 +117,55 @@ export default function ClienteDetail({ clienteId, onClose }: ClientDetailsProps
         },
         { amount: 0, paid: 0, balance: 0 }
     );
+
+    const handleSendEstadoCuentas = async () => {
+        try {
+            if (!clienteId) {
+                return Swal.fire({
+                    icon: "warning",
+                    title: "Cliente inválido",
+                    text: "No se encontró el ID del cliente",
+                });
+            }
+
+            Swal.fire({
+                title: "Enviando estado de cuenta...",
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading(),
+            });
+
+            const send = await sendEstadocuentas(clienteId);
+
+            Swal.close();
+
+            if (send?.success) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Estado de cuenta enviado",
+                    text: send.message || "Estado de cuenta enviado correctamente",
+                });
+            } else {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Atención",
+                    text: send?.message || "No fue posible enviar el estado de cuenta",
+                });
+            }
+        } catch (error: any) {
+            Swal.close();
+
+            console.error(error);
+
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text:
+                    error?.response?.data?.message ||
+                    error?.message ||
+                    "Error al enviar estado de cuenta",
+            });
+        }
+    };
 
     return (
         <div className="flex overflow-hidden">
@@ -634,7 +685,7 @@ export default function ClienteDetail({ clienteId, onClose }: ClientDetailsProps
                                         </span>
                                     </div>
                                     {hasRole(1, 2) && (
-                                        <button className="w-full bg-white text-primary font-bold py-3 sm:py-3.5 rounded-xl hover:bg-gray-100 transition-all duration-200 flex items-center justify-center gap-2 mt-4 text-sm sm:text-base active:scale-[0.98]">
+                                        <button onClick={handleSendEstadoCuentas} className="w-full bg-white text-primary font-bold py-3 sm:py-3.5 rounded-xl hover:bg-gray-100 transition-all duration-200 flex items-center justify-center gap-2 mt-4 text-sm sm:text-base active:scale-[0.98]">
                                             <span className="material-symbols-outlined text-lg">
                                                 send
                                             </span>

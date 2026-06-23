@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getdataCustomers, getdataCustomersInfo } from "../../../api/AdminApis/clientesApi";
 import { useState } from "react";
+import { formatoMoneda } from "../../../utils/formatMoneda";
 
 export interface Client {
   id: number;
@@ -31,7 +32,7 @@ interface ClientProps {
 
 export default function Clientes({ onSelectCliente }: ClientProps) {
   const [search, setSearch] = useState("");
-  const [estado, setEstado] = useState<"Todos" | "Pagado" | "Vigente" | "Crítico">("Todos");
+  const [estado, setEstado] = useState<"Todos" | "Pagado" | "Con Saldo">("Todos");
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
@@ -52,6 +53,7 @@ export default function Clientes({ onSelectCliente }: ClientProps) {
   const dataTabla = data?.clients
   const currentPage = data?.page || 1;
   const totalPages = data?.totalPages || 0;
+
 
   const getPages = () => {
     const pages = [];
@@ -172,7 +174,7 @@ export default function Clientes({ onSelectCliente }: ClientProps) {
                 </span>
 
                 <div className="flex flex-wrap bg-slate-100 dark:bg-gray-800 p-1 rounded-xl">
-                  {["Todos", "Pagado", "Vigente", "Critico"].map((e) => (
+                  {["Todos", "Pagado", "Con Saldo"].map((e) => (
                     <button
                       key={e}
                       className={`px-4 py-1.5 text-xs font-bold rounded-lg whitespace-nowrap
@@ -213,9 +215,9 @@ export default function Clientes({ onSelectCliente }: ClientProps) {
                       <p className="text-slate-400 text-xs uppercase font-bold">
                         Saldo
                       </p>
-                      <p className="font-bold">${row.saldoPendiente.toFixed(2)}</p>
+                      <p className="font-bold">{formatoMoneda.format(row.balance || 0)}</p>
                       <p className="text-[10px] text-slate-400 uppercase font-bold">
-                        {row.facturasPendiente} facturas pendientes
+                         facturas pendientes
                       </p>
                     </div>
 
@@ -313,9 +315,9 @@ export default function Clientes({ onSelectCliente }: ClientProps) {
                       </td>
 
                       <td className="px-4 lg:px-6 py-4">
-                        <p className="text-sm font-bold truncate">${row.saldoPendiente.toFixed(2)}</p>
+                        <p className="text-sm font-bold truncate">{formatoMoneda.format(row.balance || 0)}</p>
                         <p className="text-[10px] text-slate-400 font-bold uppercase truncate">
-                          {row.facturasPendiente} facturas pendientes
+                           facturas pendientes
                         </p>
                       </td>
 

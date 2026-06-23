@@ -121,6 +121,22 @@ export default function Dashboar() {
             {/* Card */}
             <div className="w-full bg-white dark:bg-[#161b2a] p-3 sm:p-4 lg:p-6 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
               <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <span className="p-2 bg-green-50 dark:bg-green-900/20 text-green-600 rounded-xl material-symbols-outlined text-lg sm:text-xl lg:text-2xl">
+                  check_circle
+                </span>
+                <span className="text-[10px] sm:text-xs font-bold text-green-600 bg-green-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full dark:bg-green-900/20">
+                  {data?.countFacturasmes}
+                </span>
+              </div>
+              <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-[#4c669a] mb-1 sm:mb-1.5">
+                Total Facturas (Mes)
+              </p>
+              <p className="text-md lg:2xl font-extrabold">
+                {formatoMoneda.format(data?.totalFacturadoMesNum || 0)}
+              </p>
+            </div>
+            <div className="w-full bg-white dark:bg-[#161b2a] p-3 sm:p-4 lg:p-6 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <span className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-xl material-symbols-outlined text-lg sm:text-xl lg:text-2xl">
                   account_balance_wallet
                 </span>
@@ -149,22 +165,6 @@ export default function Dashboar() {
               </p>
               <p className="text-md lg:2xl font-extrabold text-red-600">
                 {formatoMoneda.format(data?.totalVencido || 0)}
-              </p>
-            </div>
-            <div className="w-full bg-white dark:bg-[#161b2a] p-3 sm:p-4 lg:p-6 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
-              <div className="flex items-center justify-between mb-3 sm:mb-4">
-                <span className="p-2 bg-green-50 dark:bg-green-900/20 text-green-600 rounded-xl material-symbols-outlined text-lg sm:text-xl lg:text-2xl">
-                  check_circle
-                </span>
-                <span className="text-[10px] sm:text-xs font-bold text-green-600 bg-green-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full dark:bg-green-900/20">
-                  {data?.porcentajeRecuperado}%
-                </span>
-              </div>
-              <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-[#4c669a] mb-1 sm:mb-1.5">
-                Recuperado (Mes)
-              </p>
-              <p className="text-md lg:2xl font-extrabold">
-                {formatoMoneda.format(data?.recuperadoMes || 0)}
               </p>
             </div>
             <div className="w-full bg-white dark:bg-[#161b2a] p-3 sm:p-4 lg:p-6 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">

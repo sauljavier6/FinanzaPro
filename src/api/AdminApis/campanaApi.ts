@@ -3,12 +3,14 @@ import { apiRequest, setAccessToken } from "../api";
 export interface CampaignData {
   nombre: string;
   canal: number;
+  template: string;
   asunto: string;
   estado: number;
   diasatraso: number;
   repetirpor: number;
   repetircada: number;
   mensaje: string;
+  customers: number[];
 }
 
 export const createCampana = async (data: CampaignData) => {
@@ -78,6 +80,7 @@ export const updateCampana = async (id: number, data: CampaignData) => {
 export interface sendNotificacionTestData {
   nombre: string;
   canal: number;
+  template: string;
   asunto: string;
   estado: number;
   diasatraso: number;
@@ -99,5 +102,14 @@ export const sendNotificacionTest = async (data: sendNotificacionTestData) => {
     setAccessToken(res.accessToken);
   }
 
+  return res;
+};
+
+export const getCustomerSearch = async (search: string) => {
+  const res = await apiRequest(`/admin/campanas/search?search=${search}`, {
+    method: "GET",
+  });
+
+  setAccessToken(res.accessToken);
   return res;
 };
