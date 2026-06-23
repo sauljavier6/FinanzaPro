@@ -54,14 +54,14 @@ export default function Cartera({ onSuccess }: CarteraProps) {
     },
   });
 
-  console.log('data', data)
-
   const { data: dataTable } = useQuery({
     queryKey: ["dashboarAdminClientes", page, pageSize, estado, search],
     queryFn: () => getdatacarteraTable(page, pageSize, estado, search),
     refetchOnWindowFocus: false,
     placeholderData: (prev) => prev,
   });
+
+  console.log(dataTable)
 
   const currentPage = dataTable?.pagination?.page || 1;
   const totalPages = dataTable?.pagination?.totalPages || 0;
@@ -588,7 +588,7 @@ export default function Cartera({ onSuccess }: CarteraProps) {
             {/*  */}
             <div className="px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-800/30 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between overflow-hidden">
               <p className="text-sm text-gray-400 break-words">
-                Mostrando {dataTable?.pagination?.pageSize} de {dataTable?.pagination?.total} cliente(s)
+                Mostrando {dataTable?.data?.length} de {dataTable?.pagination?.total} cliente(s)
               </p>
 
               <div className="flex flex-wrap gap-1.5 justify-end max-w-full overflow-hidden">
