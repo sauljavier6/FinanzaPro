@@ -109,7 +109,7 @@ export default function Reporte() {
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 xl:gap-6 mb-8">
             <div className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-card-border dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                Total facturado mes anterior
+                Total facturado (Mes anterior)
               </p>
 
               <div className="flex items-end justify-between gap-4">
@@ -138,7 +138,7 @@ export default function Reporte() {
 
             <div className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-card-border dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                Recuperación de Mora mes anterior
+                Recuperación de Mora (Mes anterior)
               </p>
 
               <div className="flex items-end justify-between gap-4">
@@ -234,7 +234,7 @@ export default function Reporte() {
 
             <div className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-card-border dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                Recuperación de Mora mes anterior
+                Recuperación de Mora (Mes actual)
               </p>
 
               <div className="flex items-end justify-between gap-4">
