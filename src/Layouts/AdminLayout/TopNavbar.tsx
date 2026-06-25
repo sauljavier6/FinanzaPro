@@ -183,7 +183,7 @@ export default function TopNavbar({ onMenuClick }: TopNavbarProps) {
                     setOpen(true);
                   }}
                   className="w-full bg-slate-100 dark:bg-gray-800 rounded-xl pl-10 pr-4 py-3"
-                  placeholder="Buscar cliente..."
+                  placeholder="Buscar cliente, factura o pago..."
                 />
               </label>
             </div>
