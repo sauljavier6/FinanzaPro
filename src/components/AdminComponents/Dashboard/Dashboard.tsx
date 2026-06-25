@@ -104,6 +104,18 @@ export default function Dashboar() {
     (p / totalPorcentaje) * 100
   );
 
+  const tablaMensual = dataGrafica.meses.map((mes, i) => {
+    const ventas = dataGrafica.ventas[i] || 0;
+    const cobrado = dataGrafica.cobranzas[i] || 0;
+
+    return {
+      mes,
+      ventas,
+      cobrado,
+      porcentaje: ventas > 0 ? (cobrado / ventas) * 100 : 0
+    };
+  });
+
   return (
     <div className="flex overflow-hidden">
       <main className="flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark">
@@ -393,112 +405,140 @@ export default function Dashboar() {
             </div>
           </div>
 
-          {/* ================= FACTURAS ================= */}
-          <div className="bg-white dark:bg-[#161b2a] rounded-xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm overflow-hidden">
-            {/* Header */}
-            <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-[#e7ebf3] dark:border-gray-800 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-              <h3 className="text-base sm:text-lg font-bold">Tus facturas</h3>
+          {/*  */}
+          <div className="mt-8 bg-white dark:bg-slate-900 rounded-2xl border border-card-border dark:border-slate-800 shadow-sm overflow-hidden">
+            {/* HEADER */}
+            <div className="px-6 md:px-8 py-5 border-b border-card-border dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <h3 className="text-lg font-bold">Desempeño</h3>
             </div>
 
-            {/* Móvil – Cards */}
-            <div className="sm:hidden divide-y">
-              {invoices?.map((inv: Invoice) => {
-                const isPending = inv.balance > 0;
+            {/* ================= MOBILE CARDS ================= */}
+            <div className="block md:hidden divide-y divide-slate-100 dark:divide-slate-800">
+              {[...tablaMensual].reverse().map((item, i) => {
+                const porcentaje = item.ventas > 0
+                  ? (item.cobrado / item.ventas) * 100
+                  : 0;
+
                 return (
-                  <div key={inv.id} className="p-4 space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-xs text-[#4c669a]">Factura</span>
-                      <span
-                        className="font-bold truncate block min-w-0 max-w-[140px] sm:max-w-none"
-                        title={inv.tranid}
-                      >
-                        {inv.tranid}
+                  <div key={i} className="p-5 space-y-4">
+
+                    {/* MES */}
+                    <div>
+                      <p className="text-sm font-bold capitalize">
+                        {item.mes}
+                      </p>
+                    </div>
+
+                    {/* VENTAS */}
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-500">Ventas</span>
+                      <span className="font-bold">
+                        {formatoMoneda.format(item.ventas)}
                       </span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-xs text-[#4c669a]">Fecha</span>
-                      <span>
-                        {formatDate(inv.trandate)}
+
+                    {/* COBRADO */}
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-500">Cobrado</span>
+                      <span className="font-bold text-green-500">
+                        {formatoMoneda.format(item.cobrado)}
                       </span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-xs text-[#4c669a]">Monto</span>
-                      <span className="font-bold">{formatoMoneda.format(inv.amount || 0)}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span
-                        className={`text-xs font-bold px-2 py-1 rounded-full ${isPending
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-green-100 text-green-700"
-                          }`}
-                      >
-                        {isPending ? "Pendiente" : "Pagada"}
-                      </span>
-                      <button
-                        onClick={() => navigate(`/clientes/facturas/${inv.id}`)}
-                        className="p-2 rounded-lg bg-gray-100 dark:bg-gray-100 text-[#0d121b] dark:text-white hover:bg-[#cfd7e7] transition-all"
-                      >
-                        <span className="material-symbols-outlined text-[20px]">
-                          visibility
+
+                    {/* % RECUPERACIÓN */}
+                    <div>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className="text-slate-500">% Recuperación</span>
+                        <span className="font-bold">
+                          {porcentaje.toFixed(1)}%
                         </span>
-                      </button>
+                      </div>
+
+                      <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div
+                          className="bg-primary h-full transition-all"
+                          style={{ width: `${Math.min(porcentaje, 100)}%` }}
+                        />
+                      </div>
                     </div>
+
                   </div>
                 );
               })}
             </div>
 
-            {/* Desktop – Tabla */}
-            <div className="hidden sm:block overflow-x-auto">
+            {/* ================= DESKTOP TABLE ================= */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left">
-                <thead className="bg-gray-50 dark:bg-gray-800/50">
+                <thead className="bg-slate-50 dark:bg-slate-800/50">
                   <tr>
-                    <th className="px-6 py-4 text-xs font-bold">Factura</th>
-                    <th className="px-6 py-4 text-xs font-bold">Fecha</th>
-                    <th className="px-6 py-4 text-xs font-bold">Monto</th>
-                    <th className="px-6 py-4 text-xs font-bold">Estado</th>
-                    <th className="px-6 py-4 text-xs font-bold text-right">
-                      Acción
+                    <th className="px-8 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      Locacion
+                    </th>
+                    <th className="px-8 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      Monto facturado
+                    </th>
+                    <th className="px-8 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      Monto pagado
+                    </th>
+                    <th className="px-8 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      Eficiencia
                     </th>
                   </tr>
                 </thead>
-                <tbody>
-                  {invoices?.map((inv: Invoice) => {
-                    const isPending = inv.balance > 0;
-                    return (
-                      <tr key={inv.id} className="border-t">
-                        <td className="px-6 py-4 font-bold">{inv.tranid}</td>
-                        <td className="px-6 py-4">
-                          {formatDate(inv.trandate)}
-                        </td>
-                        <td className="px-6 py-4 font-bold">{formatoMoneda.format(inv.amount || 0)}</td>
-                        <td className="px-6 py-4">
-                          <span
-                            className={`text-xs font-bold px-2 py-1 rounded-full ${isPending
-                              ? "bg-yellow-100 text-yellow-700"
-                              : "bg-green-100 text-green-700"
-                              }`}
-                          >
-                            {isPending ? "Pendiente" : "Pagada"}
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                  {[...tablaMensual].reverse().map((item, i) => (
+                    <tr
+                      key={i}
+                      className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors"
+                    >
+
+                      {/* Mes */}
+                      <td className="px-8 py-4">
+                        <p className="text-sm font-bold capitalize">
+                          {item.mes}
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          Ventas vs Cobrado
+                        </p>
+                      </td>
+
+                      {/* Ventas */}
+                      <td className="px-8 py-4 text-sm font-bold">
+                        {formatoMoneda.format(item.ventas)}
+                      </td>
+
+                      {/* Cobrado */}
+                      <td className="px-8 py-4 text-sm font-bold text-green-500">
+                        {formatoMoneda.format(item.cobrado)}
+                      </td>
+
+                      {/* % recuperación */}
+                      <td className="px-8 py-4">
+                        <div className="flex items-center gap-2">
+
+                          <div className="w-24 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                            <div
+                              className="bg-primary h-full transition-all"
+                              style={{ width: `${Math.min(item.porcentaje, 100)}%` }}
+                            />
+                          </div>
+
+                          <span className="text-xs font-bold">
+                            {item.porcentaje.toFixed(1)}%
                           </span>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => navigate(`/clientes/facturas/${inv.id}`)}
-                            className="p-2 rounded-lg bg-gray-100 dark:bg-gray-100 text-[#0d121b] dark:text-white hover:bg-[#cfd7e7] transition-all"
-                          >
-                            <span className="material-symbols-outlined text-[20px]">
-                              visibility
-                            </span>
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
+
+                        </div>
+                      </td>
+
+                    </tr>
+                  ))}
+
                 </tbody>
               </table>
             </div>
           </div>
+
         </div>
       </main>
     </div>

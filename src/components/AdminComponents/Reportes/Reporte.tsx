@@ -371,7 +371,6 @@ export default function Reporte() {
                 </div>
 
               </div>
-
             </div>
 
             {/* =================== DONUT =================== */}
@@ -619,7 +618,6 @@ export default function Reporte() {
                 </tbody>
               </table>
             </div>
-
           </div>
 
         </div>
