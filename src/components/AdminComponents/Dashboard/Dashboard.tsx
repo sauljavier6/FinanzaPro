@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getReporteG } from "../../../api/AdminApis/reportesApi";
 import { formatoCompacto } from "../../../utils/formatoCompacto";
-import { formatDate } from "../../../utils/formatDate";
 
 export interface Invoice {
   entity: string;
@@ -20,7 +19,6 @@ export interface Invoice {
 }
 
 export default function Dashboar() {
-  const navigate = useNavigate();
 
   const { data } = useQuery({
     queryKey: ["dashboarAdmin"],
@@ -31,7 +29,6 @@ export default function Dashboar() {
   });
 
   console.log(data)
-  const invoices = data?.data ?? [];
 
   const [dataGrafica, setDataGrafica] = useState({
     meses: [],
