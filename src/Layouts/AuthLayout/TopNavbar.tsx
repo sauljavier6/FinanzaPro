@@ -10,7 +10,7 @@ export default function TopNavbar() {
           </span>
         </div>
         <h2 className="text-[#0d121b] dark:text-white text-base sm:text-lg font-bold leading-tight tracking-tight">
-          Sistema de Cobranza
+          Sistema Finanzas
         </h2>
       </div>
       <div className="flex items-center gap-3 sm:gap-4">

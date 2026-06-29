@@ -52,8 +52,8 @@ export default function Sidebar() {
           </span>
         </div>
         <div>
-          <h1 className="text-lg font-bold">CobranzaPro</h1>
-          <p className="text-xs text-[#4c669a] uppercase">Sistema Cobranza</p>
+          <h1 className="text-lg font-bold">FinanzasPro</h1>
+          <p className="text-xs text-[#4c669a] uppercase">Sistema Finanzas</p>
         </div>
       </div>
 

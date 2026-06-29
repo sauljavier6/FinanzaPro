@@ -5,7 +5,7 @@ export default function Footer() {
 
         {/* Mobile */}
         <div className="flex flex-col gap-2 text-center text-xs text-gray-400 sm:hidden">
-          <span>© 2026 Cobranza Integral S.A. de C.V.</span>
+          <span>© 2026 Finanzas Integral S.A. de C.V.</span>
           <div className="flex justify-center gap-3">
             <a href="#" className="hover:text-gray-600 transition">
               Términos
@@ -19,7 +19,7 @@ export default function Footer() {
 
         {/* Tablet */}
         <div className="hidden sm:flex lg:hidden flex-col gap-1 text-center text-xs text-gray-400">
-          <span>© 2026 Cobranza Integral S.A. de C.V.</span>
+          <span>© 2026 Finanzas Integral S.A. de C.V.</span>
           <span>
             Todos los derechos reservados •{" "}
             <a href="#" className="hover:text-gray-600 transition">
@@ -35,7 +35,7 @@ export default function Footer() {
         {/* Desktop */}
         <div className="hidden lg:flex justify-center text-xs text-gray-400">
           <span>
-            © 2026 Cobranza Integral S.A. de C.V. • Todos los derechos reservados •{" "}
+            © 2026 Finanzas Integral S.A. de C.V. • Todos los derechos reservados •{" "}
             <a href="#" className="hover:text-gray-600 transition">
               Términos y Condiciones
             </a>{" "}
