@@ -117,41 +117,49 @@ export default function TopNavbar({ onMenuClick }: TopNavbarProps) {
         </div>
 
         {/* RIGHT */}
-        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-          {/* Search mobile */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {/* Buscar móvil */}
           <button
             onClick={() => setMobileSearch(true)}
-            className="md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-800"
+            className="md:hidden w-10 h-10 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-gray-800"
           >
             <span className="material-symbols-outlined">search</span>
           </button>
 
+          {/* Notificaciones */}
           <button
             onClick={() => navigate("/clientes/notificaciones")}
-            className="relative p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-800"
+            className="relative w-10 h-10 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-gray-800"
           >
-            <span className="material-symbols-outlined">notifications</span>
-            <span className="absolute top-2 right-2 h-2 w-2 bg-red-500 rounded-full" />
+            <span className="material-symbols-outlined text-slate-500">
+              notifications
+            </span>
+
             {countnotificaciones?.total > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 flex items-center justify-center text-[10px] font-bold text-white bg-red-500 rounded-full">
+              <span className="absolute top-1.5 right-1.5 min-w-5 h-5 px-1 flex items-center justify-center text-[10px] font-bold text-white bg-red-500 rounded-full">
                 {countnotificaciones.total}
               </span>
             )}
           </button>
 
-          <div className="hidden sm:flex items-center gap-3">
-            <span className="material-symbols-outlined text-slate-400">
+          {/* Ayuda */}
+          <button
+            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-gray-800"
+          >
+            <span className="material-symbols-outlined text-slate-500">
               help_outline
             </span>
-            <button
-              onClick={() => navigate("/clientes/configuracion")}
-              className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-800"
-            >
-              <span className="material-symbols-outlined text-slate-400">
-                settings
-              </span>
-            </button>
-          </div>
+          </button>
+
+          {/* Configuración */}
+          <button
+            onClick={() => navigate("/clientes/configuracion")}
+            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-gray-800"
+          >
+            <span className="material-symbols-outlined text-slate-500">
+              settings
+            </span>
+          </button>
         </div>
       </div>
 
@@ -161,7 +169,6 @@ export default function TopNavbar({ onMenuClick }: TopNavbarProps) {
 
           {/* WRAPPER RELATIVE */}
           <div className="relative">
-
             <div className="flex items-center gap-6">
               <button onClick={() => setMobileSearch(false)}>
                 <span className="material-symbols-outlined">arrow_back</span>
