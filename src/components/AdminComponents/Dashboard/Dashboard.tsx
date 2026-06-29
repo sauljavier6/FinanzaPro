@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getdata } from "../../../api/AdminApis/homeApi";
 import { formatoMoneda } from "../../../utils/formatMoneda";
-import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getReporteG } from "../../../api/AdminApis/reportesApi";
 import { formatoCompacto } from "../../../utils/formatoCompacto";
