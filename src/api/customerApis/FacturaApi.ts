@@ -20,7 +20,7 @@ export const getPdfById = async (facturaId: any): Promise<Blob> => {
   let token = localStorage.getItem("accessToken");
 
   let response = await fetch(
-    `${import.meta.env.VITE_API_URL}/admin/factura/pdf/${facturaId}`,
+    `${import.meta.env.VITE_API_URL}/customer/facturas/pdf/${facturaId}`,
     {
       method: "GET",
       headers: {
