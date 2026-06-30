@@ -4,6 +4,7 @@ import { formatoMoneda } from "../../../utils/formatMoneda";
 import { getPaymentById } from "../../../api/AdminApis/pagosApi";
 import { Link, useNavigate } from "react-router-dom";
 import { useRoles } from "../../../hooks/useRoles";
+import { getTimelineConfig } from "../../../utils/timelineHelper";
 
 interface FacturaProps {
     paymentId: number;
@@ -45,6 +46,18 @@ export default function PagoDetails({ paymentId, onBack }: FacturaProps) {
     const customer = data?.data?.customer
     const info = data?.data
     const pagos = data?.data.payments
+    const timeline = data?.data?.timeline || [];
+
+    const timelineItems = [
+        ...(timeline || []),
+        {
+            id: "invoice-created",
+            timelineType: "INVOICE_CREATED",
+            title: "Factura Emitida",
+            description: "Generación inicial de la Factura",
+            createdAt: cabecera?.trandate,
+        },
+    ];
 
     console.log('info', info)
 
@@ -320,62 +333,37 @@ export default function PagoDetails({ paymentId, onBack }: FacturaProps) {
                                 </div>
 
                                 <div className="relative space-y-8 before:absolute before:top-0 before:left-5 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-primary before:via-gray-200 before:to-transparent">
-                                    <div className="relative flex items-start gap-4 min-w-0">
-                                        <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white shadow-md ring-4 ring-white dark:ring-gray-900 shrink-0">
-                                            <span className="material-symbols-outlined text-sm">mail</span>
-                                        </div>
+                                    {timelineItems.map((item: any, index: number) => {
+                                        const config = getTimelineConfig(item.timelineType);
 
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-gray-900 dark:text-white text-sm font-bold break-words">
-                                                Recordatorio enviado
-                                            </p>
-                                            <time className="block text-gray-400 text-[11px] uppercase tracking-wider">
-                                                Hoy, 09:45 AM
-                                            </time>
-                                            <p className="mt-1 text-gray-600 dark:text-gray-400 text-sm leading-relaxed break-words">
-                                                Correo electrónico automático de "Próximo Vencimiento" enviado al cliente.
-                                            </p>
-                                        </div>
-                                    </div>
+                                        return (
+                                            <div key={item.id || index} className="relative flex items-start gap-4 min-w-0">
+                                                <div
+                                                    className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-full ring-4 ring-white dark:ring-gray-900 shrink-0 ${config.circle}`}
+                                                >
+                                                    <span className="material-symbols-outlined text-sm">
+                                                        {config.icon}
+                                                    </span>
+                                                </div>
 
-                                    <div className="relative flex items-start gap-4 min-w-0">
-                                        <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-gray-800 border-2 border-primary text-primary shadow-sm ring-4 ring-white dark:ring-gray-900 shrink-0">
-                                            <span className="material-symbols-outlined text-sm">call</span>
-                                        </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-gray-900 dark:text-white text-sm font-bold break-words">
+                                                        {item.title}
+                                                    </p>
 
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-gray-900 dark:text-white text-sm font-bold break-words">
-                                                Llamada de Seguimiento
-                                            </p>
-                                            <time className="block text-gray-400 text-[11px] uppercase tracking-wider">
-                                                Ayer, 03:20 PM
-                                            </time>
-                                            <p className="mt-1 text-gray-600 dark:text-gray-400 text-sm leading-relaxed break-words">
-                                                Conversación con Roberto. Comenta que la tesorería liberará el pago el próximo viernes sin falta.
-                                            </p>
-                                            <div className="mt-2 px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs text-gray-500 italic inline-block break-words max-w-full">
-                                                "Promesa de pago para el 15/Dic"
+                                                    <time className="block text-gray-400 text-[11px] uppercase tracking-wider">
+                                                        {formatDate(item.createdAt)}
+                                                    </time>
+
+                                                    {item.description && (
+                                                        <p className="mt-1 text-gray-600 dark:text-gray-400 text-sm leading-relaxed break-words">
+                                                            {item.description}
+                                                        </p>
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="relative flex items-start gap-4 min-w-0">
-                                        <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-500 ring-4 ring-white dark:ring-gray-900 shrink-0">
-                                            <span className="material-symbols-outlined text-sm">receipt_long</span>
-                                        </div>
-
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-gray-900 dark:text-white text-sm font-bold break-words">
-                                                Factura Emitida
-                                            </p>
-                                            <time className="block text-gray-400 text-[11px] uppercase tracking-wider">
-                                                12 Nov, 2023
-                                            </time>
-                                            <p className="mt-1 text-gray-600 dark:text-gray-400 text-sm break-words">
-                                                Generación inicial del documento CFDI 4.0
-                                            </p>
-                                        </div>
-                                    </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
 
@@ -396,18 +384,18 @@ export default function PagoDetails({ paymentId, onBack }: FacturaProps) {
 
                                     <div className="flex justify-between items-center gap-3 border-b border-white/20 pb-3 min-w-0">
                                         <span className="text-xs sm:text-sm text-white/70 break-words">
-                                            
+
                                         </span>
                                         <span className="font-bold text-sm sm:text-base whitespace-nowrap">
-                                            
+
                                         </span>
                                     </div>
 
                                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 min-w-0">
                                         <span className="text-xs sm:text-sm text-white/70">
-                                            
+
                                         </span>
-                                        
+
                                     </div>
 
                                     {hasRole(1, 2) && (

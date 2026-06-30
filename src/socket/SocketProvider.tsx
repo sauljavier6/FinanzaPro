@@ -18,6 +18,14 @@ export default function SocketProvider({ children }: any) {
       queryClient.invalidateQueries({
         queryKey: ["notificacionesadmincount"],
       });
+
+      queryClient.invalidateQueries({
+        queryKey: ["notificacionescustomer"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["notificacionescustomercount"],
+      });
     };
 
     socket.on("notification:new", handleNotification);
@@ -30,7 +38,7 @@ export default function SocketProvider({ children }: any) {
       socket.off("notification:new", handleNotification);
       socket.off("connect");
     };
-  }, []);
+  }, [queryClient]);
 
   return <>{children}</>;
 }

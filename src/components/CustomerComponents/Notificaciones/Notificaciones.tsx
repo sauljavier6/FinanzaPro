@@ -30,7 +30,7 @@ export default function Notificaciones() {
   const [pageSize, setPageSize] = useState(10);
 
   const { data, isFetching } = useQuery({
-    queryKey: ["notificacionesadmin", page, pageSize],
+    queryKey: ["notificacionescustomer", page, pageSize],
     queryFn: () => getNotificaciones(page, pageSize),
     refetchOnWindowFocus: false,
     placeholderData: (prev) => prev,

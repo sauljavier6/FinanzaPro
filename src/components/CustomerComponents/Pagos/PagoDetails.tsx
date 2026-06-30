@@ -3,6 +3,7 @@ import { formatDate } from "../../../utils/formatDate";
 import { formatoMoneda } from "../../../utils/formatMoneda";
 import { Link, useNavigate } from "react-router-dom";
 import { getPaymentById } from "../../../api/customerApis/PagosApi";
+import { getTimelineConfig } from "../../../utils/timelineHelper";
 
 interface FacturaProps {
     paymentId: number;
@@ -43,7 +44,18 @@ export default function PagoDetails({ paymentId, onBack }: FacturaProps) {
     const customer = data?.data?.customer
     const info = data?.data
     const pagos = data?.data.payments
-    console.log('data', data)
+    const timeline = data?.data?.timeline || [];
+
+    const timelineItems = [
+        ...(timeline || []),
+        {
+            id: "invoice-created",
+            timelineType: "INVOICE_CREATED",
+            title: "Factura Emitida",
+            description: "Generación inicial de la Factura",
+            createdAt: cabecera?.trandate,
+        },
+    ];
 
     return (
         <div className="flex w-full max-w-full overflow-x-hidden">
@@ -296,73 +308,41 @@ export default function PagoDetails({ paymentId, onBack }: FacturaProps) {
 
                         <div className="xl:col-span-1 flex flex-col gap-4 sm:gap-6 min-w-0">
                             <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 sm:p-6 shadow-sm min-w-0 overflow-hidden">
-                                <div className="flex items-center gap-2 mb-6 min-w-0">
-                                    <span className="material-symbols-outlined text-primary shrink-0">
-                                        history_edu
-                                    </span>
-                                    <h3 className="text-gray-900 dark:text-white text-base sm:text-lg font-bold truncate">
-                                        Seguimiento Interno
-                                    </h3>
-                                </div>
+                                <div className="relative flex items-start gap-4 min-w-0">
+                                    {timelineItems.map((item: any, index: number) => {
+                                        const config = getTimelineConfig(item.timelineType);
 
-                                <div className="relative space-y-8 before:absolute before:top-0 before:left-5 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-primary before:via-gray-200 before:to-transparent">
-                                    <div className="relative flex items-start gap-4 min-w-0">
-                                        <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white shadow-md ring-4 ring-white dark:ring-gray-900 shrink-0">
-                                            <span className="material-symbols-outlined text-sm">mail</span>
-                                        </div>
+                                        return (
+                                            <div key={item.id || index} className="relative flex items-start gap-4 min-w-0">
+                                                <div
+                                                    className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-full ring-4 ring-white dark:ring-gray-900 shrink-0 ${config.circle}`}
+                                                >
+                                                    <span className="material-symbols-outlined text-sm">
+                                                        {config.icon}
+                                                    </span>
+                                                </div>
 
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-gray-900 dark:text-white text-sm font-bold break-words">
-                                                Recordatorio enviado
-                                            </p>
-                                            <time className="block text-gray-400 text-[11px] uppercase tracking-wider">
-                                                Hoy, 09:45 AM
-                                            </time>
-                                            <p className="mt-1 text-gray-600 dark:text-gray-400 text-sm leading-relaxed break-words">
-                                                Correo electrónico automático de "Próximo Vencimiento" enviado al cliente.
-                                            </p>
-                                        </div>
-                                    </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-gray-900 dark:text-white text-sm font-bold break-words">
+                                                        {item.title}
+                                                    </p>
 
-                                    <div className="relative flex items-start gap-4 min-w-0">
-                                        <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-gray-800 border-2 border-primary text-primary shadow-sm ring-4 ring-white dark:ring-gray-900 shrink-0">
-                                            <span className="material-symbols-outlined text-sm">call</span>
-                                        </div>
+                                                    <time className="block text-gray-400 text-[11px] uppercase tracking-wider">
+                                                        {formatDate(item.createdAt)}
+                                                    </time>
 
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-gray-900 dark:text-white text-sm font-bold break-words">
-                                                Llamada de Seguimiento
-                                            </p>
-                                            <time className="block text-gray-400 text-[11px] uppercase tracking-wider">
-                                                Ayer, 03:20 PM
-                                            </time>
-                                            <p className="mt-1 text-gray-600 dark:text-gray-400 text-sm leading-relaxed break-words">
-                                                Conversación con Roberto. Comenta que la tesorería liberará el pago el próximo viernes sin falta.
-                                            </p>
-                                            <div className="mt-2 px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs text-gray-500 italic inline-block break-words max-w-full">
-                                                "Promesa de pago para el 15/Dic"
+                                                    {item.description && (
+                                                        <p className="mt-1 text-gray-600 dark:text-gray-400 text-sm leading-relaxed break-words">
+                                                            {item.description}
+                                                        </p>
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="relative flex items-start gap-4 min-w-0">
-                                        <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-500 ring-4 ring-white dark:ring-gray-900 shrink-0">
-                                            <span className="material-symbols-outlined text-sm">receipt_long</span>
-                                        </div>
-
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-gray-900 dark:text-white text-sm font-bold break-words">
-                                                Factura Emitida
-                                            </p>
-                                            <time className="block text-gray-400 text-[11px] uppercase tracking-wider">
-                                                12 Nov, 2023
-                                            </time>
-                                            <p className="mt-1 text-gray-600 dark:text-gray-400 text-sm break-words">
-                                                Generación inicial del documento CFDI 4.0
-                                            </p>
-                                        </div>
-                                    </div>
+                                        );
+                                    })}
                                 </div>
+
+
                             </div>
                             <div className="bg-primary rounded-2xl p-5 sm:p-6 lg:p-7 text-white shadow-lg shadow-primary/20 w-full">
                                 <h4 className="text-base sm:text-lg lg:text-xl font-bold mb-4">
@@ -380,19 +360,18 @@ export default function PagoDetails({ paymentId, onBack }: FacturaProps) {
                                     </div>
                                     <div className="flex justify-between items-center border-b border-white/20 pb-3">
                                         <span className="text-xs sm:text-sm text-white/70">
-                                        
+
                                         </span>
                                         <span className="font-bold text-sm sm:text-base">
-                                            
+
                                         </span>
                                     </div>
                                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                                         <span className="text-xs sm:text-sm text-white/70">
-                                            
+
                                         </span>
                                     </div>
                                     <button className="w-full bg-white text-primary font-bold py-3 sm:py-3.5 rounded-xl hover:bg-gray-100 transition-all duration-200 flex items-center justify-center gap-2 mt-4 text-sm sm:text-base active:scale-[0.98]">
-                                        
                                     </button>
                                 </div>
                             </div>
