@@ -328,7 +328,7 @@ export default function Pagos({ onSuccess }: PagosProps) {
             {/* FOOTER */}
             <div className="px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-800/30 border-t border-[#e7ebf3] dark:border-gray-800 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between overflow-hidden">
               <p className="text-sm text-gray-400 break-words">
-                Mostrando {data?.payments?.length} de {data?.totalRecords} cliente(s)
+                Mostrando {data?.payments?.length} de {data?.totalRecords} Pago(s)
               </p>
 
               <div className="flex flex-wrap gap-1.5 justify-center sm:justify-end max-w-full overflow-hidden">

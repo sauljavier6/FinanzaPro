@@ -342,7 +342,7 @@ export default function Cuentas({ onAbrirFactura, onAbrirPago }: CuentasProps) {
 
             <div className="px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-800/30 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-gray-400">
-                Mostrando {movimientos.length} de {data?.total} movimiento(s)
+                Mostrando {movimientos.length} de {data?.total} Movimiento(s)
               </p>
 
               <div className="flex gap-2 justify-end">
