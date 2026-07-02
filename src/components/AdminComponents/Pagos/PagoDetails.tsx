@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { formatDate } from "../../../utils/formatDate";
 import { formatoMoneda } from "../../../utils/formatMoneda";
-import { getPaymentById } from "../../../api/AdminApis/pagosApi";
+import { getPagoPdfById, getPaymentById } from "../../../api/AdminApis/pagosApi";
 import { Link, useNavigate } from "react-router-dom";
 import { useRoles } from "../../../hooks/useRoles";
 import { getTimelineConfig } from "../../../utils/timelineHelper";
@@ -59,7 +59,71 @@ export default function PagoDetails({ paymentId, onBack }: FacturaProps) {
         },
     ];
 
-    console.log('info', info)
+
+    const getShareUrl = () => {
+        return `${window.location.origin}/admin/pagos/${paymentId}`;
+    };
+
+    const handlePrint = () => {
+        window.print();
+    };
+
+    const handleSendEmail = () => {
+        const email = customer?.email || "";
+        const subject = `Pago #${cabecera?.tranid || ""}`;
+
+        const body = `Hola ${customer?.fullname || customer?.companyname || ""},
+
+        Te comparto el pago #${cabecera?.tranid || ""}.
+
+        Total: ${formatoMoneda.format(cabecera?.total || 0)}
+        Monto pagado: ${formatoMoneda.format(cabecera?.foreignpaymentamountused || 0)}
+        Saldo pendiente: ${formatoMoneda.format(cabecera?.foreignpaymentamountunused || 0)}
+
+        Puedes revisarlo aquí:
+        ${getShareUrl()}
+        `;
+
+        window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    };
+
+    const handleShare = async () => {
+        const url = getShareUrl();
+
+        if (navigator.share) {
+            await navigator.share({
+                title: `Pago #${cabecera?.tranid || ""}`,
+                text: `Consulta el pago #${cabecera?.tranid || ""}`,
+                url,
+            });
+        } else {
+            await navigator.clipboard.writeText(url);
+            alert("Enlace copiado al portapapeles");
+        }
+    };
+
+    const handleDownload = async () => {
+        const idpdf = cabecera?.idpdf;
+
+        if (!idpdf) {
+            alert("Este pago no tiene PDF disponible");
+            return;
+        }
+
+        const blob = await getPagoPdfById(idpdf);
+        const url = window.URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `pago_${cabecera?.tranid || paymentId}.pdf`;
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        window.URL.revokeObjectURL(url);
+    };
+
 
     return (
         <div className="flex w-full max-w-full overflow-x-hidden">
@@ -102,37 +166,64 @@ export default function PagoDetails({ paymentId, onBack }: FacturaProps) {
                         </div>
                     </div>
 
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 py-3 border-y border-gray-200 dark:border-gray-800 my-4 min-w-0">
-                        <div className="grid grid-cols-1 sm:grid-cols-3 md:flex gap-2 w-full md:w-auto min-w-0">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 py-3 border-y border-gray-200 dark:border-gray-800 my-4">
+                        {/* Botones izquierda */}
+                        <div className="flex flex-wrap md:flex-nowrap gap-2 w-full md:w-auto">
                             <button
-                                className="min-w-0 md:min-w-[110px] p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg flex items-center justify-center gap-2"
+                                onClick={handlePrint}
+                                className="flex-1 md:flex-none min-w-[110px] p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg flex items-center justify-center gap-2"
                                 title="Imprimir"
                             >
                                 <span className="material-symbols-outlined">print</span>
-                                <span className="text-sm font-medium whitespace-nowrap">Imprimir</span>
+                                <span className="text-sm font-medium whitespace-nowrap">
+                                    Imprimir
+                                </span>
                             </button>
 
                             <button
-                                className="min-w-0 md:min-w-[110px] p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg flex items-center justify-center gap-2"
+                                onClick={handleSendEmail}
+                                className="flex-1 md:flex-none min-w-[110px] p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg flex items-center justify-center gap-2"
                                 title="Enviar por correo"
                             >
                                 <span className="material-symbols-outlined">mail</span>
-                                <span className="text-sm font-medium whitespace-nowrap">Enviar</span>
+                                <span className="text-sm font-medium whitespace-nowrap">
+                                    Enviar
+                                </span>
                             </button>
 
                             <button
-                                className="min-w-0 md:min-w-[110px] p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg flex items-center justify-center gap-2"
+                                onClick={handleShare}
+                                className="flex-1 md:flex-none min-w-[110px] p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg flex items-center justify-center gap-2"
                                 title="Compartir enlace"
                             >
                                 <span className="material-symbols-outlined">share</span>
-                                <span className="text-sm font-medium whitespace-nowrap">Compartir</span>
+                                <span className="text-sm font-medium whitespace-nowrap">
+                                    Compartir
+                                </span>
                             </button>
                         </div>
 
-                        <div className="w-full md:w-auto shrink-0">
-                            <button className="w-full md:w-auto shrink-0 flex items-center justify-center rounded-lg h-10 bg-primary text-white gap-2 text-sm font-bold px-4 hover:bg-primary/90 transition-colors">
-                                <span className="material-symbols-outlined text-[20px]">download</span>
-                                <span className="whitespace-nowrap">Descargar</span>
+                        {/* Botón derecha */}
+                        <div className="w-full lg:w-fit">
+                            <button
+                                disabled={!cabecera?.idpdf || cabecera?.idpdf === ""}
+                                onClick={handleDownload}
+                                className={`
+                                w-full md:w-auto shrink-0 flex items-center justify-center 
+                                rounded-lg h-10 gap-2 text-sm font-bold px-4 transition-colors
+                                ${!cabecera?.idpdf || cabecera?.idpdf === ""
+                                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                        : "bg-primary text-white hover:bg-gray-300 dark:hover:bg-gray-700"
+                                    }
+                                `}
+                            >
+                                <span className="material-symbols-outlined text-[20px]">
+                                    download
+                                </span>
+
+                                <span className="whitespace-nowrap">
+                                    Descargar
+                                </span>
                             </button>
                         </div>
                     </div>

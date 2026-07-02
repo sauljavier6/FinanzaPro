@@ -97,19 +97,6 @@ export default function Pagos({ onSuccess }: PagosProps) {
             <div className="bg-white dark:bg-[#161b2a] p-4 lg:p-6 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-bold text-[#4c669a] uppercase tracking-wider">
-                  Total Recaudado (Mes)
-                </span>
-                <span className="p-2 bg-green-50 dark:bg-green-900/20 text-green-600 rounded-lg material-symbols-outlined">
-                  trending_up
-                </span>
-              </div>
-              <div className="flex items-baseline gap-2">
-                <p className="text-xl md:text-2xl font-extrabold">{formatoMoneda.format(info?.data?.totalRecaudadoMes || 0)}</p>
-              </div>
-            </div>
-            <div className="bg-white dark:bg-[#161b2a] p-4 lg:p-6 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-[#4c669a] uppercase tracking-wider">
                   Total Facturas del mes
                 </span>
                 <span className="p-2 bg-orange-50 dark:bg-orange-900/20 text-orange-600 rounded-lg material-symbols-outlined">
@@ -118,6 +105,19 @@ export default function Pagos({ onSuccess }: PagosProps) {
               </div>
               <div className="flex items-baseline gap-2">
                 <p className="text-xl md:text-2xl font-extrabold">{formatoMoneda.format(info?.data?.totalFacturas || 0)}</p>
+              </div>
+            </div>
+            <div className="bg-white dark:bg-[#161b2a] p-4 lg:p-6 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-[#4c669a] uppercase tracking-wider">
+                  Total Recaudado (Mes)
+                </span>
+                <span className="p-2 bg-green-50 dark:bg-green-900/20 text-green-600 rounded-lg material-symbols-outlined">
+                  trending_up
+                </span>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <p className="text-xl md:text-2xl font-extrabold">{formatoMoneda.format(info?.data?.totalRecaudadoMes || 0)}</p>
               </div>
             </div>
             <div className="bg-white dark:bg-[#161b2a] p-4 lg:p-6 rounded-2xl border border-[#e7ebf3] dark:border-gray-800 shadow-sm">
