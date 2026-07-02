@@ -9,57 +9,6 @@ export const getDataProfile = async () => {
   return res;
 };
 
-export const getContactById = async (id: number) => {
-  const res = await apiRequest(`/customer/profile/contact/${id}`, {
-    method: "GET",
-  });
-
-  setAccessToken(res.accessToken);
-  return res;
-};
-
-type Contact = {
-  fullnombre: string;
-  nombre: string;
-  correo: string;
-  telefono: string;
-};
-
-export const saveContact = async (data: Contact) => {
-  const res = await apiRequest(`/customer/profile/contact`, {
-    method: "POST",
-    body: JSON.stringify(data),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  setAccessToken(res.accessToken);
-  return res;
-};
-
-export const updateContact = async (id: number, data: Contact) => {
-  const res = await apiRequest(`/customer/profile/contact/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(data),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  setAccessToken(res.accessToken);
-  return res;
-};
-
-export const deleteContact = async (id: number) => {
-  const res = await apiRequest(`/customer/profile/contact/${id}`, {
-    method: "DELETE",
-  });
-
-  setAccessToken(res.accessToken);
-  return res;
-};
-
 type Profile = {
   rfc: string;
   nombre: string;
@@ -68,7 +17,7 @@ type Profile = {
 };
 
 export const updateProfile = async (data: Profile) => {
-  const res = await apiRequest(`/customer/profile`, {
+  const res = await apiRequest(`/admin/profile`, {
     method: "PUT",
     body: JSON.stringify(data),
     headers: {
@@ -138,7 +87,7 @@ export const updateImageProfile = async (
     );
 
     res = await fetch(
-      `${import.meta.env.VITE_API_URL}/customer/profile`,
+      `${import.meta.env.VITE_API_URL}/admin/profile`,
       {
         method: "POST",
         body: formData,
