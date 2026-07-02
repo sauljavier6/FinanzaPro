@@ -98,7 +98,7 @@ export const updateImageProfile = async (
   );
 
   let res = await fetch(
-    `${import.meta.env.VITE_API_URL}/customer/profile`,
+    `${import.meta.env.VITE_API_URL}/admin/profile`,
     {
       method: "POST",
       body: formData,

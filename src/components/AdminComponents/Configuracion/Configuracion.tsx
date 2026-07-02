@@ -24,7 +24,6 @@ export default function Configuracion() {
     placeholderData: (prev) => prev,
   });
 
-  console.log('data', data)
 
   const datacustomer = data?.data?.customer;
   const datauser = data?.data?.user;
